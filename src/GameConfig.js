@@ -3,6 +3,7 @@ import BtnStartGame from "./script/BtnStartGame"
 import GameControl from "./script/GameControl"
 import GameMain from "./script/GameMain"
 import Snake from "./script/Snake"
+import Food from "./script/Food"
 
 export default class GameConfig {
     static init() {
@@ -12,6 +13,7 @@ export default class GameConfig {
 		reg("script/GameControl.js",GameControl);
 		reg("script/GameMain.js",GameMain);
 		reg("script/Snake.js",Snake);
+		reg("script/Food.js",Food);
     }
 }
 GameConfig.width = 1136;

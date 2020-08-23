@@ -10,10 +10,23 @@ export default class Snake extends Laya.Script {
 
         let direction = '右';
 
+        /** @prop {name:wall, tips:"墙", type:Node, default:null}*/
+        let wall;
+
+        /** @prop {name:food, tips:"食物", type:Node, default:null}*/
+        let food;
+        Laya.timer.frameLoop(60,this,this.move)
+        
+    }
+
+    positionChange(){
+        this.owner.x = Math.random()*this.owner.parent.width.toFixed(0);
+        this.owner.y = Math.random()*this.owner.parent.height.toFixed(0);
     }
     
     onEnable() {
-        this.step = 1;
+        this.positionChange()
+        this.step = 10;
         this.direction = '右'
         console.log(this.owner,this.snake)
     }
@@ -28,13 +41,13 @@ export default class Snake extends Laya.Script {
         })
     }
 
-    onUpdate(){
+    move(){
         switch (this.direction) {
             case '右':
                 this.snake.x += this.step;
                 // console.log(this.snake.x)
-                if(this.snake.x>=this.snake.scene.width-this.snake.width/2){
-                    this.snake.x = this.snake.scene.width-this.snake.width/2;
+                if(this.snake.x>=this.wall.width-this.snake.width/2){
+                    this.snake.x = this.wall.width-this.snake.width/2;
                     this.owner.event('dead','撞到右墙了!');
                 }
                 break;
@@ -57,8 +70,8 @@ export default class Snake extends Laya.Script {
             case '下':
                 this.snake.y += this.step;
                 // console.log(this.snake.y)
-                if(this.snake.y>=this.snake.scene.height-this.snake.height/2){
-                    this.snake.y = this.snake.scene.height-this.snake.height/2;
+                if(this.snake.y>=this.wall.height-this.snake.height/2){
+                    this.snake.y = this.wall.height-this.snake.height/2;
                     this.owner.event('dead','撞到下墙了!');
                 }
                 break;
@@ -66,6 +79,10 @@ export default class Snake extends Laya.Script {
             default:
                 break;
         }
+    }
+
+    onUpdate(){
+        
     }
 
     onKeyUp(e){
