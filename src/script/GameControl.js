@@ -1,33 +1,48 @@
 import Snake from './Snake'
-export default class GameControl extends Laya.Script {
+import BaseScript from './BaseScript'
+export default class GameControl extends BaseScript {
 
     constructor() { 
         super(); 
-        /** @prop {name:intType, tips:"整数类型示例", type:Int, default:1000}*/
-        let intType = 1000;
-        /** @prop {name:numType, tips:"数字类型示例", type:Number, default:1000}*/
-        let numType = 1000;
-        /** @prop {name:strType, tips:"字符串类型示例", type:String, default:"hello laya"}*/
-        let strType = "hello laya";
-        /** @prop {name:boolType, tips:"布尔类型示例", type:Bool, default:true}*/
-        let boolType = true;
-        // 更多参数说明请访问: https://ldc2.layabox.com/doc/?nav=zh-as-2-4-0
+        /** @prop {name:logo, tips:"LOGO", type:Node, default:null}*/
+        let logo;
+        /** @prop {name:btn, tips:"开始按钮", type:Node, default:null}*/
+        let btn;
     }
     onAwake(){
-        console.log(this.owner)
-        let text = new Laya.Text();
-        text.name = '游戏名称'
-        text.text = "贪吃蛇"
-        text.fontSize = 20;
-        text.color = '#c00000';
-        text.x = 0;
-        text.y = 0;
-        let startBtn = this.owner.getChildByName("startBtn")
-        this.owner.addChild(text)
+        console.log(this)
     }
     onEnable() {
-        // let nameText = this.owner.getChildByName("游戏名称")
-        // this.owner.removeChild(nameText)
+        
+        let text = this.addGameNameText();
+        this.btn.disabled=true;
+        let timeline = Laya.TimeLine.from(this.logo,{x:0,y:this.logo.y},1000,null);
+        timeline.to(this.btn,{alpha:1},1000,null)
+        timeline.to(text,{alpha:1},1000,null)
+        timeline.play(0)
+        timeline.on(Laya.Event.COMPLETE,this,()=>{
+            console.log('动画播放完毕!')
+            this.btn.disabled=false;
+            timeline.destroy()
+        })
+        this.timeline = timeline;
+    }
+
+    addGameNameText(){
+        let text = new Laya.Text();
+        console.log(this)
+        text.text = this.gameName;
+        text.alpha = 0;
+        text.fontSize = 20;
+        text.color = '#c00000';
+        text.x = 640/2;
+        text.y = 14;
+        this.owner.addChild(text);
+        return text;
+    }
+
+    onClick(){
+        this.timeline.gotoTime(3000)
     }
 
     onDisable() {
