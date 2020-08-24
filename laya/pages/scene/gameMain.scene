@@ -1,12 +1,12 @@
 {
     "x":0,
     "type":"Scene",
-    "selectedBox":13,
-    "selecteID":24,
+    "selectedBox":15,
+    "selecteID":35,
     "searchKey":"Scene,game_scene",
     "props":{"width":960,"sceneColor":"#000000","name":"game_scene","height":540,"autoDestroyAtClosed":true},
     "nodeParent":-1,
-    "maxID":41,
+    "maxID":47,
     "label":"game_scene",
     "isOpen":true,
     "isDirectory":true,
@@ -79,13 +79,14 @@
                     "props":{"y":379,"x":235,"width":10,"name":"sprite_snake","height":10},
                     "nodeParent":13,
                     "label":"sprite_snake",
-                    "isOpen":false,
+                    "isOpen":true,
                     "isDirectory":true,
                     "isAniNode":true,
                     "hasChild":true,
                     "compId":6,
                     "child":[
                         {
+                            "x":45,
                             "type":"Circle",
                             "searchKey":"Circle",
                             "props":{"y":5,"x":5,"radius":5,"lineWidth":1,"fillColor":"#ff0000"},
@@ -99,6 +100,7 @@
                                 ]
                         },
                         {
+                            "x":45,
                             "type":"RigidBody",
                             "switchAble":true,
                             "searchKey":"RigidBody",
@@ -114,13 +116,14 @@
                                 ]
                         },
                         {
+                            "x":45,
                             "type":"BoxCollider",
                             "switchAble":true,
-                            "searchKey":"BoxCollider",
+                            "searchKey":"BoxCollider,collider_snake",
                             "removeAble":true,
-                            "props":{"width":10,"height":10},
+                            "props":{"width":10,"name":"collider_snake","height":10},
                             "nodeParent":6,
-                            "label":"BoxCollider",
+                            "label":"collider_snake",
                             "isDirectory":false,
                             "isAniNode":true,
                             "hasChild":false,
@@ -129,12 +132,13 @@
                                 ]
                         },
                         {
+                            "x":45,
                             "type":"Script",
                             "switchAble":true,
                             "source":"src/script/Snake.js",
                             "searchKey":"Script,Snake",
                             "removeAble":true,
-                            "props":{"y":-44,"x":-2,"wall":"@node:13","snake":"@node:6","food":"@node:15","direction":"左"},
+                            "props":{"y":-44,"x":-2,"wall":"@node:13","snake":"@node:6","rigid":"@node:31","food":"@node:15","direction":"左"},
                             "nodeParent":6,
                             "label":"Snake",
                             "isDirectory":false,
@@ -152,13 +156,14 @@
                     "props":{"y":7,"x":0,"width":10,"name":"sprite_food","height":10},
                     "nodeParent":13,
                     "label":"sprite_food",
-                    "isOpen":false,
+                    "isOpen":true,
                     "isDirectory":true,
                     "isAniNode":true,
                     "hasChild":true,
                     "compId":15,
                     "child":[
                         {
+                            "x":45,
                             "type":"Circle",
                             "searchKey":"Circle,circle_food",
                             "props":{"y":5,"x":5,"radius":5,"name":"circle_food","lineWidth":1,"fillColor":"#bea4a3"},
@@ -172,11 +177,12 @@
                                 ]
                         },
                         {
+                            "x":45,
                             "type":"RigidBody",
                             "switchAble":true,
                             "searchKey":"RigidBody",
                             "removeAble":true,
-                            "props":{"y":1,"x":11,"width":1,"type":"kinematic","pivotY":1,"pivotX":11,"height":1},
+                            "props":{"y":1,"x":11,"width":1,"type":"static","pivotY":1,"pivotX":11,"height":1},
                             "nodeParent":15,
                             "label":"RigidBody",
                             "isDirectory":false,
@@ -187,13 +193,14 @@
                                 ]
                         },
                         {
+                            "x":45,
                             "type":"BoxCollider",
                             "switchAble":true,
-                            "searchKey":"BoxCollider",
+                            "searchKey":"BoxCollider,collider_food",
                             "removeAble":true,
-                            "props":{"width":10,"height":10},
+                            "props":{"width":10,"name":"collider_food","height":10},
                             "nodeParent":15,
-                            "label":"BoxCollider",
+                            "label":"collider_food",
                             "isDirectory":false,
                             "isAniNode":true,
                             "hasChild":false,
@@ -202,6 +209,7 @@
                                 ]
                         },
                         {
+                            "x":45,
                             "type":"Script",
                             "switchAble":true,
                             "source":"src/script/Food.js",
@@ -220,22 +228,6 @@
                 },
                 {
                     "x":30,
-                    "type":"RigidBody",
-                    "switchAble":true,
-                    "searchKey":"RigidBody",
-                    "removeAble":true,
-                    "props":{"type":"static","gravityScale":0.1},
-                    "nodeParent":13,
-                    "label":"RigidBody",
-                    "isDirectory":false,
-                    "isAniNode":true,
-                    "hasChild":false,
-                    "compId":23,
-                    "child":[
-                        ]
-                },
-                {
-                    "x":30,
                     "type":"Widget",
                     "switchAble":true,
                     "searchKey":"Widget",
@@ -247,6 +239,38 @@
                     "isAniNode":true,
                     "hasChild":false,
                     "compId":40,
+                    "child":[
+                        ]
+                },
+                {
+                    "x":30,
+                    "type":"ChainCollider",
+                    "switchAble":true,
+                    "searchKey":"ChainCollider,collider_wall",
+                    "removeAble":true,
+                    "props":{"y":-110,"x":-80,"points":"1040,110,1040,630,80,630,80,110,1040,110","name":"collider_wall"},
+                    "nodeParent":13,
+                    "label":"collider_wall",
+                    "isDirectory":false,
+                    "isAniNode":true,
+                    "hasChild":false,
+                    "compId":46,
+                    "child":[
+                        ]
+                },
+                {
+                    "x":30,
+                    "type":"RigidBody",
+                    "switchAble":true,
+                    "searchKey":"RigidBody",
+                    "removeAble":true,
+                    "props":{"y":2,"x":0,"type":"static"},
+                    "nodeParent":13,
+                    "label":"RigidBody",
+                    "isDirectory":false,
+                    "isAniNode":true,
+                    "hasChild":false,
+                    "compId":43,
                     "child":[
                         ]
                 }]
