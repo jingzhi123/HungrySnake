@@ -4,6 +4,7 @@ import GameControl from "./script/GameControl"
 import GameMain from "./script/GameMain"
 import Snake from "./script/Snake"
 import Food from "./script/Food"
+import ScoreControl from "./script/ScoreControl"
 
 export default class GameConfig {
     static init() {
@@ -14,11 +15,12 @@ export default class GameConfig {
 		reg("script/GameMain.js",GameMain);
 		reg("script/Snake.js",Snake);
 		reg("script/Food.js",Food);
+		reg("script/ScoreControl.js",ScoreControl);
     }
 }
-GameConfig.width = 1136;
-GameConfig.height = 1136;
-GameConfig.scaleMode ="fixedwidth";
+GameConfig.width = 960;
+GameConfig.height = 540;
+GameConfig.scaleMode ="fixedheight";
 GameConfig.screenMode = "none";
 GameConfig.alignV = "top";
 GameConfig.alignH = "left";
@@ -26,7 +28,7 @@ GameConfig.startScene = "scene/gameMain.scene";
 GameConfig.sceneRoot = "";
 GameConfig.debug = false;
 GameConfig.stat = false;
-GameConfig.physicsDebug = false;
+GameConfig.physicsDebug = true;
 GameConfig.exportSceneToJson = true;
 
 GameConfig.init();

@@ -11,8 +11,8 @@ export default class BtnStartGame extends BaseScript {
     }
     
     onEnable() {
-        //this.btn = this.owner;
-        console.log(this.btn)
+        BaseScript.progressBar = this.progressBar;
+        console.log('进度:'+this.progressBar.value)
         
         //btn.clickHandler = Laya.Handler.create(this,this.onStartBtnClick,null,false)
     }
@@ -37,21 +37,13 @@ export default class BtnStartGame extends BaseScript {
             this.progressBar.value = num;
             if(num==1){
                 setTimeout(() => {
-                    this.onLoadComplete();
+                    //加载场景
+                    Laya.Scene.open('scene/gameMain.scene')
+
                 }, 500);
             }
         }),Laya.Loader.SOUND)
 
-    }
-
-    onLoadComplete(){
-        //播放bgm
-        BaseScript.bgm = Laya.SoundManager.playSound("sound/THUNDER LANDING.mp3",1,Laya.Handler.create(this,()=>{
-            console.log('播放完毕')
-        }))
-        
-        //加载场景
-        Laya.Scene.open('scene/gameMain.scene')
     }
 
     onDisable() {

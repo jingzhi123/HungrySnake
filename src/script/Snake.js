@@ -5,18 +5,26 @@ export default class Snake extends Laya.Script {
         /** @prop {name:snake, tips:"蛇", type:Node, default:null}*/
         let snake;
 
-        /** @prop {name:step, tips:"速度", type:Number, default:0.01}*/
-        let step = 0.01;
-
-        let direction = '右';
-
         /** @prop {name:wall, tips:"墙", type:Node, default:null}*/
         let wall;
 
         /** @prop {name:food, tips:"食物", type:Node, default:null}*/
         let food;
-        Laya.timer.frameLoop(60,this,this.move)
+
+        /** @prop {name:step, tips:"步长", type:Number, default:10}*/
+        this.step = 10;
+
+        /** @prop {name:direction, tips:"方向", type:String, default:"右"}*/
+        this.direction = '右';
         
+        /** @prop {name:frame, tips:"速率(刷新率)", type:Number, default:20}*/
+        this.frame = 20;
+        
+    }
+
+    onAwake(){
+        this.positionChange()
+        Laya.timer.frameLoop(this.frame,this,this.move)
     }
 
     positionChange(){
@@ -25,10 +33,11 @@ export default class Snake extends Laya.Script {
     }
     
     onEnable() {
-        this.positionChange()
-        this.step = 10;
-        this.direction = '右'
-        console.log(this.owner,this.snake)
+        
+    }
+
+    onTriggerEnter(other,self,contact){
+        console.log(other,self,contact);
     }
 
     onStart(){
@@ -86,7 +95,10 @@ export default class Snake extends Laya.Script {
     }
 
     onKeyUp(e){
-        console.log(e)
+        if(this.timer){
+            clearTimeout(this.timer)
+            this.timer = null;
+        }
         switch (e.keyCode) {
             case 37:
                 this.direction = '左'
@@ -104,6 +116,11 @@ export default class Snake extends Laya.Script {
             default:
                 break;
         }
+        this.move();
+        Laya.timer.pause();
+        this.timer = setTimeout(()=>{
+            Laya.timer.resume()
+        },Laya.timer.delta*this.frame)
     }
     
     onDisable() {

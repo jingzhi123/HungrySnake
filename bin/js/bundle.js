@@ -2,13 +2,21 @@
     'use strict';
 
     class BaseScript extends Laya.Script {
-
+        
         constructor() { 
             super(); 
+            let eventDispatcher;
             /** @prop {name:gameName, tips:"游戏名称", type:String, default:贪吃蛇}*/
             let gameName = '贪吃蛇';
             
             let bgm;
+        }
+
+        getEventDispatcher(){
+            if(this.eventDispatcher==null){
+                this.eventDispatcher = new Laya.EventDispatcher();
+            }
+            return this.eventDispatcher;
         }
         
         onEnable() {
@@ -30,8 +38,8 @@
         }
         
         onEnable() {
-            //this.btn = this.owner;
-            console.log(this.btn);
+            BaseScript.progressBar = this.progressBar;
+            console.log('进度:'+this.progressBar.value);
             
             //btn.clickHandler = Laya.Handler.create(this,this.onStartBtnClick,null,false)
         }
@@ -56,21 +64,13 @@
                 this.progressBar.value = num;
                 if(num==1){
                     setTimeout(() => {
-                        this.onLoadComplete();
+                        //加载场景
+                        Laya.Scene.open('scene/gameMain.scene');
+
                     }, 500);
                 }
             }),Laya.Loader.SOUND);
 
-        }
-
-        onLoadComplete(){
-            //播放bgm
-            BaseScript.bgm = Laya.SoundManager.playSound("sound/THUNDER LANDING.mp3",1,Laya.Handler.create(this,()=>{
-                console.log('播放完毕');
-            }));
-            
-            //加载场景
-            Laya.Scene.open('scene/gameMain.scene');
         }
 
         onDisable() {
@@ -84,18 +84,26 @@
             /** @prop {name:snake, tips:"蛇", type:Node, default:null}*/
             let snake;
 
-            /** @prop {name:step, tips:"速度", type:Number, default:0.01}*/
-            let step = 0.01;
-
-            let direction = '右';
-
             /** @prop {name:wall, tips:"墙", type:Node, default:null}*/
             let wall;
 
             /** @prop {name:food, tips:"食物", type:Node, default:null}*/
             let food;
-            Laya.timer.frameLoop(60,this,this.move);
+
+            /** @prop {name:step, tips:"步长", type:Number, default:10}*/
+            this.step = 10;
+
+            /** @prop {name:direction, tips:"方向", type:String, default:"右"}*/
+            this.direction = '右';
             
+            /** @prop {name:frame, tips:"速率(刷新率)", type:Number, default:20}*/
+            this.frame = 20;
+            
+        }
+
+        onAwake(){
+            this.positionChange();
+            Laya.timer.frameLoop(this.frame,this,this.move);
         }
 
         positionChange(){
@@ -104,10 +112,11 @@
         }
         
         onEnable() {
-            this.positionChange();
-            this.step = 10;
-            this.direction = '右';
-            console.log(this.owner,this.snake);
+            
+        }
+
+        onTriggerEnter(other,self,contact){
+            console.log(other,self,contact);
         }
 
         onStart(){
@@ -165,7 +174,10 @@
         }
 
         onKeyUp(e){
-            console.log(e);
+            if(this.timer){
+                clearTimeout(this.timer);
+                this.timer = null;
+            }
             switch (e.keyCode) {
                 case 37:
                     this.direction = '左';
@@ -183,6 +195,11 @@
                 default:
                     break;
             }
+            this.move();
+            Laya.timer.pause();
+            this.timer = setTimeout(()=>{
+                Laya.timer.resume();
+            },Laya.timer.delta*this.frame);
         }
         
         onDisable() {
@@ -197,41 +214,32 @@
             let logo;
             /** @prop {name:btn, tips:"开始按钮", type:Node, default:null}*/
             let btn;
+            /** @prop {name:gameText, tips:"游戏标题", type:Node, default:null}*/
+            let gameText;
         }
         onAwake(){
             console.log(this);
         }
         onEnable() {
             
-            let text = this.addGameNameText();
             this.btn.disabled=true;
             let timeline = Laya.TimeLine.from(this.logo,{x:0,y:this.logo.y},1000,null);
             timeline.to(this.btn,{alpha:1},1000,null);
-            timeline.to(text,{alpha:1},1000,null);
-            timeline.play(0);
+            timeline.to(this.gameText,{alpha:1},1000,null,1000);
+            timeline.play();
             timeline.on(Laya.Event.COMPLETE,this,()=>{
                 console.log('动画播放完毕!');
                 this.btn.disabled=false;
                 timeline.destroy();
+                this.timeline=null;
             });
             this.timeline = timeline;
         }
 
-        addGameNameText(){
-            let text = new Laya.Text();
-            console.log(this);
-            text.text = this.gameName;
-            text.alpha = 0;
-            text.fontSize = 20;
-            text.color = '#c00000';
-            text.x = 640/2;
-            text.y = 14;
-            this.owner.addChild(text);
-            return text;
-        }
-
         onClick(){
-            this.timeline.gotoTime(3000);
+            if(this.timeline){
+                this.timeline.gotoTime(4000);
+            }
         }
 
         onDisable() {
@@ -243,17 +251,6 @@
             box.pos(Math.random() * (Laya.stage.width - 100), -100);
             this._gameBox.addChild(box);
         }
-
-        onKeyUp(e) {
-            //停止事件冒泡，提高性能，当然也可以不要
-            e.stopPropagation();
-            //舞台被点击后，使用对象池创建子弹
-            // let snake = Laya.Pool.getItemByCreateFun("snake", this.snake.create, this.snake);
-            var snake = Laya.Pool.getItemByClass('snanke',Snake);
-            console.log(snake);
-            //snake.pos(Laya.stage.mouseX, Laya.stage.mouseY);
-            this._bg.addChild(snake);
-        }
     }
 
     class GameMain extends BaseScript {
@@ -263,32 +260,34 @@
             /** @prop {name:returnBtn, tips:"返回按钮", type:Node, default:null}*/
             let returnBtn;
         }
-        onAwake(){
-            // this.progressBar.visible = true;
-            // let load = Laya.loader.load('sound/THUNDER LANDING.mp3',Laya.Handler.create(this,(data)=>{
-            //     console.log(data)
-            // }),Laya.Handler.create(this,(num)=>{
-            //     console.log(num)
-            //     this.progressBar.value = num;
-            //     if(num==1){
-            //         this.onLoadComplete()
-            //     }
-            // }),Laya.Loader.SOUND)
-        }
-        
-        onEnable() {
-            
+
+        onStart() {
+            console.log('start');
+            this.onLoadComplete();
+
             this.returnBtn.clickHandler = Laya.Handler.create(this,(e)=>{
-                BaseScript.bgm.stop();
-                this.destroy();
                 Laya.Scene.open('init.scene');
             });
         }
-
-        onStart(){
+        
+        onLoadComplete(){
+            //播放bgm
+            this.bgm = Laya.SoundManager.playSound("sound/THUNDER LANDING.mp3",1,Laya.Handler.create(this,()=>{
+                console.log('播放完毕');
+            }));
+            
+            
+        }
+        onDestroy(){
+            console.log('destory');
+            let bgm = this.bgm;
+            if(bgm){
+                bgm.stop();
+            }
         }
 
         onDisable() {
+            console.log('disabled');
         }
     }
 
@@ -296,18 +295,63 @@
 
         constructor() { 
             super(); 
+            /** @prop {name:scoreText, tips:"分数Text", type:Node, default:null}*/
+            let scoreText;
             
         }
         
         positionChange(){
+            // this.owner.destroy()
             this.owner.x = Math.random()*this.owner.parent.width.toFixed(0);
             this.owner.y = Math.random()*this.owner.parent.height.toFixed(0);
+        }
+
+        onTriggerEnter(other,self,contact){
+            this.positionChange();
+            let s = this.scoreText.getComponent(Laya.Script);
+            s.plusScore();
         }
 
         onEnable() {
             this.positionChange();
             console.log(this.owner);
             
+        }
+
+        onDisable() {
+        }
+    }
+
+    class ScoreControl extends Laya.Script {
+
+        constructor() { 
+            super(); 
+            /** @prop {name:score, tips:"分数", type:Number, default:0}*/
+            this.score = 0;
+            /** @prop {name:scoreText, tips:"分数Text", type:Node, default:null}*/
+            let scoreText;
+        }
+
+        changeScore(score){
+            this.score = score;
+            this.scoreText.text = this.score;
+        }
+
+        plusScore(score){
+            score?this.score+=score:this.score++;
+            this.scoreText.text = this.score;
+        }
+
+        minusScore(score){
+            score?this.score+=score:this.score++;
+            this.scoreText.text = this.score;
+        }
+
+        onAwake(){
+            this.changeScore(this.score);
+        }
+
+        onEnable() {
         }
 
         onDisable() {
@@ -325,11 +369,12 @@
     		reg("script/GameMain.js",GameMain);
     		reg("script/Snake.js",Snake);
     		reg("script/Food.js",Food);
+    		reg("script/ScoreControl.js",ScoreControl);
         }
     }
-    GameConfig.width = 1136;
-    GameConfig.height = 1136;
-    GameConfig.scaleMode ="fixedwidth";
+    GameConfig.width = 960;
+    GameConfig.height = 540;
+    GameConfig.scaleMode ="fixedheight";
     GameConfig.screenMode = "none";
     GameConfig.alignV = "top";
     GameConfig.alignH = "left";
@@ -337,7 +382,7 @@
     GameConfig.sceneRoot = "";
     GameConfig.debug = false;
     GameConfig.stat = false;
-    GameConfig.physicsDebug = false;
+    GameConfig.physicsDebug = true;
     GameConfig.exportSceneToJson = true;
 
     GameConfig.init();

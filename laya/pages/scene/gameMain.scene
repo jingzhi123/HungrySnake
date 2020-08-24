@@ -1,12 +1,12 @@
 {
     "x":0,
     "type":"Scene",
-    "selectedBox":15,
-    "selecteID":16,
+    "selectedBox":13,
+    "selecteID":24,
     "searchKey":"Scene,game_scene",
-    "props":{"width":500,"sceneColor":"#000000","name":"game_scene","height":500},
+    "props":{"width":960,"sceneColor":"#000000","name":"game_scene","height":540,"autoDestroyAtClosed":true},
     "nodeParent":-1,
-    "maxID":20,
+    "maxID":41,
     "label":"game_scene",
     "isOpen":true,
     "isDirectory":true,
@@ -49,7 +49,7 @@
             "x":15,
             "type":"Sprite",
             "searchKey":"Sprite,sprite_wall",
-            "props":{"y":19,"x":0,"width":500,"name":"sprite_wall","height":480},
+            "props":{"y":19,"width":960,"name":"sprite_wall","height":520},
             "nodeParent":2,
             "label":"sprite_wall",
             "isOpen":true,
@@ -62,7 +62,7 @@
                     "x":30,
                     "type":"Rect",
                     "searchKey":"Rect,rect_wall",
-                    "props":{"y":0,"x":0,"width":500,"name":"rect_wall","lineWidth":1,"lineColor":"#ffffff","height":480},
+                    "props":{"y":0,"x":0,"width":960,"name":"rect_wall","lineWidth":1,"lineColor":"#ffffff","height":520},
                     "nodeParent":13,
                     "label":"rect_wall",
                     "isDirectory":false,
@@ -88,7 +88,7 @@
                         {
                             "type":"Circle",
                             "searchKey":"Circle",
-                            "props":{"radius":5,"lineWidth":1,"fillColor":"#ff0000"},
+                            "props":{"y":5,"x":5,"radius":5,"lineWidth":1,"fillColor":"#ff0000"},
                             "nodeParent":6,
                             "label":"Circle",
                             "isDirectory":false,
@@ -99,12 +99,42 @@
                                 ]
                         },
                         {
+                            "type":"RigidBody",
+                            "switchAble":true,
+                            "searchKey":"RigidBody",
+                            "removeAble":true,
+                            "props":{"type":"kinematic"},
+                            "nodeParent":6,
+                            "label":"RigidBody",
+                            "isDirectory":false,
+                            "isAniNode":true,
+                            "hasChild":false,
+                            "compId":31,
+                            "child":[
+                                ]
+                        },
+                        {
+                            "type":"BoxCollider",
+                            "switchAble":true,
+                            "searchKey":"BoxCollider",
+                            "removeAble":true,
+                            "props":{"width":10,"height":10},
+                            "nodeParent":6,
+                            "label":"BoxCollider",
+                            "isDirectory":false,
+                            "isAniNode":true,
+                            "hasChild":false,
+                            "compId":34,
+                            "child":[
+                                ]
+                        },
+                        {
                             "type":"Script",
                             "switchAble":true,
                             "source":"src/script/Snake.js",
                             "searchKey":"Script,Snake",
                             "removeAble":true,
-                            "props":{"wall":"@node:13","snake":"@node:6","food":"@node:15"},
+                            "props":{"y":-44,"x":-2,"wall":"@node:13","snake":"@node:6","food":"@node:15","direction":"左"},
                             "nodeParent":6,
                             "label":"Snake",
                             "isDirectory":false,
@@ -119,20 +149,19 @@
                     "x":30,
                     "type":"Sprite",
                     "searchKey":"Sprite,sprite_food",
-                    "props":{"y":7,"x":4,"width":10,"name":"sprite_food","height":10},
+                    "props":{"y":7,"x":0,"width":10,"name":"sprite_food","height":10},
                     "nodeParent":13,
                     "label":"sprite_food",
-                    "isOpen":true,
+                    "isOpen":false,
                     "isDirectory":true,
                     "isAniNode":true,
                     "hasChild":true,
                     "compId":15,
                     "child":[
                         {
-                            "x":45,
                             "type":"Circle",
                             "searchKey":"Circle,circle_food",
-                            "props":{"y":0,"x":0,"radius":5,"name":"circle_food","lineWidth":1,"fillColor":"#bea4a3"},
+                            "props":{"y":5,"x":5,"radius":5,"name":"circle_food","lineWidth":1,"fillColor":"#bea4a3"},
                             "nodeParent":15,
                             "label":"circle_food",
                             "isDirectory":false,
@@ -143,13 +172,42 @@
                                 ]
                         },
                         {
-                            "x":45,
+                            "type":"RigidBody",
+                            "switchAble":true,
+                            "searchKey":"RigidBody",
+                            "removeAble":true,
+                            "props":{"y":1,"x":11,"width":1,"type":"kinematic","pivotY":1,"pivotX":11,"height":1},
+                            "nodeParent":15,
+                            "label":"RigidBody",
+                            "isDirectory":false,
+                            "isAniNode":true,
+                            "hasChild":false,
+                            "compId":29,
+                            "child":[
+                                ]
+                        },
+                        {
+                            "type":"BoxCollider",
+                            "switchAble":true,
+                            "searchKey":"BoxCollider",
+                            "removeAble":true,
+                            "props":{"width":10,"height":10},
+                            "nodeParent":15,
+                            "label":"BoxCollider",
+                            "isDirectory":false,
+                            "isAniNode":true,
+                            "hasChild":false,
+                            "compId":35,
+                            "child":[
+                                ]
+                        },
+                        {
                             "type":"Script",
                             "switchAble":true,
                             "source":"src/script/Food.js",
                             "searchKey":"Script,Food",
                             "removeAble":true,
-                            "props":{},
+                            "props":{"y":5,"x":60,"scoreText":"@node:39"},
                             "nodeParent":15,
                             "label":"Food",
                             "isDirectory":false,
@@ -159,6 +217,100 @@
                             "child":[
                                 ]
                         }]
+                },
+                {
+                    "x":30,
+                    "type":"RigidBody",
+                    "switchAble":true,
+                    "searchKey":"RigidBody",
+                    "removeAble":true,
+                    "props":{"type":"static","gravityScale":0.1},
+                    "nodeParent":13,
+                    "label":"RigidBody",
+                    "isDirectory":false,
+                    "isAniNode":true,
+                    "hasChild":false,
+                    "compId":23,
+                    "child":[
+                        ]
+                },
+                {
+                    "x":30,
+                    "type":"Widget",
+                    "switchAble":true,
+                    "searchKey":"Widget",
+                    "removeAble":true,
+                    "props":{},
+                    "nodeParent":13,
+                    "label":"Widget",
+                    "isDirectory":false,
+                    "isAniNode":true,
+                    "hasChild":false,
+                    "compId":40,
+                    "child":[
+                        ]
+                }]
+        },
+        {
+            "x":15,
+            "type":"Widget",
+            "switchAble":true,
+            "searchKey":"Widget,widget_fix",
+            "removeAble":true,
+            "props":{"name":"widget_fix","centerY":0,"centerX":0},
+            "nodeParent":2,
+            "label":"widget_fix",
+            "isDirectory":false,
+            "isAniNode":true,
+            "hasChild":false,
+            "compId":25,
+            "child":[
+                ]
+        },
+        {
+            "x":15,
+            "type":"Text",
+            "searchKey":"Text,text_score_tip",
+            "props":{"y":2,"x":407,"width":53,"text":"SCORE：","name":"text_score_tip","height":18,"color":"#ffffff"},
+            "nodeParent":2,
+            "label":"text_score_tip",
+            "isOpen":true,
+            "isDirectory":false,
+            "isAniNode":true,
+            "hasChild":false,
+            "compId":36,
+            "child":[
+                ]
+        },
+        {
+            "x":15,
+            "type":"Text",
+            "searchKey":"Text,text_score",
+            "props":{"y":2,"x":460,"width":53,"name":"text_score","height":18,"color":"#ffffff"},
+            "nodeParent":2,
+            "label":"text_score",
+            "isOpen":true,
+            "isDirectory":true,
+            "isAniNode":true,
+            "hasChild":true,
+            "compId":39,
+            "child":[
+                {
+                    "x":30,
+                    "type":"Script",
+                    "switchAble":true,
+                    "source":"src/script/ScoreControl.js",
+                    "searchKey":"Script,ScoreControl",
+                    "removeAble":true,
+                    "props":{"y":-2,"x":-460,"scoreText":"@node:39"},
+                    "nodeParent":39,
+                    "label":"ScoreControl",
+                    "isDirectory":false,
+                    "isAniNode":true,
+                    "hasChild":false,
+                    "compId":38,
+                    "child":[
+                        ]
                 }]
         }],
     "animations":[
