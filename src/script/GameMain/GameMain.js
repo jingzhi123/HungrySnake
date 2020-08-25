@@ -1,4 +1,4 @@
-import BaseScript from './BaseScript'
+import BaseScript from '../BaseScript'
 export default class GameMain extends BaseScript {
 
     constructor() { 

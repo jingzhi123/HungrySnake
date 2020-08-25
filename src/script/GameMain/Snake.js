@@ -4,6 +4,8 @@ export default class Snake extends Laya.Script {
         super(); 
         /** @prop {name:snake, tips:"蛇", type:Node, default:null}*/
         let snake;
+        /** @prop {name:snakeBody, tips:"蛇身", type:Prefab, default:null}*/
+        let snakeBody;
 
         /** @prop {name:rigid, tips:"刚体", type:Node, default:null}*/
         let rigid;
@@ -41,13 +43,26 @@ export default class Snake extends Laya.Script {
 
         //是否为加速模式
         this.speedMode = false;
+
+        this.snakeBodyArr=[]
+
+        this.snakeLength = 10;
         
     }
 
     onAwake(){
-        console.log(this.rigid)
+
         this.positionChange()
         Laya.timer.frameLoop(this.frame,this,this.move,[this.velocity])
+
+
+        this.foodScript = this.food.getComponent(Laya.Script)
+        Laya.loader.load('res/sprite_snakebody.prefab',Laya.Handler.create(this,(res)=>{
+            this.bodyRes = res;
+            // this.snakeBody = res.create();
+            // console.log(this.snakeBody)
+        }))
+
     }
 
     positionChange(){
@@ -63,6 +78,37 @@ export default class Snake extends Laya.Script {
         if(other.name=='collider_wall'){
             this.owner.event('dead','撞墙了!');
             Laya.timer.pause()
+        }
+        if(other.name=='collider_food'){
+            //长度增加
+            console.log(other)
+            let snakeRigidBody = this.rigid;
+            let snakeBody = this.bodyRes.create()
+            
+            
+            let snakeBodyRigidBody = snakeBody.getComponent(Laya.RigidBody)
+            snakeBodyRigidBody.type = 'dynamic'
+            let bodyRopeJoint = snakeBody.getComponent(Laya.RopeJoint)
+            bodyRopeJoint.maxLength = this.snakeLength;
+            if(!this.snakeBodyArr.length){
+                bodyRopeJoint.otherBody = snakeRigidBody;
+                this.snake.addChild(snakeBody)
+
+            } else {
+                let lastBody = this.snakeBodyArr[this.snakeBodyArr.length-1];
+                let lastBodyRigidBody = lastBody.getComponent(Laya.RigidBody)
+                
+                bodyRopeJoint.otherBody = lastBodyRigidBody;
+                lastBody.addChild(snakeBody)
+            }
+            
+            this.snakeBodyArr.push(snakeBody)
+
+            //改变位置
+            this.foodScript.positionChange();
+            //加分
+            let s = this.foodScript.scoreText.getComponent(Laya.Script)
+            s.plusScore()
         }
     }
 

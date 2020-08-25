@@ -1,5 +1,4 @@
-import Snake from './Snake'
-import BaseScript from './BaseScript'
+import BaseScript from '../BaseScript'
 export default class GameControl extends BaseScript {
 
     constructor() { 
@@ -39,10 +38,4 @@ export default class GameControl extends BaseScript {
     onDisable() {
     }
 
-    createBox() {
-        //使用对象池创建盒子
-        let box = Laya.Pool.getItemByCreateFun("dropBox", this.dropBox.create, this.dropBox);
-        box.pos(Math.random() * (Laya.stage.width - 100), -100);
-        this._gameBox.addChild(box);
-    }
 }
