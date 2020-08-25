@@ -213,11 +213,11 @@
             /** @prop {name:step, tips:"步长", type:Number, default:10}*/
             this.step = 10;
 
-            /** @prop {name:direction, tips:"方向", type:String, default:"右"}*/
-            this.direction = '右';
+            /** @prop {name:direction, tips:"初始方向", type:String, default:"右"}*/
+            this.direction = '';
             
             /** @prop {name:frame, tips:"速率(刷新率)", type:Number, default:60}*/
-            this.frame = 60;
+            this.frame = 1;
             
             /** @prop {name:velocity, tips:"初始速度", type:Number, default:1}*/
             this.velocity = 1;
@@ -229,6 +229,9 @@
             //按键时间
             this.keyPressTime=0;
 
+            //按键延迟多久加速
+            this.keyPressDelay = 6;
+
             //当前速度
             this.currentVelocity = 0;
 
@@ -238,16 +241,26 @@
             //是否为加速模式
             this.speedMode = false;
 
-            /** @prop {tips:"身体数组"}*/
+            /** @prop {tips:"蛇身体数组",type:Array<Sprite>}*/
             this.snakeBodyArr=[];
+
+            /** @prop {tips:"路径数组"}*/
+            this.pathArr=[];
 
             this.snakeLength = 10;
             
         }
 
         onAwake(){
-
+            console.log('awake');
+            this.snake.on('directionChange',this,(direction)=>{
+                this.directionChange(direction);
+            });
+            this.snake.on('speedChange',this,(velocity)=>{
+                this.speedChange(velocity);
+            });
             this.positionChange();
+
             Laya.timer.frameLoop(this.frame,this,this.move,[this.velocity]);
 
 
@@ -260,13 +273,48 @@
 
         }
 
+        //方向改变
+        directionChange(direction){
+            switch (direction) {
+                case '右':
+                    if(this.direction=='左'){
+                        return;
+                    } 
+                    this.rigid.setVelocity({x:this.currentVelocity,y:0});
+                    break;
+                case '左':
+                    if(this.direction=='右'){
+                        return;
+                    }
+                    this.rigid.setVelocity({x:-this.currentVelocity,y:0});
+                    break;
+                case '上':
+                    if(this.direction=='下'){
+                        return;
+                    }
+                    this.rigid.setVelocity({x:0,y:-this.currentVelocity});
+                    break;
+                case '下':
+                    if(this.direction=='上'){
+                        return;
+                    }
+                    this.rigid.setVelocity({x:0,y:this.currentVelocity});
+                    break;
+            
+                default:
+                    break;
+            }
+            this.direction = direction;
+        }
+        //速度改变
+        speedChange(velocity){
+            this.currentVelocity = velocity;
+            this.directionChange(this.direction);
+        }
+
         positionChange(){
             this.owner.x = Math.random()*(this.owner.parent.width-10).toFixed(0);
             this.owner.y = Math.random()*(this.owner.parent.height-10).toFixed(0);
-        }
-        
-        onEnable() {
-            
         }
 
         onTriggerEnter(other,self,contact){
@@ -274,6 +322,10 @@
                 this.owner.event('dead','撞墙了!');
                 Laya.timer.pause();
             }
+            // if(other.name=='collider_snakebody'){
+            //     this.owner.event('dead','撞身体上了!');
+            //     Laya.timer.pause()
+            // }
             if(other.name=='collider_food'){
                 //长度增加
                 let snakeRigidBody = this.rigid;
@@ -312,9 +364,11 @@
 
         onStart(){
             this.initDeadListener();
+            console.log(this.rigid);
         }
 
         initDeadListener(){
+            //监听死亡
             this.owner.on('dead',this,(msg)=>{
                 this.dead = true;
                 console.log(msg);
@@ -323,26 +377,32 @@
         }
 
         stop(){
-            this.rigid.linearVelocity = {x:0,y:0};
+            this.rigid.setVelocity({x:0,y:0});
         }
 
         move(velocity){
+            console.log(this.keyPressTime);
             this.currentVelocity = velocity;
+            //如果有蛇身,则记住路径
+            if(this.snakeBodyArr.length){
+                this.pathArr.unshift({x:this.snake.x,y:this.snake.y});
+            }
+
             switch (this.direction) {
                 case '右':
-                    this.rigid.linearVelocity = {x:velocity,y:0};
+                    //this.rigid.linearVelocity = {x:velocity,y:0}
                     this.bodyPos = {x:-this.snake.width,y:0};
                     break;
                 case '左':
-                    this.rigid.linearVelocity = {x:-velocity,y:0};
+                    //this.rigid.linearVelocity = {x:-velocity,y:0}
                     this.bodyPos = {x:this.snake.width,y:0};
                     break;
                 case '上':
-                    this.rigid.linearVelocity = {x:0,y:-velocity};
+                    //this.rigid.linearVelocity = {x:0,y:-velocity}
                     this.bodyPos = {x:0,y:this.snake.height};
                     break;
                 case '下':
-                    this.rigid.linearVelocity = {x:0,y:velocity};
+                    //this.rigid.linearVelocity = {x:0,y:velocity}
                     this.bodyPos = {x:0,y:-this.snake.height};
                     break;
             
@@ -351,15 +411,24 @@
             }
 
             this.bodyMove();
-            
         }
 
         bodyMove(){
-            for(let body of this.snakeBodyArr){
-                body.x = this.bodyPos.x;
-                body.y = this.bodyPos.y;
-                let rigid = body.getComponent(Laya.RigidBody);
-                rigid.setVelocity(this.rigid.linearVelocity);
+            if(this.pathArr.length){
+                // console.log(this.pathArr[0].x)
+                for(let index=0;index<this.snakeBodyArr.length;index++){
+                    let body = this.snakeBodyArr[index];
+                    // console.log(body)
+                    body.x = this.bodyPos.x;
+                    body.y = this.bodyPos.y;
+                    // console.log(body.x)
+                    
+                    
+                    // body.x = this.bodyPos.x;
+                    // body.y = this.bodyPos.y;
+                    // let rigid = body.getComponent(Laya.RigidBody)
+                    // rigid.setVelocity(this.rigid.linearVelocity)
+                }
             }
         }
 
@@ -369,36 +438,47 @@
 
         onKeyDown(e){
             if(this.dead)return;
-            this.keyPressTime ++;
-
-            this.speedMode = this.keyPressTime>2;
-            
+            let predirection = this.direction;
             switch (e.keyCode) {
                 case 37:
-                    this.direction = '左';
+                    this.snake.event('directionChange','左');
                     break;
                 case 38:
-                    this.direction = '上';
+                    this.snake.event('directionChange','上');
                     break;
                 case 39:
-                    this.direction = '右';
+                    this.snake.event('directionChange','右');
                     break;
                 case 40:
-                    this.direction = '下';
+                    this.snake.event('directionChange','下');
                     break;
             
                 default:
                     break;
             }
+
+            console.log(this.speedMode);
+
             if(this.speedMode){
-                this.move(this.velocity+this.acceleratedVelocity);
+                this.snake.event('speedChange',this.velocity+this.acceleratedVelocity);
             } else {
                 this.move(this.currentVelocity);
-                if(this.keyPressTime>2){
+                if(this.keyPressTime>this.keyPressDelay){
                     this.speedMode = true;
-                    this.move(this.velocity+this.acceleratedVelocity);
+                    this.snake.event('speedChange',this.velocity+this.acceleratedVelocity);
                 }
             }
+
+            //方向改变
+            if(this.direction!=predirection){
+                this.keyPressTime = 0;
+                this.snake.event('directionChange',this.direction);
+            } else {
+                this.keyPressTime++;
+            }
+
+            this.speedMode = this.keyPressTime>2;
+            
             // Laya.timer.once(500,this,Laya.Handler.create(this,()=>{
             //     this.move(this.velocity+this.acceleratedVelocity)
             // }))
@@ -411,15 +491,16 @@
 
         onKeyUp(e){
             if(this.dead)return;
-
+            
             if(!this.speedMode){
                 this.keyPressTime = 0;
             }
-
-            this.move(this.velocity);
+            this.snake.event('speedChange',this.velocity);
+            
             Laya.timer.once(1000,this,()=>{
+                console.log('恢复速度');
                 this.speedMode = false;
-            });
+            },null,true);
         }
         
         onDisable() {
@@ -513,7 +594,7 @@
     GameConfig.screenMode = "none";
     GameConfig.alignV = "top";
     GameConfig.alignH = "left";
-    GameConfig.startScene = "init.scene";
+    GameConfig.startScene = "scene/gameMain.scene";
     GameConfig.sceneRoot = "";
     GameConfig.debug = false;
     GameConfig.stat = false;
