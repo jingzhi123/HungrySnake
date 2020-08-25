@@ -44,6 +44,7 @@ export default class Snake extends Laya.Script {
         //是否为加速模式
         this.speedMode = false;
 
+        /** @prop {tips:"身体数组"}*/
         this.snakeBodyArr=[]
 
         this.snakeLength = 10;
@@ -66,8 +67,8 @@ export default class Snake extends Laya.Script {
     }
 
     positionChange(){
-        this.owner.x = Math.random()*this.owner.parent.width.toFixed(0);
-        this.owner.y = Math.random()*this.owner.parent.height.toFixed(0);
+        this.owner.x = Math.random()*(this.owner.parent.width-10).toFixed(0);
+        this.owner.y = Math.random()*(this.owner.parent.height-10).toFixed(0);
     }
     
     onEnable() {
@@ -81,13 +82,12 @@ export default class Snake extends Laya.Script {
         }
         if(other.name=='collider_food'){
             //长度增加
-            console.log(other)
             let snakeRigidBody = this.rigid;
             let snakeBody = this.bodyRes.create()
-            
-            
             let snakeBodyRigidBody = snakeBody.getComponent(Laya.RigidBody)
-            snakeBodyRigidBody.type = 'dynamic'
+            snakeBodyRigidBody.type = 'kinematic'
+            snakeBodyRigidBody.collidConnected = true;
+            console.log(snakeBodyRigidBody)
             let bodyRopeJoint = snakeBody.getComponent(Laya.RopeJoint)
             bodyRopeJoint.maxLength = this.snakeLength;
             if(!this.snakeBodyArr.length){
@@ -137,22 +137,35 @@ export default class Snake extends Laya.Script {
         switch (this.direction) {
             case '右':
                 this.rigid.linearVelocity = {x:velocity,y:0}
-                
+                this.bodyPos = {x:-this.snake.width,y:0}
                 break;
             case '左':
                 this.rigid.linearVelocity = {x:-velocity,y:0}
-                
+                this.bodyPos = {x:this.snake.width,y:0}
                 break;
             case '上':
                 this.rigid.linearVelocity = {x:0,y:-velocity}
-                
+                this.bodyPos = {x:0,y:this.snake.height}
                 break;
             case '下':
                 this.rigid.linearVelocity = {x:0,y:velocity}
+                this.bodyPos = {x:0,y:-this.snake.height}
                 break;
         
             default:
                 break;
+        }
+
+        this.bodyMove()
+        
+    }
+
+    bodyMove(){
+        for(let body of this.snakeBodyArr){
+            body.x = this.bodyPos.x;
+            body.y = this.bodyPos.y;
+            let rigid = body.getComponent(Laya.RigidBody)
+            rigid.setVelocity(this.rigid.linearVelocity)
         }
     }
 

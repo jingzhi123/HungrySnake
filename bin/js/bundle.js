@@ -238,6 +238,7 @@
             //是否为加速模式
             this.speedMode = false;
 
+            /** @prop {tips:"身体数组"}*/
             this.snakeBodyArr=[];
 
             this.snakeLength = 10;
@@ -260,8 +261,8 @@
         }
 
         positionChange(){
-            this.owner.x = Math.random()*this.owner.parent.width.toFixed(0);
-            this.owner.y = Math.random()*this.owner.parent.height.toFixed(0);
+            this.owner.x = Math.random()*(this.owner.parent.width-10).toFixed(0);
+            this.owner.y = Math.random()*(this.owner.parent.height-10).toFixed(0);
         }
         
         onEnable() {
@@ -275,13 +276,12 @@
             }
             if(other.name=='collider_food'){
                 //长度增加
-                console.log(other);
                 let snakeRigidBody = this.rigid;
                 let snakeBody = this.bodyRes.create();
-                
-                
                 let snakeBodyRigidBody = snakeBody.getComponent(Laya.RigidBody);
-                snakeBodyRigidBody.type = 'dynamic';
+                snakeBodyRigidBody.type = 'kinematic';
+                snakeBodyRigidBody.collidConnected = true;
+                console.log(snakeBodyRigidBody);
                 let bodyRopeJoint = snakeBody.getComponent(Laya.RopeJoint);
                 bodyRopeJoint.maxLength = this.snakeLength;
                 if(!this.snakeBodyArr.length){
@@ -331,22 +331,35 @@
             switch (this.direction) {
                 case '右':
                     this.rigid.linearVelocity = {x:velocity,y:0};
-                    
+                    this.bodyPos = {x:-this.snake.width,y:0};
                     break;
                 case '左':
                     this.rigid.linearVelocity = {x:-velocity,y:0};
-                    
+                    this.bodyPos = {x:this.snake.width,y:0};
                     break;
                 case '上':
                     this.rigid.linearVelocity = {x:0,y:-velocity};
-                    
+                    this.bodyPos = {x:0,y:this.snake.height};
                     break;
                 case '下':
                     this.rigid.linearVelocity = {x:0,y:velocity};
+                    this.bodyPos = {x:0,y:-this.snake.height};
                     break;
             
                 default:
                     break;
+            }
+
+            this.bodyMove();
+            
+        }
+
+        bodyMove(){
+            for(let body of this.snakeBodyArr){
+                body.x = this.bodyPos.x;
+                body.y = this.bodyPos.y;
+                let rigid = body.getComponent(Laya.RigidBody);
+                rigid.setVelocity(this.rigid.linearVelocity);
             }
         }
 
@@ -427,46 +440,17 @@
 
         onAwake(){
             this.boxCollider = this.owner.getComponent(Laya.BoxCollider);
-
-            Laya.loader.load('res/sprite_snakebody.prefab',Laya.Handler.create(this,(res)=>{
-                this.bodyRes = res;
-                // this.snakeBody = res.create();
-                // console.log(this.snakeBody)
-            }));
         }
         
         positionChange(){
-            // this.owner.destroy()
-            this.owner.x = Math.random()*this.owner.parent.width.toFixed(0);
-            this.owner.y = Math.random()*this.owner.parent.height.toFixed(0);
-            // this.boxCollider.x = Math.random()*this.owner.parent.width.toFixed(0);
-            // this.boxCollider.y = Math.random()*this.owner.parent.height.toFixed(0);
+
+            this.owner.x = Math.random()*(this.owner.parent.width-10).toFixed(0);
+            this.owner.y = Math.random()*(this.owner.parent.height-10).toFixed(0);
+
         }
 
         onTriggerEnter(other,self,contact){
-            // if(other.name=='collider_snake'){
-            //     //长度增加
-            //     console.log(other)
-            //     let snakeRigidBody = other.owner.getComponent(Laya.RigidBody)
-            //     let snakeBody = this.bodyRes.create()
-            //     let bodyRopeJoint = snakeBody.getComponent(Laya.RopeJoint)
-            //     bodyRopeJoint.otherBody = snakeRigidBody;
-
-            //     console.log(snakeBody)
-            //     other.owner.addChild(snakeBody)
-            //     let snakeBodyRigidBody = snakeBody.getComponent(Laya.RigidBody)
-            //     console.log(this.snake)
-            //     snakeBodyRigidBody.linearVelocity = {x:this.snake.velocity,y:0}
-            //     snakeBody.x = -10;
-            //     snakeBody.y = 0;
-            //     this.snakeBodyArr.push(snakeBody)
-
-            //     //改变位置
-            //     this.positionChange();
-            //     //加分
-            //     let s = this.scoreText.getComponent(Laya.Script)
-            //     s.plusScore()
-            // }
+            
         }
 
         onEnable() {
@@ -486,7 +470,21 @@
             /** @prop {name:snake, tips:"蛇头", type:Node, default:null}*/
             let snake;
         }
-        
+        onAwake(){
+            // this.snake = this.owner.parent;
+            // console.log(this.owner)
+            // this.snakeScript = this.snake.getComponent(Laya.Script)
+            // this.rigid = this.snake.getComponent(Laya.RigidBody)
+            // Laya.timer.frameLoop(this.snakeScript.frame,this,this.move)
+        }
+
+        move(){
+            // this.rigid.linearVelocity = this.snakeScript.rigid.linearVelocity;
+        }
+
+        onUpdate(){
+            
+        }
         onEnable() {
         }
 
@@ -515,7 +513,7 @@
     GameConfig.screenMode = "none";
     GameConfig.alignV = "top";
     GameConfig.alignH = "left";
-    GameConfig.startScene = "scene/gameMain.scene";
+    GameConfig.startScene = "init.scene";
     GameConfig.sceneRoot = "";
     GameConfig.debug = false;
     GameConfig.stat = false;
