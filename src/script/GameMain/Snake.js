@@ -17,12 +17,12 @@ export default class Snake extends Laya.Script {
         let food;
 
         /** @prop {name:step, tips:"步长", type:Number, default:10}*/
-        this.step = 10;
+        this.step = 2;
 
         /** @prop {name:direction, tips:"初始方向", type:String, default:"右"}*/
         this.direction = '';
         
-        /** @prop {name:frame, tips:"速率(刷新率)", type:Number, default:60}*/
+        /** @prop {name:frame, tips:"速率(刷新率)", type:Number, default:1}*/
         this.frame = 1;
         
         /** @prop {name:velocity, tips:"初始速度", type:Number, default:1}*/
@@ -67,7 +67,7 @@ export default class Snake extends Laya.Script {
         })
         this.positionChange()
 
-        Laya.timer.frameLoop(this.frame,this,this.move,[this.velocity])
+        Laya.timer.frameLoop(this.frame,this,this.mainLoop)
 
 
         this.foodScript = this.food.getComponent(Laya.Script)
@@ -86,25 +86,25 @@ export default class Snake extends Laya.Script {
                 if(this.direction=='左'){
                     return;
                 } 
-                this.rigid.setVelocity({x:this.currentVelocity,y:0})
+                //this.rigid.setVelocity({x:this.currentVelocity,y:0})
                 break;
             case '左':
                 if(this.direction=='右'){
                     return;
                 }
-                this.rigid.setVelocity({x:-this.currentVelocity,y:0})
+                //this.rigid.setVelocity({x:-this.currentVelocity,y:0})
                 break;
             case '上':
                 if(this.direction=='下'){
                     return;
                 }
-                this.rigid.setVelocity({x:0,y:-this.currentVelocity})
+                //this.rigid.setVelocity({x:0,y:-this.currentVelocity})
                 break;
             case '下':
                 if(this.direction=='上'){
                     return;
                 }
-                this.rigid.setVelocity({x:0,y:this.currentVelocity})
+                //this.rigid.setVelocity({x:0,y:this.currentVelocity})
                 break;
         
             default:
@@ -126,41 +126,12 @@ export default class Snake extends Laya.Script {
     onTriggerEnter(other,self,contact){
         if(other.name=='collider_wall'){
             this.owner.event('dead','撞墙了!');
-            Laya.timer.pause()
         }
-        // if(other.name=='collider_snakebody'){
-        //     this.owner.event('dead','撞身体上了!');
-        //     Laya.timer.pause()
-        // }
+        if(other.name=='collider_snakebody'){
+            // this.owner.event('dead','撞身体上了!');
+        }
         if(other.name=='collider_food'){
-            //长度增加
-            let snakeRigidBody = this.rigid;
-            let snakeBody = this.bodyRes.create()
-            let snakeBodyRigidBody = snakeBody.getComponent(Laya.RigidBody)
-            snakeBodyRigidBody.type = 'kinematic'
-            snakeBodyRigidBody.collidConnected = true;
-            console.log(snakeBodyRigidBody)
-            let bodyRopeJoint = snakeBody.getComponent(Laya.RopeJoint)
-            bodyRopeJoint.maxLength = this.snakeLength;
-            if(!this.snakeBodyArr.length){
-                bodyRopeJoint.otherBody = snakeRigidBody;
-                this.snake.addChild(snakeBody)
-
-            } else {
-                let lastBody = this.snakeBodyArr[this.snakeBodyArr.length-1];
-                let lastBodyRigidBody = lastBody.getComponent(Laya.RigidBody)
-                
-                bodyRopeJoint.otherBody = lastBodyRigidBody;
-                lastBody.addChild(snakeBody)
-            }
-            
-            this.snakeBodyArr.push(snakeBody)
-
-            //改变位置
-            this.foodScript.positionChange();
-            //加分
-            let s = this.foodScript.scoreText.getComponent(Laya.Script)
-            s.plusScore()
+            this.addBody()
         }
     }
 
@@ -169,11 +140,11 @@ export default class Snake extends Laya.Script {
     }
 
     onStart(){
-        this.initDeadListener();
+        this.onDead();
         console.log(this.rigid)
     }
 
-    initDeadListener(){
+    onDead(){
         //监听死亡
         this.owner.on('dead',this,(msg)=>{
             this.dead = true;
@@ -183,12 +154,18 @@ export default class Snake extends Laya.Script {
     }
 
     stop(){
-        this.rigid.setVelocity({x:0,y:0})
+        // this.rigid.setVelocity({x:0,y:0})
+        Laya.timer.pause()
+    }
+
+    mainLoop(){
+        // this.move()
+        this.headMove()
+        this.bodyMove()
     }
 
     move(velocity){
-        console.log(this.keyPressTime)
-        this.currentVelocity = velocity;
+        this.currentVelocity = velocity||this.velocity;
         //如果有蛇身,则记住路径
         if(this.snakeBodyArr.length){
             this.pathArr.unshift({x:this.snake.x,y:this.snake.y})
@@ -216,26 +193,101 @@ export default class Snake extends Laya.Script {
                 break;
         }
 
-        this.bodyMove();
+        // this.bodyMove();
+    }
+
+    headMove(velocity){
+        this.currentVelocity = velocity||this.velocity;
+        //如果有蛇身,则记住路径
+        if(this.snakeBodyArr.length){
+            this.pathArr.unshift({x:this.snake.x,y:this.snake.y})
+        }
+
+        switch (this.direction) {
+            case '右':
+                this.snake.x += this.step;
+                this.bodyPos = {x:-this.snake.width,y:0}
+                break;
+            case '左':
+                this.snake.x -= this.step;
+                this.bodyPos = {x:this.snake.width,y:0}
+                break;
+            case '上':
+                this.snake.y -= this.step;
+                this.bodyPos = {x:0,y:this.snake.height}
+                break;
+            case '下':
+                this.snake.y += this.step;
+                this.bodyPos = {x:0,y:-this.snake.height}
+                break;
+        
+            default:
+                break;
+        }
+
+        // this.bodyMove();
     }
 
     bodyMove(){
         if(this.pathArr.length){
+            console.log(this.pathArr)
             // console.log(this.pathArr[0].x)
             for(let index=0;index<this.snakeBodyArr.length;index++){
                 let body = this.snakeBodyArr[index];
-                // console.log(body)
-                body.x = this.bodyPos.x;
-                body.y = this.bodyPos.y;
-                // console.log(body.x)
-                
-                
-                // body.x = this.bodyPos.x;
-                // body.y = this.bodyPos.y;
+                if(this.pathArr[(index+1)*(body.width/2)]){
+                    let path = this.pathArr[(index+1)*(body.width/2)]
+                    
+                    let p = new Laya.Point(path.x,path.y)
+                    
+                    // Laya.timer.frameOnce(this.frame,this,()=>{
+                        body.x = p.x;
+                        body.y = p.y;
+                    // })
+
+                }
+                if(this.pathArr.length > (this.snakeBodyArr.length+1) * (body.width/2)){
+                    this.pathArr.pop();
+                }
                 // let rigid = body.getComponent(Laya.RigidBody)
                 // rigid.setVelocity(this.rigid.linearVelocity)
             }
         }
+    }
+
+    addBody(){
+        //长度增加
+        let snakeRigidBody = this.rigid;
+        let snakeBody = this.bodyRes.create()
+        let snakeBodyRigidBody = snakeBody.getComponent(Laya.RigidBody)
+        snakeBodyRigidBody.type = 'kinematic'
+        snakeBodyRigidBody.collidConnected = true;
+
+        let bodyRopeJoint = snakeBody.getComponent(Laya.RopeJoint)
+        bodyRopeJoint.maxLength = this.snakeLength;
+
+        
+        // snakeBody.x = this.snake.x;
+        // snakeBody.y = this.snake.y;
+        if(!this.snakeBodyArr.length){
+            bodyRopeJoint.otherBody = snakeRigidBody;
+            this.wall.addChild(snakeBody)
+
+        } else {
+            let lastBody = this.snakeBodyArr[this.snakeBodyArr.length-1];
+            let lastBodyRigidBody = lastBody.getComponent(Laya.RigidBody)
+            
+            bodyRopeJoint.otherBody = lastBodyRigidBody;
+
+            this.wall.addChild(snakeBody)
+        }
+        
+        this.snakeBodyArr.push(snakeBody)
+
+        //改变位置
+        this.foodScript.positionChange();
+        //加分
+        let s = this.foodScript.scoreText.getComponent(Laya.Script)
+        s.plusScore()
     }
 
     onUpdate(){
