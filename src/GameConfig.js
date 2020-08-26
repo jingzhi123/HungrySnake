@@ -3,9 +3,9 @@ import BtnStartGame from "./script/GameMain/BtnStartGame"
 import GameControl from "./script/GameMenu/GameControl"
 import ScoreControl from "./script/GameMain/ScoreControl"
 import Snake from "./script/GameMain/Snake"
-import Food from "./script/GameMain/Food"
 import GameOver from "./script/GameMain/GameOver"
 import GameMain from "./script/GameMain/GameMain"
+import Food from "./script/GameMain/Food"
 import SnakeBody from "./script/GameMain/SnakeBody"
 
 export default class GameConfig {
@@ -16,9 +16,9 @@ export default class GameConfig {
 		reg("script/GameMenu/GameControl.js",GameControl);
 		reg("script/GameMain/ScoreControl.js",ScoreControl);
 		reg("script/GameMain/Snake.js",Snake);
-		reg("script/GameMain/Food.js",Food);
 		reg("script/GameMain/GameOver.js",GameOver);
 		reg("script/GameMain/GameMain.js",GameMain);
+		reg("script/GameMain/Food.js",Food);
 		reg("script/GameMain/SnakeBody.js",SnakeBody);
     }
 }
@@ -32,7 +32,7 @@ GameConfig.startScene = "init.scene";
 GameConfig.sceneRoot = "";
 GameConfig.debug = false;
 GameConfig.stat = false;
-GameConfig.physicsDebug = true;
+GameConfig.physicsDebug = false;
 GameConfig.exportSceneToJson = true;
 
 GameConfig.init();

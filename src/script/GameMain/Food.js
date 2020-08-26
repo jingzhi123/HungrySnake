@@ -1,36 +1,58 @@
-export default class Food extends Laya.Script {
+import BaseScript from "../BaseScript";
+
+export default class Food extends BaseScript {
 
     constructor() { 
         super(); 
-        /** @prop {name:snake, tips:"蛇", type:Node, default:null}*/
-        let snake;
-        /** @prop {name:scoreText, tips:"分数Text", type:Node, default:null}*/
-        let scoreText;
-        
         
     }
 
     onAwake(){
-        this.boxCollider = this.owner.getComponent(Laya.BoxCollider)
-    }
-    
-    positionChange(){
-
-        this.owner.x = Math.random()*(this.owner.parent.width-10).toFixed(0);
-        this.owner.y = Math.random()*(this.owner.parent.height-10).toFixed(0);
-
+        
+        this.colorNum = Math.floor(Math.random() * (6 - 1 + 1) + 1);
+        this.owner.loadImage("images/bean" + this.colorNum + ".png", 0, 0, 0, 0, new Laya.Handler(this, this.loaded, null))
+        this.owner.zOrder = 0
+        this.owner.pivot(this.owner.width / 2, this.owner.height / 2)
+        this.owner.visible = true
     }
 
     onTriggerEnter(other,self,contact){
-        
+        if(other.name=='collider_snake'){
+            let snake = other.owner;
+            let s = snake.getComponent(Laya.Script)
+            console.log('removeIndex:'+self.owner.foodOrder)
+            console.log(BaseScript.snakePos)
+            Laya.timer.frameOnce(1,this,()=>{
+                Laya.timer.resume()
+                // Laya.Tween.to(self.owner,BaseScript.snakePos,100,Laya.Ease.strongOut,Laya.Handler.create(this,()=>{
+                //     self.owner.destroy()
+    
+                // }))
+                let time = 0;
+                Laya.timer.frameLoop(1,this,()=>{
+                    time++;
+                    self.owner.x += (s.currentVelocity + 0.1) * Math.cos(Math.atan2(BaseScript.snakePos.y - self.owner.y, BaseScript.snakePos.x - self.owner.x))
+                    self.owner.y += (s.currentVelocity + 0.1) * Math.sin(Math.atan2(BaseScript.snakePos.y - self.owner.y, BaseScript.snakePos.x - self.owner.x))
+
+                    if(time>=60){
+                        self.owner.destroy()
+                        
+                    }
+                })
+
+
+
+            })
+
+        }
     }
 
-    onEnable() {
-        this.positionChange();
-        console.log(this.owner)
-        
+    loaded(){
+        console.log('加载完毕')
     }
-
-    onDisable() {
+    create(x,y){
+        
+        this.owner.pos(x, y)
+        return this.owner;
     }
 }

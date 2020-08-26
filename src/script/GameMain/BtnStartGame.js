@@ -30,7 +30,7 @@ export default class BtnStartGame extends BaseScript {
         
         console.log('游戏开始:',this.owner)
         this.progressBar.visible = true;
-        let load = Laya.loader.load('sound/THUNDER LANDING.mp3',Laya.Handler.create(this,(data)=>{
+        let load = Laya.loader.load(['sound/THUNDER LANDING.mp3','res/sprite_food.prefab'],Laya.Handler.create(this,(data)=>{
             console.log(data)
         }),Laya.Handler.create(this,(num)=>{
             console.log(num)

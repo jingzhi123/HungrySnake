@@ -1,12 +1,12 @@
 {
     "x":0,
     "type":"Scene",
-    "selectedBox":94,
-    "selecteID":96,
+    "selectedBox":13,
+    "selecteID":123,
     "searchKey":"Scene,game_scene",
     "props":{"width":960,"sceneColor":"#000000","name":"game_scene","height":540,"autoDestroyAtClosed":true},
     "nodeParent":-1,
-    "maxID":107,
+    "maxID":124,
     "label":"game_scene",
     "isOpen":true,
     "isDirectory":true,
@@ -66,13 +66,14 @@
             "props":{"y":2,"x":460,"width":53,"name":"text_score","height":18,"color":"#ffffff"},
             "nodeParent":2,
             "label":"text_score",
-            "isOpen":false,
+            "isOpen":true,
             "isDirectory":true,
             "isAniNode":true,
             "hasChild":true,
             "compId":39,
             "child":[
                 {
+                    "x":30,
                     "type":"Script",
                     "switchAble":true,
                     "source":"src/script/GameMain/ScoreControl.js",
@@ -106,7 +107,7 @@
                     "x":30,
                     "type":"Sprite",
                     "searchKey":"Sprite,sprite_wall",
-                    "props":{"y":-250,"x":-479,"width":960,"name":"sprite_wall","height":520},
+                    "props":{"y":-250,"x":-479,"width":960,"texture":"images/map.png","name":"sprite_wall","height":520},
                     "nodeParent":51,
                     "label":"sprite_wall",
                     "isOpen":true,
@@ -133,7 +134,7 @@
                             "x":45,
                             "type":"Sprite",
                             "searchKey":"Sprite,sprite_snake",
-                            "props":{"y":384,"x":240,"width":10,"pivotY":5,"pivotX":5,"name":"sprite_snake","height":10},
+                            "props":{"zOrder":1,"y":380,"x":234,"width":21,"texture":"images/head1.png","pivotY":10,"pivotX":10,"name":"sprite_snake","height":19},
                             "nodeParent":13,
                             "label":"sprite_snake",
                             "isOpen":false,
@@ -142,19 +143,6 @@
                             "hasChild":true,
                             "compId":6,
                             "child":[
-                                {
-                                    "type":"Circle",
-                                    "searchKey":"Circle",
-                                    "props":{"y":5,"x":5,"radius":5,"lineWidth":1,"fillColor":"#ff0000"},
-                                    "nodeParent":6,
-                                    "label":"Circle",
-                                    "isDirectory":false,
-                                    "isAniNode":true,
-                                    "hasChild":false,
-                                    "compId":7,
-                                    "child":[
-                                        ]
-                                },
                                 {
                                     "type":"RigidBody",
                                     "switchAble":true,
@@ -176,7 +164,7 @@
                                     "source":"src/script/GameMain/Snake.js",
                                     "searchKey":"Script,Snake",
                                     "removeAble":true,
-                                    "props":{"y":-35,"x":-72,"wall":"@node:13","snakeBody":"@Prefab:res/sprite_snakebody.prefab","snake":"@node:6","scoreList":"@node:103","rigid":"@node:31","food":"@node:15","acceleratedVelocity":2},
+                                    "props":{"y":-35,"x":-72,"wall":"@node:13","snakeBody":"@Prefab:res/sprite_snakebody.prefab","snake":"@node:6","scoreScript":"@node:50","scoreList":"@node:103","rigid":"@node:31","food":"@node:15","acceleratedVelocity":2},
                                     "nodeParent":6,
                                     "label":"Snake",
                                     "isDirectory":false,
@@ -191,87 +179,13 @@
                                     "switchAble":true,
                                     "searchKey":"CircleCollider,collider_snake",
                                     "removeAble":true,
-                                    "props":{"radius":5,"name":"collider_snake"},
+                                    "props":{"radius":10,"name":"collider_snake"},
                                     "nodeParent":6,
                                     "label":"collider_snake",
                                     "isDirectory":false,
                                     "isAniNode":true,
                                     "hasChild":false,
                                     "compId":65,
-                                    "child":[
-                                        ]
-                                }]
-                        },
-                        {
-                            "x":45,
-                            "type":"Sprite",
-                            "searchKey":"Sprite,sprite_food",
-                            "props":{"y":7,"x":0,"width":10,"name":"sprite_food","height":10},
-                            "nodeParent":13,
-                            "label":"sprite_food",
-                            "isOpen":false,
-                            "isDirectory":true,
-                            "isAniNode":true,
-                            "hasChild":true,
-                            "compId":15,
-                            "child":[
-                                {
-                                    "type":"Circle",
-                                    "searchKey":"Circle,circle_food",
-                                    "props":{"y":5,"x":5,"radius":5,"name":"circle_food","lineWidth":1,"fillColor":"#bea4a3"},
-                                    "nodeParent":15,
-                                    "label":"circle_food",
-                                    "isDirectory":false,
-                                    "isAniNode":true,
-                                    "hasChild":false,
-                                    "compId":16,
-                                    "child":[
-                                        ]
-                                },
-                                {
-                                    "type":"RigidBody",
-                                    "switchAble":true,
-                                    "searchKey":"RigidBody",
-                                    "removeAble":true,
-                                    "props":{"y":1,"x":11,"width":1,"type":"static","pivotY":1,"pivotX":11,"height":1},
-                                    "nodeParent":15,
-                                    "label":"RigidBody",
-                                    "isDirectory":false,
-                                    "isAniNode":true,
-                                    "hasChild":false,
-                                    "compId":29,
-                                    "child":[
-                                        ]
-                                },
-                                {
-                                    "type":"Script",
-                                    "switchAble":true,
-                                    "source":"src/script/GameMain/Food.js",
-                                    "searchKey":"Script,Food",
-                                    "removeAble":true,
-                                    "props":{"snake":"@node:6","scoreText":"@node:39"},
-                                    "nodeParent":15,
-                                    "label":"Food",
-                                    "isDirectory":false,
-                                    "isClose":true,
-                                    "isAniNode":true,
-                                    "hasChild":false,
-                                    "compId":49,
-                                    "child":[
-                                        ]
-                                },
-                                {
-                                    "type":"CircleCollider",
-                                    "switchAble":true,
-                                    "searchKey":"CircleCollider,collider_food",
-                                    "removeAble":true,
-                                    "props":{"radius":5,"name":"collider_food"},
-                                    "nodeParent":15,
-                                    "label":"collider_food",
-                                    "isDirectory":false,
-                                    "isAniNode":true,
-                                    "hasChild":false,
-                                    "compId":66,
                                     "child":[
                                         ]
                                 }]
@@ -348,14 +262,13 @@
                     "props":{"y":-269,"x":-479,"width":960,"visible":false,"texture":"comp/img_blank.png","sceneColor":"#894f4e","name":"view_score","height":540,"autoDestroyAtClosed":true},
                     "nodeParent":51,
                     "label":"view_score",
-                    "isOpen":true,
+                    "isOpen":false,
                     "isDirectory":true,
                     "isAniNode":true,
                     "hasChild":true,
                     "compId":94,
                     "child":[
                         {
-                            "x":45,
                             "type":"Text",
                             "searchKey":"Text",
                             "props":{"y":208,"x":372,"width":216,"valign":"top","text":"分数","height":123,"fontSize":50,"color":"#9e5f5e","align":"center"},
@@ -369,7 +282,6 @@
                                 ]
                         },
                         {
-                            "x":45,
                             "type":"Label",
                             "searchKey":"Label,label_score",
                             "props":{"y":270,"x":444,"width":73,"text":"0","name":"label_score","height":27,"fontSize":20,"color":"#ffffff","align":"center"},
@@ -383,7 +295,6 @@
                                 ]
                         },
                         {
-                            "x":45,
                             "type":"Button",
                             "searchKey":"Button,btn_retry",
                             "props":{"y":307.5,"x":416,"skin":"comp/button.png","name":"btn_retry","labelSize":16,"label":"再试一次"},
@@ -397,7 +308,6 @@
                                 ]
                         },
                         {
-                            "x":45,
                             "type":"Button",
                             "searchKey":"Button,btn_return",
                             "props":{"y":373,"x":416,"skin":"comp/button.png","name":"btn_return","labelSize":16,"label":"返回"},
@@ -411,7 +321,6 @@
                                 ]
                         },
                         {
-                            "x":45,
                             "type":"Script",
                             "switchAble":true,
                             "source":"src/script/GameMain/GameOver.js",
@@ -427,7 +336,7 @@
                             "child":[
                                 ]
                         }],
-                    "$HIDDEN":false
+                    "$HIDDEN":true
                 },
                 {
                     "x":30,

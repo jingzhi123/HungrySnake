@@ -39,7 +39,40 @@ P 0587871F vscroll$up.png
 P 5FD17798 vscroll.png
 P DDDDFB9E vslider$bar.png
 P 01BAE7F5 vslider.png
+D images
+P 68764FF8 bean1.png
+P 5D07C774 bean2.png
+P 6AA3ADF2 bean3.png
+P 7EAC55FE bean4.png
+P B8928725 bean5.png
+P D4A338A4 bean6.png
+P 9260F93B body1.png
+P BDF018C3 body2.png
+P DD27B264 body3.png
+P B3CC82C0 body4.png
+P DE48F68A body5.png
+P 435E6785 btn-back.png
+P 6F445876 btn-restart.png
+P 0B5275E8 control-back.png
+P A01C4895 control-flash.png
+P AA9FE505 control-rocker.png
+P D9B90B8D gameover-background.png
+P 2272A299 head1.png
+P 2F1E3AF6 head2.png
+P 697A6839 head3.png
+P 0E93B055 head4.png
+P 147E3786 head5.png
+P 9F526653 map-tile.jpg
+S DEB39FE1 map.png
+R 10F4AE84 mask.png
+R BB18F14E s1-background.jpg
+P C7D9E72B s1-btn1.png
+P A568C48D s1-btn2.png
+P 33CA63E2 s1-input.png
+P CBA1994D s1-option-background.png
+P 66D3FD49 s1-radio.png
 D res
-R 6F118980 sprite_snakebody.prefab
+R 8D8A7EF2 sprite_food.prefab
+R 1DF2DD19 sprite_snakebody.prefab
 D sound
 R 2F9F0F33 THUNDER LANDING.mp3
