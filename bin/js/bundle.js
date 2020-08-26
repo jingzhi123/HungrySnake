@@ -154,44 +154,6 @@
         }
     }
 
-    class GameMain extends BaseScript {
-
-        constructor() { 
-            super(); 
-            /** @prop {name:returnBtn, tips:"返回按钮", type:Node, default:null}*/
-            let returnBtn;
-        }
-
-        onStart() {
-            console.log('start');
-            this.onLoadComplete();
-
-            this.returnBtn.clickHandler = Laya.Handler.create(this,(e)=>{
-                Laya.Scene.open('init.scene');
-            });
-        }
-        
-        onLoadComplete(){
-            //播放bgm
-            this.bgm = Laya.SoundManager.playSound("sound/THUNDER LANDING.mp3",1,Laya.Handler.create(this,()=>{
-                console.log('播放完毕');
-            }));
-            
-            
-        }
-        onDestroy(){
-            console.log('destory');
-            let bgm = this.bgm;
-            if(bgm){
-                bgm.stop();
-            }
-        }
-
-        onDisable() {
-            console.log('disabled');
-        }
-    }
-
     class Snake extends Laya.Script {
 
         constructor() { 
@@ -210,8 +172,8 @@
             /** @prop {name:food, tips:"食物", type:Node, default:null}*/
             let food;
 
-            /** @prop {name:step, tips:"步长", type:Number, default:10}*/
-            this.step = 2;
+            /** @prop {name:step, tips:"步长", type:Number, default:1}*/
+            this.step = 1;
 
             /** @prop {name:direction, tips:"初始方向", type:String, default:"右"}*/
             this.direction = '';
@@ -220,7 +182,7 @@
             this.frame = 1;
             
             /** @prop {name:velocity, tips:"初始速度", type:Number, default:1}*/
-            this.velocity = 1;
+            this.velocity = 2;
             
             
             /** @prop {name:acceleratedVelocity, tips:"加速度", type:Number, default:1}*/
@@ -241,7 +203,7 @@
             //是否为加速模式
             this.speedMode = false;
 
-            /** @prop {tips:"蛇身体数组",type:Array<Sprite>}*/
+            
             this.snakeBodyArr=[];
 
             /** @prop {tips:"路径数组"}*/
@@ -309,7 +271,6 @@
         //速度改变
         speedChange(velocity){
             this.currentVelocity = velocity;
-            this.directionChange(this.direction);
         }
 
         positionChange(){
@@ -358,88 +319,77 @@
             this.bodyMove();
         }
 
-        move(velocity){
-            this.currentVelocity = velocity||this.velocity;
+        headMove(){
             //如果有蛇身,则记住路径
-            if(this.snakeBodyArr.length){
+            // if(this.snakeBodyArr.length){
+            //     this.pathArr.unshift({x:this.snake.x,y:this.snake.y})
+            // }
+
+            let x = this.velocity * Math.cos(this.snake.rotation * Math.PI / 180);
+            let y = this.velocity * Math.sin(this.snake.rotation * Math.PI / 180);
+
+            let pos = { x: this.x, y: this.y };
+            let posBefore = { x: this.x, y: this.y };
+
+            for (let index = 1; index <= this.currentVelocity; index++) {
+                // this.pathArr.unshift({
+                //     x: index * Math.cos(Math.atan2(pos.y - posBefore.y, pos.x - posBefore.x)) + posBefore.x
+                //     , y: index * Math.sin(Math.atan2(pos.y - posBefore.y, pos.x - posBefore.x)) + posBefore.y
+                // })
                 this.pathArr.unshift({x:this.snake.x,y:this.snake.y});
+                switch (this.direction) {
+                    case '右':
+                        this.snake.x += this.step;
+                        
+                        break;
+                    case '左':
+                        this.snake.x -= this.step;
+                        
+                        break;
+                    case '上':
+                        this.snake.y -= this.step;
+                        
+                        break;
+                    case '下':
+                        this.snake.y += this.step;
+                        
+                        break;
+                
+                    default:
+                        break;
+                }
+                if(!this.snakeBodyArr.length){
+                    this.pathArr.pop();
+                }
             }
-
-            switch (this.direction) {
-                case '右':
-                    //this.rigid.linearVelocity = {x:velocity,y:0}
-                    this.bodyPos = {x:-this.snake.width,y:0};
-                    break;
-                case '左':
-                    //this.rigid.linearVelocity = {x:-velocity,y:0}
-                    this.bodyPos = {x:this.snake.width,y:0};
-                    break;
-                case '上':
-                    //this.rigid.linearVelocity = {x:0,y:-velocity}
-                    this.bodyPos = {x:0,y:this.snake.height};
-                    break;
-                case '下':
-                    //this.rigid.linearVelocity = {x:0,y:velocity}
-                    this.bodyPos = {x:0,y:-this.snake.height};
-                    break;
-            
-                default:
-                    break;
-            }
-
-            // this.bodyMove();
-        }
-
-        headMove(velocity){
-            this.currentVelocity = velocity||this.velocity;
-            //如果有蛇身,则记住路径
-            if(this.snakeBodyArr.length){
-                this.pathArr.unshift({x:this.snake.x,y:this.snake.y});
-            }
-
-            switch (this.direction) {
-                case '右':
-                    this.snake.x += this.step;
-                    this.bodyPos = {x:-this.snake.width,y:0};
-                    break;
-                case '左':
-                    this.snake.x -= this.step;
-                    this.bodyPos = {x:this.snake.width,y:0};
-                    break;
-                case '上':
-                    this.snake.y -= this.step;
-                    this.bodyPos = {x:0,y:this.snake.height};
-                    break;
-                case '下':
-                    this.snake.y += this.step;
-                    this.bodyPos = {x:0,y:-this.snake.height};
-                    break;
-            
-                default:
-                    break;
-            }
-
-            // this.bodyMove();
         }
 
         bodyMove(){
             if(this.pathArr.length){
                 console.log(this.pathArr);
+                
+                //路径总帧数
+                let pathFrame = this.pathArr[0];
+                console.log(pathFrame);
                 // console.log(this.pathArr[0].x)
                 for(let index=0;index<this.snakeBodyArr.length;index++){
                     let body = this.snakeBodyArr[index];
-                    if(this.pathArr[(index+1)*(body.width/2)]){
-                        let path = this.pathArr[(index+1)*(body.width/2)];
+                    //当前身体需要获取的路径下标(第几个this.frame帧时,蛇走了index+1*body.width个像素)
+                    let curIndex = Math.ceil((index+1)*((body.width*this.frame)/this.step));
+                    // let curIndex = (index+1)*(body.width)/this.frame;
+                    console.log(curIndex);
+                    if(this.pathArr[curIndex]){
+                        let path = this.pathArr[curIndex];
                         
                         let p = new Laya.Point(path.x,path.y);
                         
-                        // Laya.timer.frameOnce(this.frame,this,()=>{
+                        // Laya.timer.frameOnce(this.frame*(index+1)*(body.width/2),this,()=>{
                             body.x = p.x;
                             body.y = p.y;
                         // })
 
                     }
-                    if(this.pathArr.length > (this.snakeBodyArr.length+1) * (body.width/2)){
+                    if(this.pathArr.length > (this.snakeBodyArr.length+1) * (body.width/this.step)){
                         this.pathArr.pop();
                     }
                     // let rigid = body.getComponent(Laya.RigidBody)
@@ -514,7 +464,7 @@
             if(this.speedMode){
                 this.snake.event('speedChange',this.velocity+this.acceleratedVelocity);
             } else {
-                this.move(this.currentVelocity);
+                this.headMove(this.currentVelocity);
                 if(this.keyPressTime>this.keyPressDelay){
                     this.speedMode = true;
                     this.snake.event('speedChange',this.velocity+this.acceleratedVelocity);
@@ -596,6 +546,45 @@
         }
     }
 
+    class GameMain extends BaseScript {
+
+        constructor() { 
+            super(); 
+            /** @prop {name:returnBtn, tips:"返回按钮", type:Node, default:null}*/
+            let returnBtn;
+        }
+
+        onStart() {
+            console.log('start');
+            this.onLoadComplete();
+
+            this.returnBtn.clickHandler = Laya.Handler.create(this,(e)=>{
+                Laya.timer.resume();
+                Laya.Scene.open('init.scene');
+            });
+        }
+        
+        onLoadComplete(){
+            //播放bgm
+            this.bgm = Laya.SoundManager.playSound("sound/THUNDER LANDING.mp3",1,Laya.Handler.create(this,()=>{
+                console.log('播放完毕');
+            }));
+            
+            
+        }
+        onDestroy(){
+            console.log('destory');
+            let bgm = this.bgm;
+            if(bgm){
+                bgm.stop();
+            }
+        }
+
+        onDisable() {
+            console.log('disabled');
+        }
+    }
+
     class SnakeBody extends Laya.Script {
 
         constructor() { 
@@ -634,9 +623,9 @@
     		reg("script/GameMain/BtnStartGame.js",BtnStartGame);
     		reg("script/GameMenu/GameControl.js",GameControl);
     		reg("script/GameMain/ScoreControl.js",ScoreControl);
-    		reg("script/GameMain/GameMain.js",GameMain);
     		reg("script/GameMain/Snake.js",Snake);
     		reg("script/GameMain/Food.js",Food);
+    		reg("script/GameMain/GameMain.js",GameMain);
     		reg("script/GameMain/SnakeBody.js",SnakeBody);
         }
     }
@@ -646,7 +635,7 @@
     GameConfig.screenMode = "none";
     GameConfig.alignV = "top";
     GameConfig.alignH = "left";
-    GameConfig.startScene = "scene/gameMain.scene";
+    GameConfig.startScene = "init.scene";
     GameConfig.sceneRoot = "";
     GameConfig.debug = false;
     GameConfig.stat = false;

@@ -1,12 +1,12 @@
 {
     "x":0,
     "type":"Scene",
-    "selectedBox":13,
-    "selecteID":6,
+    "selectedBox":2,
+    "selecteID":3,
     "searchKey":"Scene,game_scene",
     "props":{"width":960,"sceneColor":"#000000","name":"game_scene","height":540,"autoDestroyAtClosed":true},
     "nodeParent":-1,
-    "maxID":90,
+    "maxID":92,
     "label":"game_scene",
     "isOpen":true,
     "isDirectory":true,
@@ -91,36 +91,18 @@
         },
         {
             "x":15,
-            "type":"Script",
-            "switchAble":true,
-            "source":"src/script/GameMain/GameMain.js",
-            "searchKey":"Script,GameMain",
-            "removeAble":true,
-            "props":{"returnBtn":"@node:3"},
-            "nodeParent":2,
-            "label":"GameMain",
-            "isDirectory":false,
-            "isAniNode":true,
-            "hasChild":false,
-            "compId":47,
-            "child":[
-                ]
-        },
-        {
-            "x":15,
             "type":"Sprite",
             "searchKey":"Sprite,center",
             "props":{"y":269,"x":479,"width":1,"name":"center","height":1},
             "nodeParent":2,
             "label":"center",
-            "isOpen":true,
+            "isOpen":false,
             "isDirectory":true,
             "isAniNode":true,
             "hasChild":true,
             "compId":51,
             "child":[
                 {
-                    "x":30,
                     "type":"Sprite",
                     "searchKey":"Sprite,sprite_wall",
                     "props":{"y":-250,"x":-479,"width":960,"name":"sprite_wall","height":520},
@@ -133,7 +115,6 @@
                     "compId":13,
                     "child":[
                         {
-                            "x":45,
                             "type":"Rect",
                             "searchKey":"Rect,rect_wall",
                             "props":{"y":0,"x":0,"width":960,"name":"rect_wall","lineWidth":1,"lineColor":"#ffffff","height":520},
@@ -147,7 +128,6 @@
                                 ]
                         },
                         {
-                            "x":45,
                             "type":"Sprite",
                             "searchKey":"Sprite,sprite_snake",
                             "props":{"y":379,"x":235,"width":10,"name":"sprite_snake","height":10},
@@ -160,7 +140,6 @@
                             "compId":6,
                             "child":[
                                 {
-                                    "x":60,
                                     "type":"Circle",
                                     "searchKey":"Circle",
                                     "props":{"y":5,"x":5,"radius":5,"lineWidth":1,"fillColor":"#ff0000"},
@@ -174,7 +153,6 @@
                                         ]
                                 },
                                 {
-                                    "x":60,
                                     "type":"RigidBody",
                                     "switchAble":true,
                                     "searchKey":"RigidBody",
@@ -190,7 +168,6 @@
                                         ]
                                 },
                                 {
-                                    "x":60,
                                     "type":"Script",
                                     "switchAble":true,
                                     "source":"src/script/GameMain/Snake.js",
@@ -207,7 +184,6 @@
                                         ]
                                 },
                                 {
-                                    "x":60,
                                     "type":"CircleCollider",
                                     "switchAble":true,
                                     "searchKey":"CircleCollider,collider_snake",
@@ -224,13 +200,12 @@
                                 }]
                         },
                         {
-                            "x":45,
                             "type":"Sprite",
                             "searchKey":"Sprite,sprite_food",
                             "props":{"y":7,"x":0,"width":10,"name":"sprite_food","height":10},
                             "nodeParent":13,
                             "label":"sprite_food",
-                            "isOpen":false,
+                            "isOpen":true,
                             "isDirectory":true,
                             "isAniNode":true,
                             "hasChild":true,
@@ -298,7 +273,6 @@
                                 }]
                         },
                         {
-                            "x":45,
                             "type":"ChainCollider",
                             "switchAble":true,
                             "searchKey":"ChainCollider,collider_wall",
@@ -314,7 +288,6 @@
                                 ]
                         },
                         {
-                            "x":45,
                             "type":"RigidBody",
                             "switchAble":true,
                             "searchKey":"RigidBody",
@@ -330,7 +303,6 @@
                                 ]
                         },
                         {
-                            "x":45,
                             "type":"Widget",
                             "switchAble":true,
                             "searchKey":"Widget",
@@ -347,7 +319,6 @@
                         }]
                 },
                 {
-                    "x":30,
                     "type":"Widget",
                     "switchAble":true,
                     "searchKey":"Widget",
@@ -362,6 +333,23 @@
                     "child":[
                         ]
                 }]
+        },
+        {
+            "x":15,
+            "type":"Script",
+            "switchAble":true,
+            "source":"src/script/GameMain/GameMain.js",
+            "searchKey":"Script,GameMain",
+            "removeAble":true,
+            "props":{"y":0,"x":0,"returnBtn":"@node:3"},
+            "nodeParent":2,
+            "label":"GameMain",
+            "isDirectory":false,
+            "isAniNode":true,
+            "hasChild":false,
+            "compId":47,
+            "child":[
+                ]
         }],
     "animations":[
         {

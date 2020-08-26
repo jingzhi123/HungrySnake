@@ -12,6 +12,7 @@ export default class GameMain extends BaseScript {
         this.onLoadComplete();
 
         this.returnBtn.clickHandler = Laya.Handler.create(this,(e)=>{
+            Laya.timer.resume()
             Laya.Scene.open('init.scene')
         })
     }
