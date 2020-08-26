@@ -4,6 +4,7 @@ import GameControl from "./script/GameMenu/GameControl"
 import ScoreControl from "./script/GameMain/ScoreControl"
 import Snake from "./script/GameMain/Snake"
 import Food from "./script/GameMain/Food"
+import GameOver from "./script/GameMain/GameOver"
 import GameMain from "./script/GameMain/GameMain"
 import SnakeBody from "./script/GameMain/SnakeBody"
 
@@ -16,6 +17,7 @@ export default class GameConfig {
 		reg("script/GameMain/ScoreControl.js",ScoreControl);
 		reg("script/GameMain/Snake.js",Snake);
 		reg("script/GameMain/Food.js",Food);
+		reg("script/GameMain/GameOver.js",GameOver);
 		reg("script/GameMain/GameMain.js",GameMain);
 		reg("script/GameMain/SnakeBody.js",SnakeBody);
     }

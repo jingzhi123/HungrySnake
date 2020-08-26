@@ -5,6 +5,8 @@ export default class GameMain extends BaseScript {
         super(); 
         /** @prop {name:returnBtn, tips:"返回按钮", type:Node, default:null}*/
         let returnBtn;
+        /** @prop {name:scoreView, tips:"分数视图", type:Node, default:null}*/
+        let scoreView;
     }
 
     onStart() {

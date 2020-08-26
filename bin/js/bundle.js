@@ -85,22 +85,57 @@
             let logo;
             /** @prop {name:btn, tips:"开始按钮", type:Node, default:null}*/
             let btn;
+            /** @prop {name:rankListBtn, tips:"排行榜按钮", type:Node, default:null}*/
+            let rankListBtn;
+            /** @prop {name:rankListCloseBtn, tips:"排行榜关闭按钮", type:Node, default:null}*/
+            let rankListCloseBtn;
             /** @prop {name:gameText, tips:"游戏标题", type:Node, default:null}*/
             let gameText;
+            /** @prop {name:scoreList, tips:"分数列表", type:Node, default:null}*/
+            let scoreList;
         }
         onAwake(){
-            console.log(this);
+            //排行榜打开
+            this.rankListBtn.clickHandler = Laya.Handler.create(this,(e)=>{
+                console.log('打开排行!');
+                let scoreArr = Laya.LocalStorage.getJSON('scoreArr');
+                this.scoreList.visible = true;
+                let scorePanel = this.scoreList.getChildByName('panel_score');
+                console.log(Laya.LocalStorage.items);
+                scoreArr.sort((a,b)=>{
+                    return b.score-a.score;
+                });
+                scoreArr.forEach((s,i)=>{
+                    let text = new Laya.Text();
+                    text.width = scorePanel.width;
+                    text.fontSize = 18;
+                    text.height = 20;
+                    text.x = 0;
+                    text.y = i*text.height+ 20;
+                    text.align = 'center';
+                    text.valign = 'top';
+                    text.text = '姓名: ' + s.name + " , 分数: " + s.score;
+                    scorePanel.addChild(text);
+                });
+            },null,false);
+            //排行榜关闭
+            this.rankListCloseBtn.clickHandler = Laya.Handler.create(this,(e)=>{
+                this.scoreList.visible = false;
+            },null,false);
+            
         }
         onEnable() {
             
             this.btn.disabled=true;
             let timeline = Laya.TimeLine.from(this.logo,{x:0,y:this.logo.y},1000,null);
             timeline.to(this.btn,{alpha:1},1000,null);
+            timeline.to(this.rankListBtn,{alpha:1},1000,null);
             timeline.to(this.gameText,{alpha:1},1000,null,1000);
             timeline.play();
             timeline.on(Laya.Event.COMPLETE,this,()=>{
                 console.log('动画播放完毕!');
                 this.btn.disabled=false;
+                this.rankListBtn.disabled=false;
                 timeline.destroy();
                 this.timeline=null;
             });
@@ -109,7 +144,7 @@
 
         onClick(){
             if(this.timeline){
-                this.timeline.gotoTime(4000);
+                this.timeline.gotoTime(5000);
             }
         }
 
@@ -162,6 +197,8 @@
             let snake;
             /** @prop {name:snakeBody, tips:"蛇身", type:Prefab, default:null}*/
             let snakeBody;
+            /** @prop {name:scoreList, tips:"分数列表", type:Node, default:null}*/
+            let scoreList;
 
             /** @prop {name:rigid, tips:"刚体", type:Node, default:null}*/
             let rigid;
@@ -176,7 +213,7 @@
             this.step = 1;
 
             /** @prop {name:direction, tips:"初始方向", type:String, default:"右"}*/
-            this.direction = '';
+            this.direction = '右';
             
             /** @prop {name:frame, tips:"速率(刷新率)", type:Number, default:1}*/
             this.frame = 1;
@@ -206,7 +243,7 @@
             
             this.snakeBodyArr=[];
 
-            /** @prop {tips:"路径数组"}*/
+            //路径数组
             this.pathArr=[];
 
             this.snakeLength = 10;
@@ -221,12 +258,20 @@
             this.snake.on('speedChange',this,(velocity)=>{
                 this.speedChange(velocity);
             });
+            //初始化位置
             this.positionChange();
+            //初始化速度
+            this.currentVelocity = this.velocity;
+            //初始化方向
+            this.directionChange(this.direction);
 
             Laya.timer.frameLoop(this.frame,this,this.mainLoop);
 
-
             this.foodScript = this.food.getComponent(Laya.Script);
+            this.scoreScript = this.foodScript.scoreText.getComponent(Laya.Script);
+            this.gameMain = this.owner.scene.getComponent(Laya.Script);
+            this.scoreView = this.gameMain.scoreView;
+
             Laya.loader.load('res/sprite_snakebody.prefab',Laya.Handler.create(this,(res)=>{
                 this.bodyRes = res;
                 // this.snakeBody = res.create();
@@ -242,24 +287,28 @@
                     if(this.direction=='左'){
                         return;
                     } 
+                    this.snake.rotation = 90;
                     //this.rigid.setVelocity({x:this.currentVelocity,y:0})
                     break;
                 case '左':
                     if(this.direction=='右'){
                         return;
                     }
+                    this.snake.rotation = -90;
                     //this.rigid.setVelocity({x:-this.currentVelocity,y:0})
                     break;
                 case '上':
                     if(this.direction=='下'){
                         return;
                     }
+                    this.snake.rotation = 180;
                     //this.rigid.setVelocity({x:0,y:-this.currentVelocity})
                     break;
                 case '下':
                     if(this.direction=='上'){
                         return;
                     }
+                    this.snake.rotation = 0;
                     //this.rigid.setVelocity({x:0,y:this.currentVelocity})
                     break;
             
@@ -282,16 +331,25 @@
             if(other.name=='collider_wall'){
                 this.owner.event('dead','撞墙了!');
             }
-            if(other.name=='collider_snakebody'){
-                // this.owner.event('dead','撞身体上了!');
-            }
             if(other.name=='collider_food'){
                 this.addBody();
             }
         }
 
+
+
         onTriggerStay(other,self,contact){
-            console.log(other,self,contact);
+            console.log('stay');
+        }
+
+        onTriggerExit(other,self,contact){
+            if(other.name=='collider_snakebody'){
+                console.log('exit');
+                if(this.direction == '右' && this.snake.x < other.owner.x){
+
+                    this.owner.event('dead','撞身体上了!');
+                }
+            }
         }
 
         onStart(){
@@ -304,6 +362,20 @@
             this.owner.on('dead',this,(msg)=>{
                 this.dead = true;
                 console.log(msg);
+                console.log(this.scoreView);
+                this.scoreView.visible = true;
+                let scoreLabel = this.scoreView.getChildByName('label_score');
+                scoreLabel.text = this.scoreScript.score;
+                let scoreArr = Laya.LocalStorage.getJSON('scoreArr');
+                if(!scoreArr){
+                    scoreArr = [{name:'张三',score:this.scoreScript.score}];
+                } else {
+                    scoreArr.push({name:'李四',score:this.scoreScript.score});
+                }
+                Laya.LocalStorage.setJSON('scoreArr',scoreArr);
+
+                
+
                 this.stop();
             });
         }
@@ -320,73 +392,37 @@
         }
 
         headMove(){
-            //如果有蛇身,则记住路径
-            // if(this.snakeBodyArr.length){
-            //     this.pathArr.unshift({x:this.snake.x,y:this.snake.y})
-            // }
-
-            let x = this.velocity * Math.cos(this.snake.rotation * Math.PI / 180);
-            let y = this.velocity * Math.sin(this.snake.rotation * Math.PI / 180);
+            let x = this.step * Math.sin(this.snake.rotation * Math.PI / 180);
+            let y = this.step * Math.cos(this.snake.rotation * Math.PI / 180);
 
             let pos = { x: this.x, y: this.y };
             let posBefore = { x: this.x, y: this.y };
 
             for (let index = 1; index <= this.currentVelocity; index++) {
-                // this.pathArr.unshift({
-                //     x: index * Math.cos(Math.atan2(pos.y - posBefore.y, pos.x - posBefore.x)) + posBefore.x
-                //     , y: index * Math.sin(Math.atan2(pos.y - posBefore.y, pos.x - posBefore.x)) + posBefore.y
-                // })
-                this.pathArr.unshift({x:this.snake.x,y:this.snake.y});
-                switch (this.direction) {
-                    case '右':
-                        this.snake.x += this.step;
-                        
-                        break;
-                    case '左':
-                        this.snake.x -= this.step;
-                        
-                        break;
-                    case '上':
-                        this.snake.y -= this.step;
-                        
-                        break;
-                    case '下':
-                        this.snake.y += this.step;
-                        
-                        break;
-                
-                    default:
-                        break;
-                }
-                if(!this.snakeBodyArr.length){
-                    this.pathArr.pop();
+
+                this.snake.x += x;
+                this.snake.y += y;
+                if(this.snakeBodyArr.length){
+                    this.pathArr.unshift({x:this.snake.x,y:this.snake.y,rotation:this.snake.rotation});
                 }
             }
         }
 
         bodyMove(){
             if(this.pathArr.length){
-                console.log(this.pathArr);
-                
-                //路径总帧数
-                let pathFrame = this.pathArr[0];
-                console.log(pathFrame);
-                // console.log(this.pathArr[0].x)
+
                 for(let index=0;index<this.snakeBodyArr.length;index++){
                     let body = this.snakeBodyArr[index];
                     //当前身体需要获取的路径下标(第几个this.frame帧时,蛇走了index+1*body.width个像素)
                     let curIndex = Math.ceil((index+1)*((body.width*this.frame)/this.step));
-                    // let curIndex = (index+1)*(body.width)/this.frame;
                     console.log(curIndex);
                     if(this.pathArr[curIndex]){
                         let path = this.pathArr[curIndex];
                         
                         let p = new Laya.Point(path.x,path.y);
-                        
-                        // Laya.timer.frameOnce(this.frame*(index+1)*(body.width/2),this,()=>{
-                            body.x = p.x;
-                            body.y = p.y;
-                        // })
+                        console.log(body.rotation);
+                        body.x = p.x;
+                        body.y = p.y;
 
                     }
                     if(this.pathArr.length > (this.snakeBodyArr.length+1) * (body.width/this.step)){
@@ -430,8 +466,7 @@
             //改变位置
             this.foodScript.positionChange();
             //加分
-            let s = this.foodScript.scoreText.getComponent(Laya.Script);
-            s.plusScore();
+            this.scoreScript.plusScore();
         }
 
         onUpdate(){
@@ -546,12 +581,43 @@
         }
     }
 
+    class GameOver extends Laya.Script {
+
+        constructor() { 
+            super(); 
+            /** @prop {name:retryBtn, tips:"重试按钮", type:Node, default:null}*/
+            let retryBtn;
+            /** @prop {name:returnBtn, tips:"返回按钮", type:Node, default:null}*/
+            let returnBtn;
+        }
+        onAwake(){
+            console.log('gameover');
+        }
+        
+        onStart() {
+            this.returnBtn.clickHandler = Laya.Handler.create(this,(e)=>{
+                console.log('return');
+                Laya.timer.resume();
+                Laya.Scene.open('init.scene');
+            });
+            this.retryBtn.clickHandler = Laya.Handler.create(this,(e)=>{
+                Laya.timer.resume();
+                Laya.Scene.open('scene/gameMain.scene');
+            });
+        }
+
+        onDisable() {
+        }
+    }
+
     class GameMain extends BaseScript {
 
         constructor() { 
             super(); 
             /** @prop {name:returnBtn, tips:"返回按钮", type:Node, default:null}*/
             let returnBtn;
+            /** @prop {name:scoreView, tips:"分数视图", type:Node, default:null}*/
+            let scoreView;
         }
 
         onStart() {
@@ -625,6 +691,7 @@
     		reg("script/GameMain/ScoreControl.js",ScoreControl);
     		reg("script/GameMain/Snake.js",Snake);
     		reg("script/GameMain/Food.js",Food);
+    		reg("script/GameMain/GameOver.js",GameOver);
     		reg("script/GameMain/GameMain.js",GameMain);
     		reg("script/GameMain/SnakeBody.js",SnakeBody);
         }

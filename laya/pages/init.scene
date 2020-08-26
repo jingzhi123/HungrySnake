@@ -1,12 +1,12 @@
 {
     "x":0,
     "type":"Scene",
-    "selectedBox":26,
-    "selecteID":39,
+    "selectedBox":2,
+    "selecteID":40,
     "searchKey":"Scene,init_scene,init",
     "props":{"width":960,"var":"init","sceneColor":"#000000","name":"init_scene","height":540,"autoDestroyAtClosed":true},
     "nodeParent":-1,
-    "maxID":40,
+    "maxID":48,
     "label":"init_scene",
     "isOpen":true,
     "isDirectory":true,
@@ -33,31 +33,16 @@
             "x":15,
             "type":"Button",
             "searchKey":"Button,btn_startGame",
-            "props":{"y":387,"x":401,"width":158,"stateNum":"3","skin":"comp/button.png","name":"btn_startGame","height":47,"gray":true,"alpha":0},
+            "props":{"y":387,"x":401,"width":158,"stateNum":"3","skin":"comp/button.png","name":"btn_startGame","labelAlign":"center","label":"开始游戏","height":47,"gray":true,"alpha":0},
             "nodeParent":2,
             "label":"btn_startGame",
-            "isOpen":true,
+            "isOpen":false,
             "isDirectory":true,
             "isAniNode":true,
             "hasChild":true,
             "compId":26,
             "child":[
                 {
-                    "x":30,
-                    "type":"Label",
-                    "searchKey":"Label",
-                    "props":{"y":12,"x":39,"width":79,"text":"开始游戏","height":24,"fontSize":19,"color":"#f1dfdf"},
-                    "nodeParent":26,
-                    "label":"Label",
-                    "isDirectory":false,
-                    "isAniNode":true,
-                    "hasChild":false,
-                    "compId":27,
-                    "child":[
-                        ]
-                },
-                {
-                    "x":30,
                     "type":"Script",
                     "switchAble":true,
                     "source":"src/script/GameMain/BtnStartGame.js",
@@ -77,9 +62,25 @@
         },
         {
             "x":15,
+            "type":"Button",
+            "searchKey":"Button,btn_rankList",
+            "props":{"y":446,"x":401,"width":158,"stateNum":"3","skin":"comp/button.png","name":"btn_rankList","labelStrokeColor":"#ffffff","labelAlign":"center","label":"排行榜","height":47,"gray":true,"alpha":0},
+            "nodeParent":2,
+            "label":"btn_rankList",
+            "isOpen":true,
+            "isDirectory":false,
+            "isAniNode":true,
+            "hasChild":false,
+            "compId":42,
+            "child":[
+                ],
+            "$HIDDEN":false
+        },
+        {
+            "x":15,
             "type":"ProgressBar",
             "searchKey":"ProgressBar",
-            "props":{"y":483,"x":382,"width":195,"visible":false,"value":0,"skin":"comp/progress.png","rotation":0,"height":10},
+            "props":{"y":523,"x":382,"width":195,"visible":false,"value":0,"skin":"comp/progress.png","rotation":0,"height":10},
             "nodeParent":2,
             "label":"ProgressBar",
             "isDirectory":false,
@@ -126,7 +127,7 @@
             "source":"src/script/GameMenu/GameControl.js",
             "searchKey":"Script,GameControl",
             "removeAble":true,
-            "props":{"logo":"@node:24","gameText":"@node:37","btn":"@node:26"},
+            "props":{"scoreList":"@node:40","rankListCloseBtn":"@node:46","rankListBtn":"@node:42","logo":"@node:24","gameText":"@node:37","btn":"@node:26"},
             "nodeParent":2,
             "label":"GameControl",
             "isDirectory":false,
@@ -135,6 +136,50 @@
             "compId":38,
             "child":[
                 ]
+        },
+        {
+            "x":15,
+            "type":"Sprite",
+            "searchKey":"Sprite,sprite_scorelist",
+            "props":{"y":164,"x":447,"width":307,"visible":false,"texture":"comp/label.png","pivotY":129,"pivotX":121,"name":"sprite_scorelist","height":437},
+            "nodeParent":2,
+            "label":"sprite_scorelist",
+            "isOpen":true,
+            "isDirectory":true,
+            "isAniNode":true,
+            "hasChild":true,
+            "compId":40,
+            "child":[
+                {
+                    "x":30,
+                    "type":"Panel",
+                    "searchKey":"Panel,panel_score",
+                    "props":{"y":0,"x":-1,"width":309,"vScrollBarSkin":"comp/vscroll.png","name":"panel_score","height":437},
+                    "nodeParent":40,
+                    "label":"panel_score",
+                    "isOpen":true,
+                    "isDirectory":false,
+                    "isAniNode":true,
+                    "hasChild":false,
+                    "compId":41,
+                    "child":[
+                        ]
+                },
+                {
+                    "x":30,
+                    "type":"Button",
+                    "searchKey":"Button,btn_close",
+                    "props":{"y":-16,"x":-16,"stateNum":"3","skin":"comp/btn_close.png","name":"btn_close"},
+                    "nodeParent":40,
+                    "label":"btn_close",
+                    "isDirectory":false,
+                    "isAniNode":true,
+                    "hasChild":false,
+                    "compId":46,
+                    "child":[
+                        ]
+                }],
+            "$HIDDEN":true
         }],
     "animations":[
         {
@@ -144,5 +189,6 @@
             "id":1,
             "frameRate":24,
             "action":0
-        }]
+        }],
+    "$HIDDEN":false
 }

@@ -1,12 +1,12 @@
 {
     "x":0,
     "type":"Scene",
-    "selectedBox":2,
-    "selecteID":3,
+    "selectedBox":94,
+    "selecteID":96,
     "searchKey":"Scene,game_scene",
     "props":{"width":960,"sceneColor":"#000000","name":"game_scene","height":540,"autoDestroyAtClosed":true},
     "nodeParent":-1,
-    "maxID":92,
+    "maxID":107,
     "label":"game_scene",
     "isOpen":true,
     "isDirectory":true,
@@ -96,13 +96,14 @@
             "props":{"y":269,"x":479,"width":1,"name":"center","height":1},
             "nodeParent":2,
             "label":"center",
-            "isOpen":false,
+            "isOpen":true,
             "isDirectory":true,
             "isAniNode":true,
             "hasChild":true,
             "compId":51,
             "child":[
                 {
+                    "x":30,
                     "type":"Sprite",
                     "searchKey":"Sprite,sprite_wall",
                     "props":{"y":-250,"x":-479,"width":960,"name":"sprite_wall","height":520},
@@ -115,6 +116,7 @@
                     "compId":13,
                     "child":[
                         {
+                            "x":45,
                             "type":"Rect",
                             "searchKey":"Rect,rect_wall",
                             "props":{"y":0,"x":0,"width":960,"name":"rect_wall","lineWidth":1,"lineColor":"#ffffff","height":520},
@@ -128,12 +130,13 @@
                                 ]
                         },
                         {
+                            "x":45,
                             "type":"Sprite",
                             "searchKey":"Sprite,sprite_snake",
-                            "props":{"y":379,"x":235,"width":10,"name":"sprite_snake","height":10},
+                            "props":{"y":384,"x":240,"width":10,"pivotY":5,"pivotX":5,"name":"sprite_snake","height":10},
                             "nodeParent":13,
                             "label":"sprite_snake",
-                            "isOpen":true,
+                            "isOpen":false,
                             "isDirectory":true,
                             "isAniNode":true,
                             "hasChild":true,
@@ -173,7 +176,7 @@
                                     "source":"src/script/GameMain/Snake.js",
                                     "searchKey":"Script,Snake",
                                     "removeAble":true,
-                                    "props":{"y":-35,"x":-72,"wall":"@node:13","snakeBody":"@Prefab:res/sprite_snakebody.prefab","snake":"@node:6","rigid":"@node:31","food":"@node:15","acceleratedVelocity":2},
+                                    "props":{"y":-35,"x":-72,"wall":"@node:13","snakeBody":"@Prefab:res/sprite_snakebody.prefab","snake":"@node:6","scoreList":"@node:103","rigid":"@node:31","food":"@node:15","acceleratedVelocity":2},
                                     "nodeParent":6,
                                     "label":"Snake",
                                     "isDirectory":false,
@@ -200,12 +203,13 @@
                                 }]
                         },
                         {
+                            "x":45,
                             "type":"Sprite",
                             "searchKey":"Sprite,sprite_food",
                             "props":{"y":7,"x":0,"width":10,"name":"sprite_food","height":10},
                             "nodeParent":13,
                             "label":"sprite_food",
-                            "isOpen":true,
+                            "isOpen":false,
                             "isDirectory":true,
                             "isAniNode":true,
                             "hasChild":true,
@@ -273,6 +277,7 @@
                                 }]
                         },
                         {
+                            "x":45,
                             "type":"ChainCollider",
                             "switchAble":true,
                             "searchKey":"ChainCollider,collider_wall",
@@ -288,6 +293,7 @@
                                 ]
                         },
                         {
+                            "x":45,
                             "type":"RigidBody",
                             "switchAble":true,
                             "searchKey":"RigidBody",
@@ -303,6 +309,7 @@
                                 ]
                         },
                         {
+                            "x":45,
                             "type":"Widget",
                             "switchAble":true,
                             "searchKey":"Widget",
@@ -319,6 +326,7 @@
                         }]
                 },
                 {
+                    "x":30,
                     "type":"Widget",
                     "switchAble":true,
                     "searchKey":"Widget",
@@ -332,6 +340,123 @@
                     "compId":52,
                     "child":[
                         ]
+                },
+                {
+                    "x":30,
+                    "type":"Sprite",
+                    "searchKey":"Sprite,view_score",
+                    "props":{"y":-269,"x":-479,"width":960,"visible":false,"texture":"comp/img_blank.png","sceneColor":"#894f4e","name":"view_score","height":540,"autoDestroyAtClosed":true},
+                    "nodeParent":51,
+                    "label":"view_score",
+                    "isOpen":true,
+                    "isDirectory":true,
+                    "isAniNode":true,
+                    "hasChild":true,
+                    "compId":94,
+                    "child":[
+                        {
+                            "x":45,
+                            "type":"Text",
+                            "searchKey":"Text",
+                            "props":{"y":208,"x":372,"width":216,"valign":"top","text":"分数","height":123,"fontSize":50,"color":"#9e5f5e","align":"center"},
+                            "nodeParent":94,
+                            "label":"Text",
+                            "isDirectory":false,
+                            "isAniNode":true,
+                            "hasChild":false,
+                            "compId":95,
+                            "child":[
+                                ]
+                        },
+                        {
+                            "x":45,
+                            "type":"Label",
+                            "searchKey":"Label,label_score",
+                            "props":{"y":270,"x":444,"width":73,"text":"0","name":"label_score","height":27,"fontSize":20,"color":"#ffffff","align":"center"},
+                            "nodeParent":94,
+                            "label":"label_score",
+                            "isDirectory":false,
+                            "isAniNode":true,
+                            "hasChild":false,
+                            "compId":96,
+                            "child":[
+                                ]
+                        },
+                        {
+                            "x":45,
+                            "type":"Button",
+                            "searchKey":"Button,btn_retry",
+                            "props":{"y":307.5,"x":416,"skin":"comp/button.png","name":"btn_retry","labelSize":16,"label":"再试一次"},
+                            "nodeParent":94,
+                            "label":"btn_retry",
+                            "isDirectory":false,
+                            "isAniNode":true,
+                            "hasChild":false,
+                            "compId":97,
+                            "child":[
+                                ]
+                        },
+                        {
+                            "x":45,
+                            "type":"Button",
+                            "searchKey":"Button,btn_return",
+                            "props":{"y":373,"x":416,"skin":"comp/button.png","name":"btn_return","labelSize":16,"label":"返回"},
+                            "nodeParent":94,
+                            "label":"btn_return",
+                            "isDirectory":false,
+                            "isAniNode":true,
+                            "hasChild":false,
+                            "compId":98,
+                            "child":[
+                                ]
+                        },
+                        {
+                            "x":45,
+                            "type":"Script",
+                            "switchAble":true,
+                            "source":"src/script/GameMain/GameOver.js",
+                            "searchKey":"Script,GameOver",
+                            "removeAble":true,
+                            "props":{"returnBtn":"@node:98","retryBtn":"@node:97"},
+                            "nodeParent":94,
+                            "label":"GameOver",
+                            "isDirectory":false,
+                            "isAniNode":true,
+                            "hasChild":false,
+                            "compId":99,
+                            "child":[
+                                ]
+                        }],
+                    "$HIDDEN":false
+                },
+                {
+                    "x":30,
+                    "type":"Sprite",
+                    "searchKey":"Sprite,sprite_scorelist",
+                    "props":{"y":-154,"x":-103,"width":206,"visible":false,"name":"sprite_scorelist","height":151},
+                    "nodeParent":51,
+                    "label":"sprite_scorelist",
+                    "isOpen":true,
+                    "isDirectory":true,
+                    "isAniNode":true,
+                    "hasChild":true,
+                    "compId":103,
+                    "child":[
+                        {
+                            "x":45,
+                            "type":"Panel",
+                            "searchKey":"Panel,panel_score",
+                            "props":{"y":-7,"x":-12,"width":230,"name":"panel_score","height":168},
+                            "nodeParent":103,
+                            "label":"panel_score",
+                            "isOpen":true,
+                            "isDirectory":false,
+                            "isAniNode":true,
+                            "hasChild":false,
+                            "compId":105,
+                            "child":[
+                                ]
+                        }]
                 }]
         },
         {
@@ -341,7 +466,7 @@
             "source":"src/script/GameMain/GameMain.js",
             "searchKey":"Script,GameMain",
             "removeAble":true,
-            "props":{"y":0,"x":0,"returnBtn":"@node:3"},
+            "props":{"y":0,"x":0,"scoreView":"@node:94","returnBtn":"@node:3"},
             "nodeParent":2,
             "label":"GameMain",
             "isDirectory":false,
