@@ -15,8 +15,12 @@ export default class GameControl extends BaseScript {
         let gameText;
         /** @prop {name:scoreList, tips:"分数列表", type:Node, default:null}*/
         let scoreList;
+        /** @prop {name:ani, tips:"动画", type:Node, default:null}*/
+        let ani;
     }
     onAwake(){
+        
+    Laya.stage.screenMode = "horizontal";
         //排行榜打开
         this.rankListBtn.clickHandler = Laya.Handler.create(this,(e)=>{
             console.log('打开排行!')

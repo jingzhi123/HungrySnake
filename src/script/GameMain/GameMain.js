@@ -7,7 +7,17 @@ export default class GameMain extends BaseScript {
         let returnBtn;
         /** @prop {name:scoreView, tips:"分数视图", type:Node, default:null}*/
         let scoreView;
+        /** @prop {name:wall, tips:"墙", type:Node, default:null}*/
+        let wall;
+        
     }
+
+    onAwake(){
+        BaseScript.gameScene = this.owner
+        BaseScript.wall = this.wall
+    }
+
+
 
     onStart() {
         console.log('start')

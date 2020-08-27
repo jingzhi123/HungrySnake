@@ -1,5 +1,6 @@
 D .
 R 39B957DA texture.png
+D animate
 D comp
 P 316AD948 btn_close.png
 P 5B258D17 button.png
@@ -57,11 +58,11 @@ P 0B5275E8 control-back.png
 P A01C4895 control-flash.png
 P AA9FE505 control-rocker.png
 P D9B90B8D gameover-background.png
-P 2272A299 head1.png
-P 2F1E3AF6 head2.png
-P 697A6839 head3.png
-P 0E93B055 head4.png
-P 147E3786 head5.png
+P 138C77EB head1.png
+P 68B0B190 head2.png
+P C1231F9C head3.png
+P 94E68FC4 head4.png
+P 73A8D07E head5.png
 P 9F526653 map-tile.jpg
 S DEB39FE1 map.png
 R 10F4AE84 mask.png
@@ -73,6 +74,7 @@ P CBA1994D s1-option-background.png
 P 66D3FD49 s1-radio.png
 D res
 R 8D8A7EF2 sprite_food.prefab
+R 9ADB22D3 sprite_snake.prefab
 R 1DF2DD19 sprite_snakebody.prefab
 D sound
 R 2F9F0F33 THUNDER LANDING.mp3

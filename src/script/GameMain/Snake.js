@@ -24,7 +24,7 @@ export default class Snake extends BaseScript {
         this.step = 1;
 
         /** @prop {name:direction, tips:"初始方向", type:String, default:"右"}*/
-        this.direction = '右';
+        this.direction = '上';
         
         /** @prop {name:frame, tips:"速率(刷新率)", type:Number, default:1}*/
         this.frame = 1;
@@ -32,7 +32,9 @@ export default class Snake extends BaseScript {
         /** @prop {name:velocity, tips:"初始速度", type:Number, default:1}*/
         this.velocity = 2;
         
-        
+        this.snakeInitSize = 0.45;
+
+        this.snakeSize = this.snakeInitSize;
         
         /** @prop {name:acceleratedVelocity, tips:"加速度", type:Number, default:1}*/
         this.acceleratedVelocity = 1;
@@ -52,6 +54,10 @@ export default class Snake extends BaseScript {
         //是否为加速模式
         this.speedMode = false;
 
+        //是否为玩家
+        this.player = true;
+
+        this.playerName = '张三'
         
         this.snakeBodyArr=[]
 
@@ -60,27 +66,32 @@ export default class Snake extends BaseScript {
 
         this.snakeLength = 10;
         
-        this.foodNum = 0;
-
-        this.foods = []
         
-        this.foodOrder = 0;
 
         this.scoreForBody = 20;//几分一个身体
 
         this.curScore = 0;//
+
+        this.rotation = 0;
+
+        this.targetR = this.rotation;
+
+        this.score = 0;//玩家分数
+
+        //是否为当前玩家
+        this.currentPlayer = false;//当前玩家
+
+    }
+
+    reverseRotation() {
+        this.targetR = this.rotation > 0 ? this.rotation - 180 : this.rotation + 180
     }
 
     onAwake(){
+        console.log(this.owner)
         this.owner.zOrder = 1;
-        //加载食物资源
-        this.foodRes = Laya.loader.getRes('res/sprite_food.prefab')
-        if(!this.foodRes){
-            console.log('未获取到食物资源!')
-            Laya.loader.load('res/sprite_food.prefab',Laya.Handler.create(this,(res)=>{
-                this.foodRes = res;
-            }))
-        }
+
+        this.snake = this.owner;
 
         this.snake.on('directionChange',this,(direction)=>{
             this.directionChange(direction)
@@ -88,14 +99,16 @@ export default class Snake extends BaseScript {
         this.snake.on('speedChange',this,(velocity)=>{
             this.speedChange(velocity)
         })
+
         //初始化位置
         this.positionChange()
         //初始化速度
         this.currentVelocity = this.velocity;
         //初始化方向
-        this.directionChange(this.direction)
+        this.snake.rotation = 0;
+        // this.directionChange(this.direction)
 
-        Laya.timer.frameLoop(this.frame,this,this.mainLoop)
+        
         
         this.gameMain = this.owner.scene.getComponent(Laya.Script)
         this.scoreView = this.gameMain.scoreView;
@@ -104,6 +117,7 @@ export default class Snake extends BaseScript {
             this.bodyRes = res;
             // this.snakeBody = res.create();
         }))
+
 
     }
 
@@ -150,8 +164,9 @@ export default class Snake extends BaseScript {
     }
 
     positionChange(){
-        this.owner.x = Math.random()*(this.owner.parent.width-100).toFixed(0);
-        this.owner.y = Math.random()*(this.owner.parent.height-100).toFixed(0);
+        let x = this.owner.parent.width/2;
+        let y = this.owner.parent.height/2;
+        this.owner.pos(x,y)
     }
 
     onTriggerEnter(other,self,contact){
@@ -184,20 +199,24 @@ export default class Snake extends BaseScript {
         this.owner.on('dead',this,(msg)=>{
             this.dead = true;
             console.log(msg)
-            this.scoreView.visible = true;
-            let scoreLabel = this.scoreView.getChildByName('label_score')
-            scoreLabel.text = this.scoreScript.score;
+
+            if(this.currentPlayer){//显示得分
+                this.scoreView.visible = true;
+                let scoreLabel = this.scoreView.getChildByName('label_score')
+                scoreLabel.text = this.score;
+                
+
+            }
+            
+            //存储数据
             let scoreArr = Laya.LocalStorage.getJSON('scoreArr')
             if(!scoreArr){
-                scoreArr = [{name:'张三',score:this.scoreScript.score}]
+                scoreArr = [{name:this.playerName,score:this.score}]
             } else {
-                scoreArr.push({name:'李四',score:this.scoreScript.score})
+                scoreArr.push({name:this.playerName,score:this.score})
             }
             Laya.LocalStorage.setJSON('scoreArr',scoreArr)
 
-            
-
-            this.stop()
         })
     }
 
@@ -206,40 +225,17 @@ export default class Snake extends BaseScript {
         Laya.timer.pause()
     }
 
-    mainLoop(){
-        // this.move()
-        this.headMove()
-        this.bodyMove()
-        
-        
-        this.loadFood()
-    }
-
-    loadFood(){
-        if(this.foodRes){
-            for(let i = 0 ;i<20;i++){
-                if(this.foodNum<this.maxFood){
-                    let x = Math.random()*(this.wall.width-10).toFixed(0)+10;
-                    let y = Math.random()*(this.wall.height-10).toFixed(0)+10;
-                    let food = this.foodRes.create();
-                    let foodScript = food.getComponent(Laya.Script)
-                    food.foodOrder = this.foodOrder;
-                    food = foodScript.create(x,y)
-
-                    this.wall.addChild(food)
-                    console.log(food)
-                    // this.foods[this.foodOrder] = food;
-                    this.foodOrder++;
-                    this.foodNum++;
-                }
-            }
-
-        }
-    }
-
     headMove(){
-        let x = this.step * Math.sin(this.snake.rotation * Math.PI / 180)
-        let y = this.step * Math.cos(this.snake.rotation * Math.PI / 180)
+        if(this.dead){
+            return;
+        }
+        if(this.speedMode){
+            this.speedChange(this.velocity+this.acceleratedVelocity)
+        } else {
+            this.speedChange(this.velocity)
+        }
+        let x = this.step * Math.cos(this.snake.rotation * Math.PI / 180)
+        let y = this.step * Math.sin(this.snake.rotation * Math.PI / 180)
 
         let pos = { x: this.x, y: this.y }
         let posBefore = { x: this.x, y: this.y }
@@ -248,14 +244,19 @@ export default class Snake extends BaseScript {
 
             this.snake.x += x;
             this.snake.y += y;
-            BaseScript.snakePos = {x:this.snake.x,y:this.snake.y};
+            
+            // BaseScript.snakePos = {x:this.snake.x,y:this.snake.y};
             if(this.snakeBodyArr.length){
                 this.pathArr.unshift({x:this.snake.x,y:this.snake.y,rotation:this.snake.rotation})
             }
         }
+
     }
 
     bodyMove(){
+        if(this.dead){
+            return;
+        }
         if(this.pathArr.length){
 
             for(let index=0;index<this.snakeBodyArr.length;index++){
@@ -281,10 +282,10 @@ export default class Snake extends BaseScript {
     }
 
     addBody(){
-
         //长度增加
         let snakeRigidBody = this.rigid;
         let snakeBody = this.bodyRes.create()
+        
         let snakeBodyRigidBody = snakeBody.getComponent(Laya.RigidBody)
         snakeBodyRigidBody.type = 'kinematic'
         snakeBodyRigidBody.collidConnected = true;
@@ -298,26 +299,29 @@ export default class Snake extends BaseScript {
         if(!this.snakeBodyArr.length){
             bodyRopeJoint.otherBody = snakeRigidBody;
             this.wall.addChild(snakeBody)
-
+            
         } else {
             let lastBody = this.snakeBodyArr[this.snakeBodyArr.length-1];
             let lastBodyRigidBody = lastBody.getComponent(Laya.RigidBody)
             
             bodyRopeJoint.otherBody = lastBodyRigidBody;
-
+            
             this.wall.addChild(snakeBody)
         }
+        Laya.Tween.from(snakeBody,{scaleX:0,scaleY:0},200,Laya.Ease.strongIn)
         //添加身体
         this.snakeBodyArr.push(snakeBody)
 
-        this.foodNum--;
+        
         
     }
 
-    foodEat(food){
+    //食物被吃
+    foodEat(){
         //加分
-        this.scoreScript.plusScore()
+        this.score++;
         this.curScore++;
+        this.foodNum--;
         if(this.curScore>=this.scoreForBody){
             this.curScore = 0;
             this.addBody()
@@ -376,15 +380,15 @@ export default class Snake extends BaseScript {
     onKeyUp(e){
         if(this.dead)return;
         
-        if(!this.speedMode){
-            this.keyPressTime = 0
-        }
-        this.snake.event('speedChange',this.velocity)
+        // if(!this.speedMode){
+        //     this.keyPressTime = 0
+        // }
+        // this.snake.event('speedChange',this.velocity)
         
-        Laya.timer.once(1000,this,()=>{
+        // Laya.timer.once(1000,this,()=>{
 
-            this.speedMode = false;
-        },null,true)
+        //     this.speedMode = false;
+        // },null,true)
     }
     
     onDisable() {
