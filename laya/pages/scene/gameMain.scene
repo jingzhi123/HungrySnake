@@ -1,12 +1,12 @@
 {
     "x":0,
     "type":"Scene",
-    "selectedBox":13,
-    "selecteID":193,
+    "selectedBox":2,
+    "selecteID":13,
     "searchKey":"Scene,game_scene",
-    "props":{"width":960,"sceneColor":"#ffffff","name":"game_scene","height":540,"autoDestroyAtClosed":true},
+    "props":{"width":960,"sceneColor":"#ffffff","sceneBg":"laya/views/scene/gameMain.png","name":"game_scene","height":540,"autoDestroyAtClosed":true},
     "nodeParent":-1,
-    "maxID":194,
+    "maxID":212,
     "label":"game_scene",
     "isOpen":true,
     "isDirectory":true,
@@ -62,23 +62,22 @@
                     "x":30,
                     "type":"Image",
                     "searchKey":"Image,sprite_wall",
-                    "props":{"x":0,"skin":"images/map.png","pivotY":750,"pivotX":1500,"name":"sprite_wall"},
+                    "props":{"y":0,"x":0,"skin":"images/map.png","pivotY":750,"pivotX":1500,"name":"sprite_wall"},
                     "nodeParent":51,
                     "label":"sprite_wall",
-                    "isOpen":true,
+                    "isOpen":false,
                     "isDirectory":true,
                     "isAniNode":true,
                     "hasChild":true,
                     "compId":13,
                     "child":[
                         {
-                            "x":45,
                             "type":"Script",
                             "switchAble":true,
                             "source":"src/script/GameMain/Wall.js",
                             "searchKey":"Script,Wall",
                             "removeAble":true,
-                            "props":{"snakeRes":"@Prefab:res/sprite_snake.prefab","scoreText":"@node:39","foodRes":"@Prefab:res/sprite_food.prefab","btn_speedup":"@node:133","btn_ctrl_rocker_move":"@node:135","btn_ctrl_rocker":"@node:131","btn_ctrl":"@node:130"},
+                            "props":{"snakeRes":"@Prefab:res/sprite_snake1.prefab","scoreText":"@node:39","foodRes":"@Prefab:res/sprite_food1.prefab","btn_speedup":"@node:133","btn_ctrl_rocker_move":"@node:135","btn_ctrl_rocker":"@node:131","btn_ctrl":"@node:130"},
                             "nodeParent":13,
                             "label":"Wall",
                             "isDirectory":false,
@@ -89,7 +88,6 @@
                                 ]
                         },
                         {
-                            "x":45,
                             "type":"RigidBody",
                             "switchAble":true,
                             "searchKey":"RigidBody,rigid_wall",
@@ -105,7 +103,6 @@
                                 ]
                         },
                         {
-                            "x":45,
                             "type":"ChainCollider",
                             "switchAble":true,
                             "searchKey":"ChainCollider,collider_wall",
@@ -119,73 +116,8 @@
                             "compId":190,
                             "child":[
                                 ]
-                        },
-                        {
-                            "x":45,
-                            "type":"Sprite",
-                            "searchKey":"Sprite",
-                            "props":{"y":750,"x":1550,"presetID":1,"preset":"laya/assets/res/sprite_food.prefab"},
-                            "nodeParent":13,
-                            "label":"sprite_food",
-                            "isOpen":true,
-                            "isDirectory":true,
-                            "isAniNode":true,
-                            "hasChild":true,
-                            "compId":193,
-                            "child":[
-                                {
-                                    "x":60,
-                                    "type":"RigidBody",
-                                    "switchAble":true,
-                                    "searchKey":"RigidBody",
-                                    "removeAble":true,
-                                    "props":{"presetID":2,"preset":"laya/assets/res/sprite_food.prefab"},
-                                    "nodeParent":193,
-                                    "label":"RigidBody(sprite_food)",
-                                    "isDirectory":false,
-                                    "isAniNode":true,
-                                    "hasChild":false,
-                                    "compId":29,
-                                    "child":[
-                                        ]
-                                },
-                                {
-                                    "x":60,
-                                    "type":"Script",
-                                    "switchAble":true,
-                                    "source":"src/script/GameMain/Food.js",
-                                    "searchKey":"Script,Food",
-                                    "removeAble":true,
-                                    "props":{"presetID":3,"preset":"laya/assets/res/sprite_food.prefab"},
-                                    "nodeParent":193,
-                                    "label":"Food",
-                                    "isDirectory":false,
-                                    "isClose":true,
-                                    "isAniNode":true,
-                                    "hasChild":false,
-                                    "compId":49,
-                                    "child":[
-                                        ]
-                                },
-                                {
-                                    "x":60,
-                                    "type":"CircleCollider",
-                                    "switchAble":true,
-                                    "searchKey":"CircleCollider",
-                                    "removeAble":true,
-                                    "props":{"presetID":4,"preset":"laya/assets/res/sprite_food.prefab"},
-                                    "nodeParent":193,
-                                    "label":"collider_food",
-                                    "isDirectory":false,
-                                    "isAniNode":true,
-                                    "hasChild":false,
-                                    "compId":66,
-                                    "child":[
-                                        ]
-                                }],
-                            "$HIDDEN":true
                         }],
-                    "$HIDDEN":true
+                    "$HIDDEN":false
                 },
                 {
                     "x":30,
@@ -277,13 +209,14 @@
                     "props":{"y":-154,"x":-103,"width":206,"visible":false,"name":"sprite_scorelist","height":151},
                     "nodeParent":51,
                     "label":"sprite_scorelist",
-                    "isOpen":false,
+                    "isOpen":true,
                     "isDirectory":true,
                     "isAniNode":true,
                     "hasChild":true,
                     "compId":103,
                     "child":[
                         {
+                            "x":45,
                             "type":"Panel",
                             "searchKey":"Panel,panel_score",
                             "props":{"y":-7,"x":-12,"width":230,"name":"panel_score","height":168},

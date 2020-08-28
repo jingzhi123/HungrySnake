@@ -2,10 +2,10 @@
 import BtnStartGame from "./script/GameMain/BtnStartGame"
 import GameControl from "./script/GameMenu/GameControl"
 import Wall from "./script/GameMain/Wall"
-import Food from "./script/GameMain/Food"
 import GameOver from "./script/GameMain/GameOver"
 import GameMain from "./script/GameMain/GameMain"
 import ScoreControl from "./script/GameMain/ScoreControl"
+import Food from "./script/GameMain/Food"
 import Snake from "./script/GameMain/Snake"
 import SnakeBody from "./script/GameMain/SnakeBody"
 
@@ -16,10 +16,10 @@ export default class GameConfig {
 		reg("script/GameMain/BtnStartGame.js",BtnStartGame);
 		reg("script/GameMenu/GameControl.js",GameControl);
 		reg("script/GameMain/Wall.js",Wall);
-		reg("script/GameMain/Food.js",Food);
 		reg("script/GameMain/GameOver.js",GameOver);
 		reg("script/GameMain/GameMain.js",GameMain);
 		reg("script/GameMain/ScoreControl.js",ScoreControl);
+		reg("script/GameMain/Food.js",Food);
 		reg("script/GameMain/Snake.js",Snake);
 		reg("script/GameMain/SnakeBody.js",SnakeBody);
     }

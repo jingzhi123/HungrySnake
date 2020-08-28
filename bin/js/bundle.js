@@ -282,7 +282,7 @@
             // this.snakeRes = Laya.loader.getRes('res/sprite_snake.prefab')
             if(!this.snakeRes){
                 console.log('未获取到蛇头资源!');
-                Laya.loader.load('res/sprite_snake.prefab',Laya.Handler.create(this,(res)=>{
+                Laya.loader.load('res/sprite_snake1.prefab',Laya.Handler.create(this,(res)=>{
                     this.snakeRes = res;
                 }));
             }
@@ -290,7 +290,7 @@
             // this.foodRes = Laya.loader.getRes('res/sprite_food.prefab')
             if(!this.foodRes){
                 console.log('未获取到食物资源!');
-                Laya.loader.load('res/sprite_food.prefab',Laya.Handler.create(this,(res)=>{
+                Laya.loader.load('res/sprite_food1.prefab',Laya.Handler.create(this,(res)=>{
                     this.foodRes = res;
                 }));
             }
@@ -340,9 +340,8 @@
             // BaseScript.wall.y = -1 * (this.snake.y + this.snake.height / 2 - BaseScript.wall.height / 2) * mapScale + GameConfig.height / 2
 
             //固定视角
-            // this.owner.x = -(this.playerSnake.x-this.owner.width / 2);
-            // this.owner.y = -(this.playerSnake.y-this.owner.height / 2);
-
+            this.owner.x = -(this.playerSnake.x-this.owner.width / 2);
+            this.owner.y = -(this.playerSnake.y-this.owner.height / 2);
 
             // this.owner.x = -1300
             // this.owner.y = -700
@@ -417,7 +416,6 @@
                 for(let i = this.cursnakeNum;i<this.snakeNum;i++){
                     let snake = this.snakeRes.create();
                     let snakeScript = snake.getComponent(Laya.Script);
-        
                     if(this.cursnakeNum==0){
                         this.playerSnake = snake;
                         snakeScript.currentPlayer = true;
@@ -441,99 +439,6 @@
 
 
         onDisable() {
-        }
-    }
-
-    class Food extends BaseScript {
-
-        constructor() { 
-            super(); 
-            this.triggerDistance = 20;
-
-            this.eating = false;
-
-            this.animTime = 0;
-        }
-
-        onAwake(){
-            this.wall = this.owner.parent;
-            this.wallScript = this.wall.getComponent(Laya.Script);
-            
-            this.colorNum = Math.floor(Math.random() * (6 - 1 + 1) + 1);
-            this.owner.loadImage("images/bean" + this.colorNum + ".png", 0, 0, 0, 0, new Laya.Handler(this, this.loaded, null));
-            this.owner.zOrder = 0;
-            
-            this.owner.pivot(this.owner.width / 2, this.owner.height / 2);
-            this.owner.visible = true;
-
-        }
-
-        // onUpdate(){
-        //     let snakes = this.wall.snakes;
-        //     if(snakes){
-        //         snakes.forEach(snake=>{
-        //             if(snake){
-        //                 let other = snake.getComponent(Laya.CircleCollider)
-        //                 let self = this.owner.getComponent(Laya.CircleCollider)
-        //                 this.snake = snake;
-        //                 this.snakeScript = snake.getComponent(Laya.Script)
-        //                 if(!this.eating && Math.abs(snake.x-this.owner.x)<this.triggerDistance && Math.abs(snake.y-this.owner.y)<this.triggerDistance){
-        //                     this.onEaten(snake)
-        //                 }
-        //             }
-        //         })
-
-        //     }
-        // }
-
-        async onEaten(snake){ 
-
-            this.eating = true; 
-            
-
-            this.animTime = 0;
-            this.owner.destroy();
-            Laya.timer.frameLoop(1,this,this.foodAnime,[snake]);
-        }
-
-        foodAnime(snake){
-            
-            let s = snake.getComponent(Laya.Script);
-            let self = this.owner;
-            this.animTime++;
-            self.x += (s.currentVelocity + 0.1) * Math.cos(Math.atan2(snake.y - self.y, snake.x - self.x));
-            self.y += (s.currentVelocity + 0.1) * Math.sin(Math.atan2(snake.y - self.y, snake.x - self.x));
-
-            if(this.animTime>=60){
-                //console.log('des');
-                self.destroy();
-                Laya.timer.clear(this,this.foodAnime);
-                // clearInterval(timer)    
-                this.eating = false;
-                this.animTime = 0;
-            }
-        }
-
-        onTriggerEnter(other,self,contact){
-            if(other.name=='collider_snake'){
-                let s = other.owner.getComponent(Laya.Script);
-                this.snakeScript = s;
-                console.log('removeIndex:'+self.owner.foodOrder);
-                //self.owner.destroy()
-
-                
-                Laya.timer.frameLoop(1,this,this.foodAnime,[other.owner]);
-
-            }
-        }
-
-        loaded(){
-            console.log('加载完毕');
-        }
-        onDestroy(){
-            if(this.snakeScript && !this.snakeScript.dead){
-                this.snakeScript.foodEat();
-            }
         }
     }
 
@@ -644,6 +549,98 @@
         }
 
         onDisable() {
+        }
+    }
+
+    class Food extends BaseScript {
+
+        constructor() { 
+            super(); 
+            this.triggerDistance = 20;
+
+            this.eating = false;
+
+            this.animTime = 0;
+        }
+
+        onAwake(){
+            this.wall = this.owner.parent;
+            this.wallScript = this.wall.getComponent(Laya.Script);
+            
+            this.colorNum = Math.floor(Math.random() * (6 - 1 + 1) + 1);
+            this.owner.loadImage("images/bean" + this.colorNum + ".png", 0, 0, 0, 0, new Laya.Handler(this, this.loaded, null));
+            this.owner.zOrder = 0;
+            
+            this.owner.pivot(this.owner.width / 2, this.owner.height / 2);
+            this.owner.visible = true;
+
+        }
+
+        onUpdate(){
+            let snakes = this.wallScript.snakes;
+            if(snakes){
+                snakes.forEach(snake=>{
+                    if(snake){
+                        let other = snake.getComponent(Laya.CircleCollider);
+                        let self = this.owner.getComponent(Laya.CircleCollider);
+                        this.snake = snake;
+                        this.snakeScript = snake.getComponent(Laya.Script);
+                        if(!this.eating && Math.abs(snake.x-this.owner.x)<this.triggerDistance && Math.abs(snake.y-this.owner.y)<this.triggerDistance){
+                            this.onEaten(snake);
+                        }
+                    }
+                });
+
+            }
+        }
+
+        async onEaten(snake){ 
+
+            this.eating = true; 
+            
+
+            this.animTime = 0;
+            Laya.timer.frameLoop(1,this,this.foodAnime,[snake]);
+        }
+
+        foodAnime(snake){
+            console.log('anime');
+            let s = snake.getComponent(Laya.Script);
+            let self = this.owner;
+            this.animTime++;
+            self.x += (s.currentVelocity + 0.1) * Math.cos(Math.atan2(snake.y - self.y, snake.x - self.x));
+            self.y += (s.currentVelocity + 0.1) * Math.sin(Math.atan2(snake.y - self.y, snake.x - self.x));
+
+            if(this.animTime>=60){
+                console.log('des');
+                self.destroy();
+                Laya.timer.clear(this,this.foodAnime);
+                // clearInterval(timer)    
+                this.eating = false;
+                this.animTime = 0;
+            }
+        }
+
+        onTriggerEnter(other,self,contact){
+            if(other.name=='collider_snake'){
+                let s = other.owner.getComponent(Laya.Script);
+                this.snakeScript = s;
+                console.log('removeIndex:'+self.owner.foodOrder);
+                //self.owner.destroy()
+
+                
+                Laya.timer.frameLoop(1,this,this.foodAnime,[other.owner]);
+
+            }
+        }
+
+        loaded(){
+            console.log('加载完毕');
+        }
+        onDestroy(){
+            if(this.snakeScript && !this.snakeScript.dead){
+                this.snakeScript.foodEat();
+            }
         }
     }
 
@@ -762,7 +759,7 @@
             this.gameMain = this.owner.scene.getComponent(Laya.Script);
             this.scoreView = this.gameMain.scoreView;
 
-            Laya.loader.load('res/sprite_snakebody.prefab',Laya.Handler.create(this,(res)=>{
+            Laya.loader.load('res/sprite_snakebody1.prefab',Laya.Handler.create(this,(res)=>{
                 this.bodyRes = res;
                 // this.snakeBody = res.create();
             }));
@@ -874,6 +871,10 @@
             Laya.timer.pause();
         }
 
+        touchWall(){
+            //碰到墙了
+        }
+
         headMove(){
             
             if(this.dead){
@@ -890,18 +891,30 @@
             let pos = { x: this.owner.x, y: this.owner.y };
             let posBefore = { x: this.owner.x, y: this.owner.y };
 
-            this.owner.x += x;
-            this.owner.y += y;
-            if (!(this.owner.x + x >= this.wall.width - this.owner.width / 2 || this.x + x <= this.owner.width / 2)) {
-                pos.x = this.x;
+            console.log(this.owner.x,this.owner.y,this.wall.width);
+            if(this.owner.x + x + this.owner.width/2 < this.wall.width && this.owner.x + x >= this.owner.width/2){
+                this.owner.x += x;
             } else {
-                // this.moveOut()
+
             }
-            if (!(this.owner.y + y >= this.wall.height - this.owner.width / 2 || this.y + y <= this.owner.width / 2)) {
-                pos.y = this.y;
+            if(this.owner.y + y + this.owner.height/2 < this.wall.height && this.owner.y + y >= this.owner.height/2){
+                this.owner.y += y;
             } else {
-                // this.moveOut()
+
             }
+
+            // if (!(this.owner.x + x >= this.wall.width - this.owner.width / 2 || this.owner.x + x <= this.owner.width / 2)) {
+            //     this.owner.x += x
+            //     pos.x = this.x
+            // } else {
+            //     this.touchWall()
+            // }
+            // if (!(this.owner.y + y >= this.wall.height - this.owner.width / 2 || this.owner.y + y <= this.owner.width / 2)) {
+            //     this.owner.y += y
+            //     pos.y = this.y
+            // } else {
+            //     this.touchWall()
+            // }
 
             
             for (let index = 1; index <= this.currentVelocity; index++) {
@@ -950,31 +963,10 @@
 
         addBody(){
             //长度增加
-            let snakeRigidBody = this.rigid;
             let snakeBody = this.bodyRes.create();
-            
-            let snakeBodyRigidBody = snakeBody.getComponent(Laya.RigidBody);
-            snakeBodyRigidBody.type = 'kinematic';
-            snakeBodyRigidBody.collidConnected = true;
 
-            let bodyRopeJoint = snakeBody.getComponent(Laya.RopeJoint);
-            bodyRopeJoint.maxLength = this.snakeLength;
+            this.wall.addChild(snakeBody);
 
-            
-            // snakeBody.x = this.snake.x;
-            // snakeBody.y = this.snake.y;
-            if(!this.snakeBodyArr.length){
-                bodyRopeJoint.otherBody = snakeRigidBody;
-                this.wall.addChild(snakeBody);
-                
-            } else {
-                let lastBody = this.snakeBodyArr[this.snakeBodyArr.length-1];
-                let lastBodyRigidBody = lastBody.getComponent(Laya.RigidBody);
-                
-                bodyRopeJoint.otherBody = lastBodyRigidBody;
-                
-                this.wall.addChild(snakeBody);
-            }
             Laya.Tween.from(snakeBody,{scaleX:0,scaleY:0},200,Laya.Ease.strongIn);
             //添加身体
             this.snakeBodyArr.push(snakeBody);
@@ -1038,10 +1030,10 @@
     		reg("script/GameMain/BtnStartGame.js",BtnStartGame);
     		reg("script/GameMenu/GameControl.js",GameControl);
     		reg("script/GameMain/Wall.js",Wall);
-    		reg("script/GameMain/Food.js",Food);
     		reg("script/GameMain/GameOver.js",GameOver);
     		reg("script/GameMain/GameMain.js",GameMain);
     		reg("script/GameMain/ScoreControl.js",ScoreControl);
+    		reg("script/GameMain/Food.js",Food);
     		reg("script/GameMain/Snake.js",Snake);
     		reg("script/GameMain/SnakeBody.js",SnakeBody);
         }

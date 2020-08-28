@@ -24,23 +24,23 @@ export default class Food extends BaseScript {
 
     }
 
-    // onUpdate(){
-    //     let snakes = this.wall.snakes;
-    //     if(snakes){
-    //         snakes.forEach(snake=>{
-    //             if(snake){
-    //                 let other = snake.getComponent(Laya.CircleCollider)
-    //                 let self = this.owner.getComponent(Laya.CircleCollider)
-    //                 this.snake = snake;
-    //                 this.snakeScript = snake.getComponent(Laya.Script)
-    //                 if(!this.eating && Math.abs(snake.x-this.owner.x)<this.triggerDistance && Math.abs(snake.y-this.owner.y)<this.triggerDistance){
-    //                     this.onEaten(snake)
-    //                 }
-    //             }
-    //         })
+    onUpdate(){
+        let snakes = this.wallScript.snakes;
+        if(snakes){
+            snakes.forEach(snake=>{
+                if(snake){
+                    let other = snake.getComponent(Laya.CircleCollider)
+                    let self = this.owner.getComponent(Laya.CircleCollider)
+                    this.snake = snake;
+                    this.snakeScript = snake.getComponent(Laya.Script)
+                    if(!this.eating && Math.abs(snake.x-this.owner.x)<this.triggerDistance && Math.abs(snake.y-this.owner.y)<this.triggerDistance){
+                        this.onEaten(snake)
+                    }
+                }
+            })
 
-    //     }
-    // }
+        }
+    }
 
     async onEaten(snake){ 
 
@@ -48,12 +48,11 @@ export default class Food extends BaseScript {
         
 
         this.animTime = 0;
-        this.owner.destroy()
         Laya.timer.frameLoop(1,this,this.foodAnime,[snake])
     }
 
     foodAnime(snake){
-        
+        console.log('anime');
         let s = snake.getComponent(Laya.Script)
         let self = this.owner;
         this.animTime++;
@@ -61,7 +60,7 @@ export default class Food extends BaseScript {
         self.y += (s.currentVelocity + 0.1) * Math.sin(Math.atan2(snake.y - self.y, snake.x - self.x))
 
         if(this.animTime>=60){
-            //console.log('des');
+            console.log('des');
             self.destroy()
             Laya.timer.clear(this,this.foodAnime)
             // clearInterval(timer)    

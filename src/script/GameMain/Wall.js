@@ -117,7 +117,7 @@ export default class Wall extends BaseScript {
         // this.snakeRes = Laya.loader.getRes('res/sprite_snake.prefab')
         if(!this.snakeRes){
             console.log('未获取到蛇头资源!')
-            Laya.loader.load('res/sprite_snake.prefab',Laya.Handler.create(this,(res)=>{
+            Laya.loader.load('res/sprite_snake1.prefab',Laya.Handler.create(this,(res)=>{
                 this.snakeRes = res;
             }))
         }
@@ -125,7 +125,7 @@ export default class Wall extends BaseScript {
         // this.foodRes = Laya.loader.getRes('res/sprite_food.prefab')
         if(!this.foodRes){
             console.log('未获取到食物资源!')
-            Laya.loader.load('res/sprite_food.prefab',Laya.Handler.create(this,(res)=>{
+            Laya.loader.load('res/sprite_food1.prefab',Laya.Handler.create(this,(res)=>{
                 this.foodRes = res;
             }))
         }
@@ -175,9 +175,8 @@ export default class Wall extends BaseScript {
         // BaseScript.wall.y = -1 * (this.snake.y + this.snake.height / 2 - BaseScript.wall.height / 2) * mapScale + GameConfig.height / 2
 
         //固定视角
-        // this.owner.x = -(this.playerSnake.x-this.owner.width / 2);
-        // this.owner.y = -(this.playerSnake.y-this.owner.height / 2);
-
+        this.owner.x = -(this.playerSnake.x-this.owner.width / 2);
+        this.owner.y = -(this.playerSnake.y-this.owner.height / 2);
 
         // this.owner.x = -1300
         // this.owner.y = -700
@@ -252,7 +251,6 @@ export default class Wall extends BaseScript {
             for(let i = this.cursnakeNum;i<this.snakeNum;i++){
                 let snake = this.snakeRes.create();
                 let snakeScript = snake.getComponent(Laya.Script)
-    
                 if(this.cursnakeNum==0){
                     this.playerSnake = snake;
                     snakeScript.currentPlayer = true;

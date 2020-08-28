@@ -117,7 +117,7 @@ export default class Snake extends BaseScript {
         this.gameMain = this.owner.scene.getComponent(Laya.Script)
         this.scoreView = this.gameMain.scoreView;
 
-        Laya.loader.load('res/sprite_snakebody.prefab',Laya.Handler.create(this,(res)=>{
+        Laya.loader.load('res/sprite_snakebody1.prefab',Laya.Handler.create(this,(res)=>{
             this.bodyRes = res;
             // this.snakeBody = res.create();
         }))
@@ -229,6 +229,10 @@ export default class Snake extends BaseScript {
         Laya.timer.pause()
     }
 
+    touchWall(){
+        //碰到墙了
+    }
+
     headMove(){
         
         if(this.dead){
@@ -245,17 +249,16 @@ export default class Snake extends BaseScript {
         let pos = { x: this.owner.x, y: this.owner.y }
         let posBefore = { x: this.owner.x, y: this.owner.y }
 
-        this.owner.x += x
-        this.owner.y += y
-        if (!(this.owner.x + x >= this.wall.width - this.owner.width / 2 || this.x + x <= this.owner.width / 2)) {
-            pos.x = this.x
+        console.log(this.owner.x,this.owner.y,this.wall.width);
+        if(this.owner.x + x + this.owner.width/2 < this.wall.width && this.owner.x + x >= this.owner.width/2){
+            this.owner.x += x
         } else {
-            // this.moveOut()
+            this.touchWall()
         }
-        if (!(this.owner.y + y >= this.wall.height - this.owner.width / 2 || this.y + y <= this.owner.width / 2)) {
-            pos.y = this.y
+        if(this.owner.y + y + this.owner.height/2 < this.wall.height && this.owner.y + y >= this.owner.height/2){
+            this.owner.y += y
         } else {
-            // this.moveOut()
+            this.touchWall()
         }
 
         
@@ -305,31 +308,10 @@ export default class Snake extends BaseScript {
 
     addBody(){
         //长度增加
-        let snakeRigidBody = this.rigid;
         let snakeBody = this.bodyRes.create()
-        
-        let snakeBodyRigidBody = snakeBody.getComponent(Laya.RigidBody)
-        snakeBodyRigidBody.type = 'kinematic'
-        snakeBodyRigidBody.collidConnected = true;
 
-        let bodyRopeJoint = snakeBody.getComponent(Laya.RopeJoint)
-        bodyRopeJoint.maxLength = this.snakeLength;
+        this.wall.addChild(snakeBody)
 
-        
-        // snakeBody.x = this.snake.x;
-        // snakeBody.y = this.snake.y;
-        if(!this.snakeBodyArr.length){
-            bodyRopeJoint.otherBody = snakeRigidBody;
-            this.wall.addChild(snakeBody)
-            
-        } else {
-            let lastBody = this.snakeBodyArr[this.snakeBodyArr.length-1];
-            let lastBodyRigidBody = lastBody.getComponent(Laya.RigidBody)
-            
-            bodyRopeJoint.otherBody = lastBodyRigidBody;
-            
-            this.wall.addChild(snakeBody)
-        }
         Laya.Tween.from(snakeBody,{scaleX:0,scaleY:0},200,Laya.Ease.strongIn)
         //添加身体
         this.snakeBodyArr.push(snakeBody)
