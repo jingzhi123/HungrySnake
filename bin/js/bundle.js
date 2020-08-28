@@ -295,13 +295,13 @@
                 }));
             }
 
-            Laya.timer.frameLoop(1,this,this.loadFood);
+            Laya.timer.frameLoop(1,this,this.initFood);
             
             // Laya.timer.loop(1,this,this.mainLoop)
         }
 
         init(){
-            Laya.timer.clear(this,this.loadFood);
+            Laya.timer.clear(this,this.initFood);
             this.playerComplete(this.playerSnake);
             Laya.timer.frameLoop(1,this,this.mainLoop);
         }
@@ -309,7 +309,7 @@
 
         
         mainLoop(){
-            
+            this.loadFood();
             BaseScript.wall = this.owner;
             
             
@@ -340,8 +340,8 @@
             // BaseScript.wall.y = -1 * (this.snake.y + this.snake.height / 2 - BaseScript.wall.height / 2) * mapScale + GameConfig.height / 2
 
             //固定视角
-            this.owner.x = -(this.playerSnake.x-this.owner.width / 2);
-            this.owner.y = -(this.playerSnake.y-this.owner.height / 2);
+            // this.owner.x = -(this.playerSnake.x-this.owner.width / 2);
+            // this.owner.y = -(this.playerSnake.y-this.owner.height / 2);
 
 
             // this.owner.x = -1300
@@ -350,7 +350,38 @@
             // this.owner.scale(2, 2)
 
         }
+        //初始化食物
+        initFood(){
+            
+            if(this.foodRes){
+                for(let i = 0 ;i<20;i++){
+                    if(this.foodNum<this.maxFood){
+                        let x = Math.random()*(this.owner.width-10).toFixed(0)+10;
+                        let y = Math.random()*(this.owner.height-10).toFixed(0)+10;
+                        let food = this.foodRes.create();
+                        let foodScript = food.getComponent(Laya.Script);
+                        food.x = x;
+                        food.y = y;
+                        food.foodOrder = this.foodOrder;
 
+                        // food = foodScript.create(x,y)
+                        this.foods[this.foodOrder] = food;
+                        // Laya.stage.addChild(food)
+                        this.owner.addChild(food);
+                        
+                        // this.foods[this.foodOrder] = food;
+                        this.foodOrder++;
+                        this.foodNum++;
+                    } else {
+                        this.loadSnake();
+                        break;
+                    }
+                }
+
+            }
+            
+        }
+        
         loadFood(){
             
             if(this.foodRes){
@@ -376,29 +407,31 @@
                 }
 
             }
+            
+        }
+
+        loadSnake(){
             //食物加载完毕
             if(this.foodNum>=this.maxFood){
                 //加载蛇
-                if(this.cursnakeNum<this.snakeNum){
-                    console.log('111');
+                for(let i = this.cursnakeNum;i<this.snakeNum;i++){
                     let snake = this.snakeRes.create();
                     let snakeScript = snake.getComponent(Laya.Script);
-
+        
                     if(this.cursnakeNum==0){
                         this.playerSnake = snake;
                         snakeScript.currentPlayer = true;
                     }
                     snakeScript.wall = this.owner;
                     snakeScript.playerName = '张三' + this.cursnakeNum;
-
-
+        
+        
                     this.owner.addChild(snake);
                     this.snakes.push(snake);
-                    this.cursnakeNum++;
+                    this.cursnakeNum = i;
 
-                } else {
-                    this.owner.event('init');
                 }
+                this.owner.event('init');
             }
         }
         
@@ -498,7 +531,7 @@
             console.log('加载完毕');
         }
         onDestroy(){
-            if(this.snakeScript){
+            if(this.snakeScript && !this.snakeScript.dead){
                 this.snakeScript.foodEat();
             }
         }
@@ -955,7 +988,7 @@
             //加分
             this.score++;
             this.curScore++;
-            this.foodNum--;
+            this.wall.foodNum--;
             if(this.curScore>=this.scoreForBody){
                 this.curScore = 0;
                 this.addBody();

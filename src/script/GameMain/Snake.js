@@ -343,7 +343,7 @@ export default class Snake extends BaseScript {
         //加分
         this.score++;
         this.curScore++;
-        this.foodNum--;
+        this.wall.foodNum--;
         if(this.curScore>=this.scoreForBody){
             this.curScore = 0;
             this.addBody()

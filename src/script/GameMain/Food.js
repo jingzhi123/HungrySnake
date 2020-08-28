@@ -87,7 +87,7 @@ export default class Food extends BaseScript {
         console.log('加载完毕')
     }
     onDestroy(){
-        if(this.snakeScript){
+        if(this.snakeScript && !this.snakeScript.dead){
             this.snakeScript.foodEat()
         }
     }
