@@ -64,19 +64,25 @@ export default class Snake extends BaseScript {
         //路径数组
         this.pathArr=[]
 
-        this.snakeLength = 10;
-        
-        
+        /**
+         * 攻击范围
+         */
+        this.attackScale = 50;
 
-        this.scoreForBody = 20;//几分一个身体
+        //当前身体大小
+        this.curBodySize = 0.5;
+        //当前身体个数
+        this.curBodyNum = 3;
+        //做大身体大小
+        this.maxBodySize = 2;
 
-        this.curScore = 0;//
+        this.scoreForBody = 5;//几分一个身体
 
-        this.rotation = 0;
-
-        this.targetR = this.rotation;
+        this.curScore = 0;//当前临时分数,为了计算蛇身
 
         this.score = 0;//玩家分数
+
+        this.bodySpace = 6;//身体间距
 
         //是否为当前玩家
         this.currentPlayer = false;//当前玩家
@@ -85,6 +91,9 @@ export default class Snake extends BaseScript {
 
         this.lastTimes = 0;
 
+        //当前蛇的颜色编号
+        this.colorNum = Math.floor(Math.random() * (5 - 1 + 1) + 1);
+
     }
 
     reverseRotation() {
@@ -92,10 +101,13 @@ export default class Snake extends BaseScript {
     }
 
     onAwake(){
-        console.log(this.owner)
         this.owner.zOrder = 1;
-
+        
+        this.owner.loadImage("images/head" + this.colorNum + ".png", 0, 0, 0, 0, Laya.Handler.create(this,()=>{
+            console.log('loaded');
+        }))
         this.snake = this.owner;
+
 
         this.snake.on('directionChange',this,(direction)=>{
             this.directionChange(direction)
@@ -119,6 +131,10 @@ export default class Snake extends BaseScript {
 
         Laya.loader.load('res/sprite_snakebody1.prefab',Laya.Handler.create(this,(res)=>{
             this.bodyRes = res;
+            for(let i = 0;i<this.curBodyNum;i++){
+                this.addBody()
+            }
+            this.scaleCheck()
             // this.snakeBody = res.create();
         }))
 
@@ -195,7 +211,7 @@ export default class Snake extends BaseScript {
 
     onStart(){
         this.onDead();
-        console.log(this.rigid)
+
     }
 
     onDead(){
@@ -233,6 +249,9 @@ export default class Snake extends BaseScript {
         //碰到墙了
     }
 
+    /**
+     * 蛇头移动
+     */
     headMove(){
         
         if(this.dead){
@@ -249,13 +268,13 @@ export default class Snake extends BaseScript {
         let pos = { x: this.owner.x, y: this.owner.y }
         let posBefore = { x: this.owner.x, y: this.owner.y }
 
-        console.log(this.owner.x,this.owner.y,this.wall.width);
-        if(this.owner.x + x + this.owner.width/2 < this.wall.width && this.owner.x + x >= this.owner.width/2){
+        // console.log(this.owner.x,this.owner.y,this.wall.width);
+        if(this.owner.x + x + this.owner.width*this.curBodySize/2 < this.wall.width && this.owner.x + x >= this.owner.width*this.curBodySize/2){
             this.owner.x += x
         } else {
             this.touchWall()
         }
-        if(this.owner.y + y + this.owner.height/2 < this.wall.height && this.owner.y + y >= this.owner.height/2){
+        if(this.owner.y + y + this.owner.height*this.curBodySize/2 < this.wall.height && this.owner.y + y >= this.owner.height*this.curBodySize/2){
             this.owner.y += y
         } else {
             this.touchWall()
@@ -278,7 +297,36 @@ export default class Snake extends BaseScript {
 
     }
 
+    stateCheck(){
+        this.curBodyNum = this.snakeBodyArr.length;
+        this.attackScale = this.owner.width * this.curBodySize + 10;
+        console.log(this.attackScale);
+    }
+
+    /**
+     * 蛇的循环
+     */
+    snakeLoop(){
+        this.scaleCheck();
+        this.stateCheck();
+        this.headMove()
+        this.bodyMove()
+    }
+
+    //大小检查
+    scaleCheck(){
+        this.owner.scale(this.curBodySize,this.curBodySize)
+        for(let i = 0;i<this.snakeBodyArr.length;i++){
+            let body = this.snakeBodyArr[i];
+            body.scale(this.curBodySize,this.curBodySize)
+        }
+
+    }
+    /**
+     * 蛇身移动
+     */
     bodyMove(){
+        
         if(this.dead){
             return;
         }
@@ -287,7 +335,7 @@ export default class Snake extends BaseScript {
             for(let index=0;index<this.snakeBodyArr.length;index++){
                 let body = this.snakeBodyArr[index];
                 //当前身体需要获取的路径下标(第几个this.frame帧时,蛇走了index+1*body.width个像素)
-                let curIndex = Math.ceil((index+1)*((body.width*this.frame)/this.step));
+                let curIndex = Math.ceil((index+1)*((this.bodySpace*this.frame)/this.step));
                 // console.log(curIndex)
                 if(this.pathArr[curIndex]){
                     let path = this.pathArr[curIndex]
@@ -297,7 +345,7 @@ export default class Snake extends BaseScript {
                     body.y = p.y;
 
                 }
-                if(this.pathArr.length > (this.snakeBodyArr.length+1) * (body.width/this.step)){
+                if(this.pathArr.length > (this.snakeBodyArr.length+1) * (this.bodySpace/this.step)){
                     this.pathArr.pop();
                 }
                 // let rigid = body.getComponent(Laya.RigidBody)
@@ -310,10 +358,15 @@ export default class Snake extends BaseScript {
         //长度增加
         let snakeBody = this.bodyRes.create()
 
-        this.wall.addChild(snakeBody)
-
+        snakeBody.loadImage("images/body" + this.colorNum + ".png", 0, 0, 0, 0, Laya.Handler.create(this,()=>{
+            console.log('loaded');
+        }))
+        
         Laya.Tween.from(snakeBody,{scaleX:0,scaleY:0},200,Laya.Ease.strongIn)
         //添加身体
+        let lastBody = this.snakeBodyArr[this.snakeBodyArr.length-1]
+        this.wall.addChild(snakeBody)
+        snakeBody.zOrder = lastBody?--lastBody.zOrder:0;
         this.snakeBodyArr.push(snakeBody)
 
         
@@ -329,6 +382,9 @@ export default class Snake extends BaseScript {
         if(this.curScore>=this.scoreForBody){
             this.curScore = 0;
             this.addBody()
+            if(this.curBodySize<this.maxBodySize){
+                this.curBodySize += 0.1;
+            }
         }
 
     }

@@ -13,7 +13,7 @@
             let bgm;
 
             //食物数量
-            this.maxFood = 100;
+            this.maxFood = 500;
 
             this.script;//脚本
         }
@@ -106,7 +106,7 @@
         }
         onAwake(){
             
-        Laya.stage.screenMode = "horizontal";
+            //Laya.stage.screenMode = "horizontal";
             //排行榜打开
             this.rankListBtn.clickHandler = Laya.Handler.create(this,(e)=>{
                 console.log('打开排行!');
@@ -165,6 +165,14 @@
 
     }
 
+    class GameUtils {
+
+        //计算两点之间距离
+        static distance(x1, y1, x2, y2) {
+            return Math.sqrt((x1 - x2) * (x1 - x2) + (y1 - y2) * (y1 - y2))
+        }
+    }
+
     class Wall extends BaseScript {
 
         constructor() { 
@@ -192,6 +200,8 @@
             this.foodOrder = 0;
 
             this.snakes = [];//蛇数组
+
+            this.snakeMap = {};
 
             this.snakeNum = 1;//蛇的个数
 
@@ -305,21 +315,42 @@
             this.playerComplete(this.playerSnake);
             Laya.timer.frameLoop(1,this,this.mainLoop);
         }
+        /**
+         * 状态检查
+         */
+        stateCheck(){
+            let _this = this;
+            BaseScript.wall = this.owner;
+            // if(this.snakes){
 
+            //     this.snakes = this.snakes.map(snake=>{
+            //         let s = _this.owner.getChildAt(snake.getChildIndex())
+            //         if(s){
+            //             let snakeScript = s.getComponent(Laya.Script)
+            //             snakeScript.snakeLoop();
+            //             return s;
+            //         } else {
+            //             return snake;
+            //         }
+            //     })
+            // }
+        }
 
-        
+        snakesLoop(){
+            this.snakes.forEach(snake=>{
+                let snakeScript = snake.getComponent(Laya.Script);
+                snakeScript.snakeLoop();
+            });
+        }
+
+        /**
+         * 主循环
+         */
         mainLoop(){
             this.loadFood();
-            BaseScript.wall = this.owner;
-            
-            
+            this.stateCheck();
+            this.snakesLoop();
             this.changeScore(this.playerScript.score);
-            let _this = this;
-            this.snakes.forEach((snake,i)=>{
-                let snakeScript = snake.getComponent(Laya.Script);
-                snakeScript.headMove();
-                snakeScript.bodyMove();
-            });
             if(this.playerSnake){
                 this.mapMove(this.playerScript);
             }
@@ -426,6 +457,7 @@
         
                     this.owner.addChild(snake);
                     this.snakes.push(snake);
+                    this.snakeMap[snake.getChildIndex()] = snake;
                     this.cursnakeNum = i;
 
                 }
@@ -583,9 +615,8 @@
                     if(snake){
                         let other = snake.getComponent(Laya.CircleCollider);
                         let self = this.owner.getComponent(Laya.CircleCollider);
-                        this.snake = snake;
                         this.snakeScript = snake.getComponent(Laya.Script);
-                        if(!this.eating && Math.abs(snake.x-this.owner.x)<this.triggerDistance && Math.abs(snake.y-this.owner.y)<this.triggerDistance){
+                        if(!this.eating && Math.abs(snake.x-this.owner.x)<this.snakeScript.attackScale && Math.abs(snake.y-this.owner.y)<this.snakeScript.attackScale){
                             this.onEaten(snake);
                         }
                     }
@@ -604,7 +635,7 @@
         }
 
         foodAnime(snake){
-            console.log('anime');
+
             let s = snake.getComponent(Laya.Script);
             let self = this.owner;
             this.animTime++;
@@ -612,7 +643,6 @@
             self.y += (s.currentVelocity + 0.1) * Math.sin(Math.atan2(snake.y - self.y, snake.x - self.x));
 
             if(this.animTime>=60){
-                console.log('des');
                 self.destroy();
                 Laya.timer.clear(this,this.foodAnime);
                 // clearInterval(timer)    
@@ -706,19 +736,25 @@
             //路径数组
             this.pathArr=[];
 
-            this.snakeLength = 10;
-            
-            
+            /**
+             * 攻击范围
+             */
+            this.attackScale = 50;
 
-            this.scoreForBody = 20;//几分一个身体
+            //当前身体大小
+            this.curBodySize = 0.5;
+            //当前身体个数
+            this.curBodyNum = 3;
+            //做大身体大小
+            this.maxBodySize = 2;
 
-            this.curScore = 0;//
+            this.scoreForBody = 5;//几分一个身体
 
-            this.rotation = 0;
-
-            this.targetR = this.rotation;
+            this.curScore = 0;//当前临时分数,为了计算蛇身
 
             this.score = 0;//玩家分数
+
+            this.bodySpace = 6;//身体间距
 
             //是否为当前玩家
             this.currentPlayer = false;//当前玩家
@@ -727,6 +763,9 @@
 
             this.lastTimes = 0;
 
+            //当前蛇的颜色编号
+            this.colorNum = Math.floor(Math.random() * (5 - 1 + 1) + 1);
+
         }
 
         reverseRotation() {
@@ -734,10 +773,13 @@
         }
 
         onAwake(){
-            console.log(this.owner);
             this.owner.zOrder = 1;
-
+            
+            this.owner.loadImage("images/head" + this.colorNum + ".png", 0, 0, 0, 0, Laya.Handler.create(this,()=>{
+                console.log('loaded');
+            }));
             this.snake = this.owner;
+
 
             this.snake.on('directionChange',this,(direction)=>{
                 this.directionChange(direction);
@@ -761,6 +803,10 @@
 
             Laya.loader.load('res/sprite_snakebody1.prefab',Laya.Handler.create(this,(res)=>{
                 this.bodyRes = res;
+                for(let i = 0;i<this.curBodyNum;i++){
+                    this.addBody();
+                }
+                this.scaleCheck();
                 // this.snakeBody = res.create();
             }));
 
@@ -837,7 +883,7 @@
 
         onStart(){
             this.onDead();
-            console.log(this.rigid);
+
         }
 
         onDead(){
@@ -875,6 +921,9 @@
             //碰到墙了
         }
 
+        /**
+         * 蛇头移动
+         */
         headMove(){
             
             if(this.dead){
@@ -891,30 +940,17 @@
             let pos = { x: this.owner.x, y: this.owner.y };
             let posBefore = { x: this.owner.x, y: this.owner.y };
 
-            console.log(this.owner.x,this.owner.y,this.wall.width);
-            if(this.owner.x + x + this.owner.width/2 < this.wall.width && this.owner.x + x >= this.owner.width/2){
+            // console.log(this.owner.x,this.owner.y,this.wall.width);
+            if(this.owner.x + x + this.owner.width*this.curBodySize/2 < this.wall.width && this.owner.x + x >= this.owner.width*this.curBodySize/2){
                 this.owner.x += x;
             } else {
-
+                this.touchWall();
             }
-            if(this.owner.y + y + this.owner.height/2 < this.wall.height && this.owner.y + y >= this.owner.height/2){
+            if(this.owner.y + y + this.owner.height*this.curBodySize/2 < this.wall.height && this.owner.y + y >= this.owner.height*this.curBodySize/2){
                 this.owner.y += y;
             } else {
-
+                this.touchWall();
             }
-
-            // if (!(this.owner.x + x >= this.wall.width - this.owner.width / 2 || this.owner.x + x <= this.owner.width / 2)) {
-            //     this.owner.x += x
-            //     pos.x = this.x
-            // } else {
-            //     this.touchWall()
-            // }
-            // if (!(this.owner.y + y >= this.wall.height - this.owner.width / 2 || this.owner.y + y <= this.owner.width / 2)) {
-            //     this.owner.y += y
-            //     pos.y = this.y
-            // } else {
-            //     this.touchWall()
-            // }
 
             
             for (let index = 1; index <= this.currentVelocity; index++) {
@@ -933,7 +969,36 @@
 
         }
 
+        stateCheck(){
+            this.curBodyNum = this.snakeBodyArr.length;
+            this.attackScale = this.owner.width * this.curBodySize + 10;
+            console.log(this.attackScale);
+        }
+
+        /**
+         * 蛇的循环
+         */
+        snakeLoop(){
+            this.scaleCheck();
+            this.stateCheck();
+            this.headMove();
+            this.bodyMove();
+        }
+
+        //大小检查
+        scaleCheck(){
+            this.owner.scale(this.curBodySize,this.curBodySize);
+            for(let i = 0;i<this.snakeBodyArr.length;i++){
+                let body = this.snakeBodyArr[i];
+                body.scale(this.curBodySize,this.curBodySize);
+            }
+
+        }
+        /**
+         * 蛇身移动
+         */
         bodyMove(){
+            
             if(this.dead){
                 return;
             }
@@ -942,7 +1007,7 @@
                 for(let index=0;index<this.snakeBodyArr.length;index++){
                     let body = this.snakeBodyArr[index];
                     //当前身体需要获取的路径下标(第几个this.frame帧时,蛇走了index+1*body.width个像素)
-                    let curIndex = Math.ceil((index+1)*((body.width*this.frame)/this.step));
+                    let curIndex = Math.ceil((index+1)*((this.bodySpace*this.frame)/this.step));
                     // console.log(curIndex)
                     if(this.pathArr[curIndex]){
                         let path = this.pathArr[curIndex];
@@ -952,7 +1017,7 @@
                         body.y = p.y;
 
                     }
-                    if(this.pathArr.length > (this.snakeBodyArr.length+1) * (body.width/this.step)){
+                    if(this.pathArr.length > (this.snakeBodyArr.length+1) * (this.bodySpace/this.step)){
                         this.pathArr.pop();
                     }
                     // let rigid = body.getComponent(Laya.RigidBody)
@@ -965,10 +1030,15 @@
             //长度增加
             let snakeBody = this.bodyRes.create();
 
-            this.wall.addChild(snakeBody);
-
+            snakeBody.loadImage("images/body" + this.colorNum + ".png", 0, 0, 0, 0, Laya.Handler.create(this,()=>{
+                console.log('loaded');
+            }));
+            
             Laya.Tween.from(snakeBody,{scaleX:0,scaleY:0},200,Laya.Ease.strongIn);
             //添加身体
+            let lastBody = this.snakeBodyArr[this.snakeBodyArr.length-1];
+            this.wall.addChild(snakeBody);
+            snakeBody.zOrder = lastBody?--lastBody.zOrder:0;
             this.snakeBodyArr.push(snakeBody);
 
             
@@ -984,6 +1054,9 @@
             if(this.curScore>=this.scoreForBody){
                 this.curScore = 0;
                 this.addBody();
+                if(this.curBodySize<this.maxBodySize){
+                    this.curBodySize += 0.1;
+                }
             }
 
         }

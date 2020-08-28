@@ -1,5 +1,5 @@
 import BaseScript from "../BaseScript";
-
+import GameUtils from "../GameUtils";
 export default class Wall extends BaseScript {
 
     constructor() { 
@@ -27,6 +27,8 @@ export default class Wall extends BaseScript {
         this.foodOrder = 0;
 
         this.snakes = []//蛇数组
+
+        this.snakeMap = {}
 
         this.snakeNum = 1;//蛇的个数
 
@@ -140,21 +142,42 @@ export default class Wall extends BaseScript {
         this.playerComplete(this.playerSnake)
         Laya.timer.frameLoop(1,this,this.mainLoop)
     }
+    /**
+     * 状态检查
+     */
+    stateCheck(){
+        let _this = this;
+        BaseScript.wall = this.owner;
+        // if(this.snakes){
 
+        //     this.snakes = this.snakes.map(snake=>{
+        //         let s = _this.owner.getChildAt(snake.getChildIndex())
+        //         if(s){
+        //             let snakeScript = s.getComponent(Laya.Script)
+        //             snakeScript.snakeLoop();
+        //             return s;
+        //         } else {
+        //             return snake;
+        //         }
+        //     })
+        // }
+    }
 
-    
+    snakesLoop(){
+        this.snakes.forEach(snake=>{
+            let snakeScript = snake.getComponent(Laya.Script)
+            snakeScript.snakeLoop();
+        })
+    }
+
+    /**
+     * 主循环
+     */
     mainLoop(){
         this.loadFood()
-        BaseScript.wall = this.owner;
-        
-        
+        this.stateCheck();
+        this.snakesLoop();
         this.changeScore(this.playerScript.score)
-        let _this = this;
-        this.snakes.forEach((snake,i)=>{
-            let snakeScript = snake.getComponent(Laya.Script)
-            snakeScript.headMove()
-            snakeScript.bodyMove()
-        })
         if(this.playerSnake){
             this.mapMove(this.playerScript)
         }
@@ -261,6 +284,7 @@ export default class Wall extends BaseScript {
     
                 this.owner.addChild(snake)
                 this.snakes.push(snake)
+                this.snakeMap[snake.getChildIndex()] = snake;
                 this.cursnakeNum = i;
 
             }

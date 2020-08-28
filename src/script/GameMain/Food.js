@@ -31,9 +31,8 @@ export default class Food extends BaseScript {
                 if(snake){
                     let other = snake.getComponent(Laya.CircleCollider)
                     let self = this.owner.getComponent(Laya.CircleCollider)
-                    this.snake = snake;
                     this.snakeScript = snake.getComponent(Laya.Script)
-                    if(!this.eating && Math.abs(snake.x-this.owner.x)<this.triggerDistance && Math.abs(snake.y-this.owner.y)<this.triggerDistance){
+                    if(!this.eating && Math.abs(snake.x-this.owner.x)<this.snakeScript.attackScale && Math.abs(snake.y-this.owner.y)<this.snakeScript.attackScale){
                         this.onEaten(snake)
                     }
                 }
@@ -52,7 +51,7 @@ export default class Food extends BaseScript {
     }
 
     foodAnime(snake){
-        console.log('anime');
+
         let s = snake.getComponent(Laya.Script)
         let self = this.owner;
         this.animTime++;
@@ -60,7 +59,6 @@ export default class Food extends BaseScript {
         self.y += (s.currentVelocity + 0.1) * Math.sin(Math.atan2(snake.y - self.y, snake.x - self.x))
 
         if(this.animTime>=60){
-            console.log('des');
             self.destroy()
             Laya.timer.clear(this,this.foodAnime)
             // clearInterval(timer)    

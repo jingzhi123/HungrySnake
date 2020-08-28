@@ -20,7 +20,7 @@ export default class GameControl extends BaseScript {
     }
     onAwake(){
         
-    Laya.stage.screenMode = "horizontal";
+        //Laya.stage.screenMode = "horizontal";
         //排行榜打开
         this.rankListBtn.clickHandler = Laya.Handler.create(this,(e)=>{
             console.log('打开排行!')

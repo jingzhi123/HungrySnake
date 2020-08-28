@@ -10,7 +10,7 @@ export default class BaseScript extends Laya.Script {
         let bgm;
 
         //食物数量
-        this.maxFood = 100;
+        this.maxFood = 500;
 
         this.script;//脚本
     }

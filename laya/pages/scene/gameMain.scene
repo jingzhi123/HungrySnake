@@ -1,12 +1,12 @@
 {
     "x":0,
     "type":"Scene",
-    "selectedBox":2,
-    "selecteID":13,
+    "selectedBox":13,
+    "selecteID":215,
     "searchKey":"Scene,game_scene",
     "props":{"width":960,"sceneColor":"#ffffff","sceneBg":"laya/views/scene/gameMain.png","name":"game_scene","height":540,"autoDestroyAtClosed":true},
     "nodeParent":-1,
-    "maxID":212,
+    "maxID":216,
     "label":"game_scene",
     "isOpen":true,
     "isDirectory":true,
@@ -65,13 +65,14 @@
                     "props":{"y":0,"x":0,"skin":"images/map.png","pivotY":750,"pivotX":1500,"name":"sprite_wall"},
                     "nodeParent":51,
                     "label":"sprite_wall",
-                    "isOpen":false,
+                    "isOpen":true,
                     "isDirectory":true,
                     "isAniNode":true,
                     "hasChild":true,
                     "compId":13,
                     "child":[
                         {
+                            "x":45,
                             "type":"Script",
                             "switchAble":true,
                             "source":"src/script/GameMain/Wall.js",
@@ -88,6 +89,7 @@
                                 ]
                         },
                         {
+                            "x":45,
                             "type":"RigidBody",
                             "switchAble":true,
                             "searchKey":"RigidBody,rigid_wall",
@@ -103,6 +105,7 @@
                                 ]
                         },
                         {
+                            "x":45,
                             "type":"ChainCollider",
                             "switchAble":true,
                             "searchKey":"ChainCollider,collider_wall",
@@ -209,14 +212,13 @@
                     "props":{"y":-154,"x":-103,"width":206,"visible":false,"name":"sprite_scorelist","height":151},
                     "nodeParent":51,
                     "label":"sprite_scorelist",
-                    "isOpen":true,
+                    "isOpen":false,
                     "isDirectory":true,
                     "isAniNode":true,
                     "hasChild":true,
                     "compId":103,
                     "child":[
                         {
-                            "x":45,
                             "type":"Panel",
                             "searchKey":"Panel,panel_score",
                             "props":{"y":-7,"x":-12,"width":230,"name":"panel_score","height":168},
