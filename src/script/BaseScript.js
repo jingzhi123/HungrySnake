@@ -9,13 +9,10 @@ export default class BaseScript extends Laya.Script {
         
         let bgm;
 
-        this.maxFood = 500;
+        //食物数量
+        this.maxFood = 100;
 
         this.script;//脚本
-    }
-
-    getScript(){
-        
     }
 
     //计算距离
@@ -28,10 +25,6 @@ export default class BaseScript extends Laya.Script {
             this.eventDispatcher = new Laya.EventDispatcher();
         }
         return this.eventDispatcher;
-    }
-    
-    onEnable() {
-        this.script = this.owner.getComponent(Laya.Script)
     }
 
     onDisable() {

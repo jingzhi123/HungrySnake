@@ -28,7 +28,7 @@ export default class Wall extends BaseScript {
 
         this.snakes = []//蛇数组
 
-        this.snakeNum = 2;//蛇的个数
+        this.snakeNum = 1;//蛇的个数
 
         this.cursnakeNum = 0;
 
@@ -60,7 +60,20 @@ export default class Wall extends BaseScript {
         this.btn_speedup.on('mouseup',this,this.speedDown)
         BaseScript.gameScene.on("mouseup", this, this.ctrlRockerUp)
         BaseScript.gameScene.on("mousemove",this, this.ctrlRockerDown)
-        
+    }
+
+    onKeyDown(e){
+        if(e.keyCode == 32){
+            this.btn_speedup.selected = true
+            this.speedUp()
+        }
+    }
+    
+    onKeyUp(e){
+        if(e.keyCode == 32){
+            this.btn_speedup.selected = false
+            this.speedDown()
+        }
     }
 
     ctrlRockerUp(){
@@ -88,16 +101,17 @@ export default class Wall extends BaseScript {
     }
 
     speedUp(e){
-        console.log(1)
         this.playerScript.speedMode = true;
+        this.playerScript.speedChange(this.playerScript.velocity+this.playerScript.acceleratedVelocity)
     }
-
+    
     speedDown(e){
         this.playerScript.speedMode = false
+        this.playerScript.speedChange(this.playerScript.velocity)
     }
 
     onAwake(){
-        this.owner.on('playerComplete',this,this.playerComplete)
+        this.owner.on('init',this,this.init)
         this.wallScript = this.owner.getComponent(Laya.Script)
         //加载蛇头资源
         // this.snakeRes = Laya.loader.getRes('res/sprite_snake.prefab')
@@ -116,27 +130,34 @@ export default class Wall extends BaseScript {
             }))
         }
 
+        Laya.timer.frameLoop(1,this,this.loadFood)
+        
+        // Laya.timer.loop(1,this,this.mainLoop)
+    }
+
+    init(){
+        Laya.timer.clear(this,this.loadFood)
+        this.playerComplete(this.playerSnake)
         Laya.timer.frameLoop(1,this,this.mainLoop)
     }
 
+
     
     mainLoop(){
+        
         BaseScript.wall = this.owner;
-        if(!this.playerSnake){
-            if(this.snakes.length){
-                this.playerSnake = this.snakes[0]
-                this.owner.event('playerComplete',this.playerSnake)
-            }
-        } else {//
-            this.changeScore(this.playerScript.score)
-        }
+        
+        
+        this.changeScore(this.playerScript.score)
         let _this = this;
         this.snakes.forEach((snake,i)=>{
             let snakeScript = snake.getComponent(Laya.Script)
             snakeScript.headMove()
             snakeScript.bodyMove()
-            // _this.mapMove(snakeScript)
         })
+        if(this.playerSnake){
+            this.mapMove(this.playerScript)
+        }
         
         
         
@@ -144,26 +165,25 @@ export default class Wall extends BaseScript {
 
 
     mapMove(snakeScript){
-        if(this.playerSnake){
-            let mapScale = snakeScript.snakeInitSize / snakeScript.snakeSize < 0.7 ? 0.7 : snakeScript.snakeInitSize / snakeScript.snakeSize
-            // BaseScript.wall.x = -1 * (this.snake.x - GameConfig.width / 2 + this.snake.width / 2 - BaseScript.wall.width / 2) * mapScale
-            // BaseScript.wall.y = -1 * (this.snake.y - GameConfig.height / 2 + this.snake.height / 2 - BaseScript.wall.height / 2) * mapScale
+        //return;
 
-            // BaseScript.wall.x = -1 * (this.snake.x + this.snake.width / 2 - BaseScript.wall.width / 2) * mapScale + GameConfig.width / 2
-            // BaseScript.wall.y = -1 * (this.snake.y + this.snake.height / 2 - BaseScript.wall.height / 2) * mapScale + GameConfig.height / 2
+        let mapScale = snakeScript.snakeInitSize / snakeScript.snakeSize < 0.7 ? 0.7 : snakeScript.snakeInitSize / snakeScript.snakeSize
+        // BaseScript.wall.x = -1 * (this.snake.x - GameConfig.width / 2 + this.snake.width / 2 - BaseScript.wall.width / 2) * mapScale
+        // BaseScript.wall.y = -1 * (this.snake.y - GameConfig.height / 2 + this.snake.height / 2 - BaseScript.wall.height / 2) * mapScale
 
-            this.owner.x = -(this.playerSnake.x-this.owner.width / 2);
-            this.owner.y = -(this.playerSnake.y-this.owner.height / 2);
-            // this.owner.scale(mapScale, mapScale)
-        }
-    }
+        // BaseScript.wall.x = -1 * (this.snake.x + this.snake.width / 2 - BaseScript.wall.width / 2) * mapScale + GameConfig.width / 2
+        // BaseScript.wall.y = -1 * (this.snake.y + this.snake.height / 2 - BaseScript.wall.height / 2) * mapScale + GameConfig.height / 2
 
-    onTriggerEnter(other,self,contact){
-        console.log(other,self,contact);
-    }
+        //固定视角
+        this.owner.x = -(this.playerSnake.x-this.owner.width / 2);
+        this.owner.y = -(this.playerSnake.y-this.owner.height / 2);
 
-    onUpdate(){
-        this.loadFood()
+
+        // this.owner.x = -1300
+        // this.owner.y = -700
+        // console.log(this.owner);
+        // this.owner.scale(2, 2)
+
     }
 
     loadFood(){
@@ -175,10 +195,13 @@ export default class Wall extends BaseScript {
                     let y = Math.random()*(this.owner.height-10).toFixed(0)+10;
                     let food = this.foodRes.create();
                     let foodScript = food.getComponent(Laya.Script)
+                    food.x = x;
+                    food.y = y;
                     food.foodOrder = this.foodOrder;
-                    food.wall = this;
-                    food = foodScript.create(x,y)
+
+                    // food = foodScript.create(x,y)
                     this.foods[this.foodOrder] = food;
+                    // Laya.stage.addChild(food)
                     this.owner.addChild(food)
                     
                     // this.foods[this.foodOrder] = food;
@@ -197,6 +220,7 @@ export default class Wall extends BaseScript {
                 let snakeScript = snake.getComponent(Laya.Script)
 
                 if(this.cursnakeNum==0){
+                    this.playerSnake = snake;
                     snakeScript.currentPlayer = true;
                 }
                 snakeScript.wall = this.owner;
@@ -207,6 +231,8 @@ export default class Wall extends BaseScript {
                 this.snakes.push(snake)
                 this.cursnakeNum++;
 
+            } else {
+                this.owner.event('init')
             }
         }
     }

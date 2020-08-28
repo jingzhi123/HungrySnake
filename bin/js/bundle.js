@@ -12,13 +12,10 @@
             
             let bgm;
 
-            this.maxFood = 500;
+            //食物数量
+            this.maxFood = 100;
 
             this.script;//脚本
-        }
-
-        getScript(){
-            
         }
 
         //计算距离
@@ -31,10 +28,6 @@
                 this.eventDispatcher = new Laya.EventDispatcher();
             }
             return this.eventDispatcher;
-        }
-        
-        onEnable() {
-            this.script = this.owner.getComponent(Laya.Script);
         }
 
         onDisable() {
@@ -200,7 +193,7 @@
 
             this.snakes = [];//蛇数组
 
-            this.snakeNum = 2;
+            this.snakeNum = 1;//蛇的个数
 
             this.cursnakeNum = 0;
 
@@ -232,7 +225,20 @@
             this.btn_speedup.on('mouseup',this,this.speedDown);
             BaseScript.gameScene.on("mouseup", this, this.ctrlRockerUp);
             BaseScript.gameScene.on("mousemove",this, this.ctrlRockerDown);
-            
+        }
+
+        onKeyDown(e){
+            if(e.keyCode == 32){
+                this.btn_speedup.selected = true;
+                this.speedUp();
+            }
+        }
+        
+        onKeyUp(e){
+            if(e.keyCode == 32){
+                this.btn_speedup.selected = false;
+                this.speedDown();
+            }
         }
 
         ctrlRockerUp(){
@@ -260,16 +266,17 @@
         }
 
         speedUp(e){
-            console.log(1);
             this.playerScript.speedMode = true;
+            this.playerScript.speedChange(this.playerScript.velocity+this.playerScript.acceleratedVelocity);
         }
-
+        
         speedDown(e){
             this.playerScript.speedMode = false;
+            this.playerScript.speedChange(this.playerScript.velocity);
         }
 
         onAwake(){
-            this.owner.on('playerComplete',this,this.playerComplete);
+            this.owner.on('init',this,this.init);
             this.wallScript = this.owner.getComponent(Laya.Script);
             //加载蛇头资源
             // this.snakeRes = Laya.loader.getRes('res/sprite_snake.prefab')
@@ -288,27 +295,34 @@
                 }));
             }
 
+            Laya.timer.frameLoop(1,this,this.loadFood);
+            
+            // Laya.timer.loop(1,this,this.mainLoop)
+        }
+
+        init(){
+            Laya.timer.clear(this,this.loadFood);
+            this.playerComplete(this.playerSnake);
             Laya.timer.frameLoop(1,this,this.mainLoop);
         }
 
+
         
         mainLoop(){
+            
             BaseScript.wall = this.owner;
-            if(!this.playerSnake){
-                if(this.snakes.length){
-                    this.playerSnake = this.snakes[0];
-                    this.owner.event('playerComplete',this.playerSnake);
-                }
-            } else {//
-                this.changeScore(this.playerScript.score);
-            }
+            
+            
+            this.changeScore(this.playerScript.score);
             let _this = this;
             this.snakes.forEach((snake,i)=>{
                 let snakeScript = snake.getComponent(Laya.Script);
                 snakeScript.headMove();
                 snakeScript.bodyMove();
-                // _this.mapMove(snakeScript)
             });
+            if(this.playerSnake){
+                this.mapMove(this.playerScript);
+            }
             
             
             
@@ -316,26 +330,25 @@
 
 
         mapMove(snakeScript){
-            if(this.playerSnake){
-                let mapScale = snakeScript.snakeInitSize / snakeScript.snakeSize < 0.7 ? 0.7 : snakeScript.snakeInitSize / snakeScript.snakeSize;
-                // BaseScript.wall.x = -1 * (this.snake.x - GameConfig.width / 2 + this.snake.width / 2 - BaseScript.wall.width / 2) * mapScale
-                // BaseScript.wall.y = -1 * (this.snake.y - GameConfig.height / 2 + this.snake.height / 2 - BaseScript.wall.height / 2) * mapScale
+            //return;
 
-                // BaseScript.wall.x = -1 * (this.snake.x + this.snake.width / 2 - BaseScript.wall.width / 2) * mapScale + GameConfig.width / 2
-                // BaseScript.wall.y = -1 * (this.snake.y + this.snake.height / 2 - BaseScript.wall.height / 2) * mapScale + GameConfig.height / 2
+            let mapScale = snakeScript.snakeInitSize / snakeScript.snakeSize < 0.7 ? 0.7 : snakeScript.snakeInitSize / snakeScript.snakeSize;
+            // BaseScript.wall.x = -1 * (this.snake.x - GameConfig.width / 2 + this.snake.width / 2 - BaseScript.wall.width / 2) * mapScale
+            // BaseScript.wall.y = -1 * (this.snake.y - GameConfig.height / 2 + this.snake.height / 2 - BaseScript.wall.height / 2) * mapScale
 
-                this.owner.x = -(this.playerSnake.x-this.owner.width / 2);
-                this.owner.y = -(this.playerSnake.y-this.owner.height / 2);
-                // this.owner.scale(mapScale, mapScale)
-            }
-        }
+            // BaseScript.wall.x = -1 * (this.snake.x + this.snake.width / 2 - BaseScript.wall.width / 2) * mapScale + GameConfig.width / 2
+            // BaseScript.wall.y = -1 * (this.snake.y + this.snake.height / 2 - BaseScript.wall.height / 2) * mapScale + GameConfig.height / 2
 
-        onTriggerEnter(other,self,contact){
-            console.log(other,self,contact);
-        }
+            //固定视角
+            this.owner.x = -(this.playerSnake.x-this.owner.width / 2);
+            this.owner.y = -(this.playerSnake.y-this.owner.height / 2);
 
-        onUpdate(){
-            this.loadFood();
+
+            // this.owner.x = -1300
+            // this.owner.y = -700
+            // console.log(this.owner);
+            // this.owner.scale(2, 2)
+
         }
 
         loadFood(){
@@ -347,10 +360,13 @@
                         let y = Math.random()*(this.owner.height-10).toFixed(0)+10;
                         let food = this.foodRes.create();
                         let foodScript = food.getComponent(Laya.Script);
+                        food.x = x;
+                        food.y = y;
                         food.foodOrder = this.foodOrder;
-                        food.wall = this;
-                        food = foodScript.create(x,y);
+
+                        // food = foodScript.create(x,y)
                         this.foods[this.foodOrder] = food;
+                        // Laya.stage.addChild(food)
                         this.owner.addChild(food);
                         
                         // this.foods[this.foodOrder] = food;
@@ -369,6 +385,7 @@
                     let snakeScript = snake.getComponent(Laya.Script);
 
                     if(this.cursnakeNum==0){
+                        this.playerSnake = snake;
                         snakeScript.currentPlayer = true;
                     }
                     snakeScript.wall = this.owner;
@@ -379,6 +396,8 @@
                     this.snakes.push(snake);
                     this.cursnakeNum++;
 
+                } else {
+                    this.owner.event('init');
                 }
             }
         }
@@ -392,33 +411,96 @@
         }
     }
 
-    class ScoreControl extends Laya.Script {
+    class Food extends BaseScript {
 
         constructor() { 
             super(); 
-            /** @prop {name:scoreText, tips:"分数Text", type:Node, default:null}*/
-            let scoreText;
+            this.triggerDistance = 20;
+
+            this.eating = false;
+
+            this.animTime = 0;
         }
 
-        changeScore(score){
-            this.score = score;
-            this.scoreText.text = this.score;
+        onAwake(){
+            this.wall = this.owner.parent;
+            this.wallScript = this.wall.getComponent(Laya.Script);
+            
+            this.colorNum = Math.floor(Math.random() * (6 - 1 + 1) + 1);
+            this.owner.loadImage("images/bean" + this.colorNum + ".png", 0, 0, 0, 0, new Laya.Handler(this, this.loaded, null));
+            this.owner.zOrder = 0;
+            
+            this.owner.pivot(this.owner.width / 2, this.owner.height / 2);
+            this.owner.visible = true;
+
         }
 
-        plusScore(score){
-            score?this.score+=score:this.score++;
-            this.scoreText.text = this.score;
+        // onUpdate(){
+        //     let snakes = this.wall.snakes;
+        //     if(snakes){
+        //         snakes.forEach(snake=>{
+        //             if(snake){
+        //                 let other = snake.getComponent(Laya.CircleCollider)
+        //                 let self = this.owner.getComponent(Laya.CircleCollider)
+        //                 this.snake = snake;
+        //                 this.snakeScript = snake.getComponent(Laya.Script)
+        //                 if(!this.eating && Math.abs(snake.x-this.owner.x)<this.triggerDistance && Math.abs(snake.y-this.owner.y)<this.triggerDistance){
+        //                     this.onEaten(snake)
+        //                 }
+        //             }
+        //         })
+
+        //     }
+        // }
+
+        async onEaten(snake){ 
+
+            this.eating = true; 
+            
+
+            this.animTime = 0;
+            this.owner.destroy();
+            Laya.timer.frameLoop(1,this,this.foodAnime,[snake]);
         }
 
-        minusScore(score){
-            score?this.score+=score:this.score++;
-            this.scoreText.text = this.score;
+        foodAnime(snake){
+            
+            let s = snake.getComponent(Laya.Script);
+            let self = this.owner;
+            this.animTime++;
+            self.x += (s.currentVelocity + 0.1) * Math.cos(Math.atan2(snake.y - self.y, snake.x - self.x));
+            self.y += (s.currentVelocity + 0.1) * Math.sin(Math.atan2(snake.y - self.y, snake.x - self.x));
+
+            if(this.animTime>=60){
+                //console.log('des');
+                self.destroy();
+                Laya.timer.clear(this,this.foodAnime);
+                // clearInterval(timer)    
+                this.eating = false;
+                this.animTime = 0;
+            }
         }
 
-        onEnable() {
+        onTriggerEnter(other,self,contact){
+            if(other.name=='collider_snake'){
+                let s = other.owner.getComponent(Laya.Script);
+                this.snakeScript = s;
+                console.log('removeIndex:'+self.owner.foodOrder);
+                //self.owner.destroy()
+
+                
+                Laya.timer.frameLoop(1,this,this.foodAnime,[other.owner]);
+
+            }
         }
 
-        onDisable() {
+        loaded(){
+            console.log('加载完毕');
+        }
+        onDestroy(){
+            if(this.snakeScript){
+                this.snakeScript.foodEat();
+            }
         }
     }
 
@@ -502,95 +584,33 @@
         }
     }
 
-    class Food extends BaseScript {
+    class ScoreControl extends Laya.Script {
 
         constructor() { 
             super(); 
-            this.triggerDistance = 20;
-
-            this.eating = false;
+            /** @prop {name:scoreText, tips:"分数Text", type:Node, default:null}*/
+            let scoreText;
         }
 
-        onAwake(){
-            this.wall = this.owner.parent;
-            this.wallScript = this.wall.getComponent(Laya.Script);
-            this.colorNum = Math.floor(Math.random() * (6 - 1 + 1) + 1);
-            this.owner.loadImage("images/bean" + this.colorNum + ".png", 0, 0, 0, 0, new Laya.Handler(this, this.loaded, null));
-            this.owner.zOrder = 0;
-            this.owner.pivot(this.owner.width / 2, this.owner.height / 2);
-            this.owner.visible = true;
+        changeScore(score){
+            this.score = score;
+            this.scoreText.text = this.score;
         }
 
-        onUpdate(){
-            let snakes = this.owner.wall.snakes;
-            snakes.forEach(snake=>{
-                if(snake){
-                    let other = snake.getComponent(Laya.CircleCollider);
-                    let self = this.owner.getComponent(Laya.CircleCollider);
-                    this.snake = snake;
-                    this.snakeScript = snake.getComponent(Laya.Script);
-                        if(!this.eating && Math.abs(snake.x-this.owner.x)<this.triggerDistance && Math.abs(snake.y-this.owner.y)<this.triggerDistance){
-                            this.onEaten(snake);
-                        }
-                }
-            });
-        }
-        
-        onEaten(snake){
-            let s = snake.getComponent(Laya.Script);
-            this.eating = true;
-            let _this = this;
-            let self = this.owner;
-            let time = 0;
-            Laya.timer.frameLoop(1,this,()=>{
-                time++;
-                
-                self.x += (s.currentVelocity + 0.1) * Math.cos(Math.atan2(snake.y - self.y, snake.x - self.x));
-                self.y += (s.currentVelocity + 0.1) * Math.sin(Math.atan2(snake.y - self.y, snake.x - self.x));
-                
-                if(time>=60){
-                    self.destroy();
-                    // clearInterval(timer)    
-                    _this.eating = false;
-                }
-            });
+        plusScore(score){
+            score?this.score+=score:this.score++;
+            this.scoreText.text = this.score;
         }
 
-        onTriggerEnter(other,self,contact){
-            console.log('enter');
-            if(other.name=='collider_snake'){
-                let snake = this.snake;
-                let s = snake.getComponent(Laya.Script);
-                console.log('removeIndex:'+self.owner.foodOrder);
-                //self.owner.destroy()
-
-                
-                // let time = 0;
-                // setInterval(() => {
-                //     time++;
-                //     self.owner.x += (s.currentVelocity + 0.1) * Math.cos(Math.atan2(BaseScript.snakePos.y - self.owner.y, BaseScript.snakePos.x - self.owner.x))
-                //     self.owner.y += (s.currentVelocity + 0.1) * Math.sin(Math.atan2(BaseScript.snakePos.y - self.owner.y, BaseScript.snakePos.x - self.owner.x))
-
-                //     if(time>=60){
-                //         self.owner.destroy()
-                        
-                //     }
-                // }, 1000);
-
-            }
+        minusScore(score){
+            score?this.score+=score:this.score++;
+            this.scoreText.text = this.score;
         }
 
-        loaded(){
-            console.log('加载完毕');
-        }
-        create(x,y){
-            
-            this.owner.pos(x, y);
-            return this.owner;
+        onEnable() {
         }
 
-        onDestroy(){
-            this.snakeScript.foodEat();
+        onDisable() {
         }
     }
 
@@ -622,7 +642,7 @@
             this.frame = 1;
             
             /** @prop {name:velocity, tips:"初始速度", type:Number, default:1}*/
-            this.velocity = 2;
+            this.velocity = 1;
             
             this.snakeInitSize = 0.45;
 
@@ -672,6 +692,10 @@
 
             //是否为当前玩家
             this.currentPlayer = false;//当前玩家
+
+            this.times = 0;
+
+            this.lastTimes = 0;
 
         }
 
@@ -818,6 +842,7 @@
         }
 
         headMove(){
+            
             if(this.dead){
                 return;
             }
@@ -826,21 +851,38 @@
             } else {
                 this.speedChange(this.velocity);
             }
-            let x = this.step * Math.cos(this.snake.rotation * Math.PI / 180);
-            let y = this.step * Math.sin(this.snake.rotation * Math.PI / 180);
+            let x = this.currentVelocity * Math.cos(this.snake.rotation * Math.PI / 180);
+            let y = this.currentVelocity * Math.sin(this.snake.rotation * Math.PI / 180);
 
-            let pos = { x: this.x, y: this.y };
-            let posBefore = { x: this.x, y: this.y };
+            let pos = { x: this.owner.x, y: this.owner.y };
+            let posBefore = { x: this.owner.x, y: this.owner.y };
 
+            this.owner.x += x;
+            this.owner.y += y;
+            if (!(this.owner.x + x >= this.wall.width - this.owner.width / 2 || this.x + x <= this.owner.width / 2)) {
+                pos.x = this.x;
+            } else {
+                // this.moveOut()
+            }
+            if (!(this.owner.y + y >= this.wall.height - this.owner.width / 2 || this.y + y <= this.owner.width / 2)) {
+                pos.y = this.y;
+            } else {
+                // this.moveOut()
+            }
+
+            
             for (let index = 1; index <= this.currentVelocity; index++) {
-
-                this.snake.x += x;
-                this.snake.y += y;
-                
-                // BaseScript.snakePos = {x:this.snake.x,y:this.snake.y};
+                this.times++;
+                console.log(this.times-this.lastTimes);
+                this.lastTimes = this.times;
                 if(this.snakeBodyArr.length){
                     this.pathArr.unshift({x:this.snake.x,y:this.snake.y,rotation:this.snake.rotation});
                 }
+
+                // this.pathArr.unshift({
+                //     x: index * Math.cos(Math.atan2(pos.y - posBefore.y, pos.x - posBefore.x)) + posBefore.x
+                //     , y: index * Math.sin(Math.atan2(pos.y - posBefore.y, pos.x - posBefore.x)) + posBefore.y
+                // })
             }
 
         }
@@ -920,68 +962,6 @@
             }
 
         }
-
-        onKeyDown(e){
-            if(this.dead)return;
-            let predirection = this.direction;
-            switch (e.keyCode) {
-                case 37:
-                    this.snake.event('directionChange','左');
-                    break;
-                case 38:
-                    this.snake.event('directionChange','上');
-                    break;
-                case 39:
-                    this.snake.event('directionChange','右');
-                    break;
-                case 40:
-                    this.snake.event('directionChange','下');
-                    break;
-            
-                default:
-                    break;
-            }
-
-
-            if(this.speedMode){
-                this.snake.event('speedChange',this.velocity+this.acceleratedVelocity);
-            } else {
-                this.headMove(this.currentVelocity);
-                if(this.keyPressTime>this.keyPressDelay){
-                    this.speedMode = true;
-                    this.snake.event('speedChange',this.velocity+this.acceleratedVelocity);
-                }
-            }
-
-            //方向改变
-            if(this.direction!=predirection){
-                this.keyPressTime = 0;
-                this.snake.event('directionChange',this.direction);
-            } else {
-                this.keyPressTime++;
-            }
-
-            this.speedMode = this.keyPressTime>2;
-            
-            // Laya.timer.once(500,this,Laya.Handler.create(this,()=>{
-            //     this.move(this.velocity+this.acceleratedVelocity)
-            // }))
-            
-        }
-
-        onKeyUp(e){
-            if(this.dead)return;
-            
-            // if(!this.speedMode){
-            //     this.keyPressTime = 0
-            // }
-            // this.snake.event('speedChange',this.velocity)
-            
-            // Laya.timer.once(1000,this,()=>{
-
-            //     this.speedMode = false;
-            // },null,true)
-        }
         
         onDisable() {
         }
@@ -1025,10 +1005,10 @@
     		reg("script/GameMain/BtnStartGame.js",BtnStartGame);
     		reg("script/GameMenu/GameControl.js",GameControl);
     		reg("script/GameMain/Wall.js",Wall);
-    		reg("script/GameMain/ScoreControl.js",ScoreControl);
+    		reg("script/GameMain/Food.js",Food);
     		reg("script/GameMain/GameOver.js",GameOver);
     		reg("script/GameMain/GameMain.js",GameMain);
-    		reg("script/GameMain/Food.js",Food);
+    		reg("script/GameMain/ScoreControl.js",ScoreControl);
     		reg("script/GameMain/Snake.js",Snake);
     		reg("script/GameMain/SnakeBody.js",SnakeBody);
         }
@@ -1036,14 +1016,14 @@
     GameConfig.width = 960;
     GameConfig.height = 540;
     GameConfig.scaleMode ="fixedheight";
-    GameConfig.screenMode = "none";
+    GameConfig.screenMode = "horizontal";
     GameConfig.alignV = "top";
     GameConfig.alignH = "left";
     GameConfig.startScene = "scene/gameMain.scene";
     GameConfig.sceneRoot = "";
     GameConfig.debug = false;
     GameConfig.stat = false;
-    GameConfig.physicsDebug = false;
+    GameConfig.physicsDebug = true;
     GameConfig.exportSceneToJson = true;
 
     GameConfig.init();

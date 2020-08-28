@@ -30,7 +30,7 @@ export default class Snake extends BaseScript {
         this.frame = 1;
         
         /** @prop {name:velocity, tips:"初始速度", type:Number, default:1}*/
-        this.velocity = 2;
+        this.velocity = 1;
         
         this.snakeInitSize = 0.45;
 
@@ -80,6 +80,10 @@ export default class Snake extends BaseScript {
 
         //是否为当前玩家
         this.currentPlayer = false;//当前玩家
+
+        this.times = 0;
+
+        this.lastTimes = 0;
 
     }
 
@@ -226,6 +230,7 @@ export default class Snake extends BaseScript {
     }
 
     headMove(){
+        
         if(this.dead){
             return;
         }
@@ -234,21 +239,38 @@ export default class Snake extends BaseScript {
         } else {
             this.speedChange(this.velocity)
         }
-        let x = this.step * Math.cos(this.snake.rotation * Math.PI / 180)
-        let y = this.step * Math.sin(this.snake.rotation * Math.PI / 180)
+        let x = this.currentVelocity * Math.cos(this.snake.rotation * Math.PI / 180)
+        let y = this.currentVelocity * Math.sin(this.snake.rotation * Math.PI / 180)
 
-        let pos = { x: this.x, y: this.y }
-        let posBefore = { x: this.x, y: this.y }
+        let pos = { x: this.owner.x, y: this.owner.y }
+        let posBefore = { x: this.owner.x, y: this.owner.y }
 
+        this.owner.x += x
+        this.owner.y += y
+        if (!(this.owner.x + x >= this.wall.width - this.owner.width / 2 || this.x + x <= this.owner.width / 2)) {
+            pos.x = this.x
+        } else {
+            // this.moveOut()
+        }
+        if (!(this.owner.y + y >= this.wall.height - this.owner.width / 2 || this.y + y <= this.owner.width / 2)) {
+            pos.y = this.y
+        } else {
+            // this.moveOut()
+        }
+
+        
         for (let index = 1; index <= this.currentVelocity; index++) {
-
-            this.snake.x += x;
-            this.snake.y += y;
-            
-            // BaseScript.snakePos = {x:this.snake.x,y:this.snake.y};
+            this.times++;
+            console.log(this.times-this.lastTimes);
+            this.lastTimes = this.times;
             if(this.snakeBodyArr.length){
                 this.pathArr.unshift({x:this.snake.x,y:this.snake.y,rotation:this.snake.rotation})
             }
+
+            // this.pathArr.unshift({
+            //     x: index * Math.cos(Math.atan2(pos.y - posBefore.y, pos.x - posBefore.x)) + posBefore.x
+            //     , y: index * Math.sin(Math.atan2(pos.y - posBefore.y, pos.x - posBefore.x)) + posBefore.y
+            // })
         }
 
     }
@@ -327,68 +349,6 @@ export default class Snake extends BaseScript {
             this.addBody()
         }
 
-    }
-
-    onKeyDown(e){
-        if(this.dead)return;
-        let predirection = this.direction;
-        switch (e.keyCode) {
-            case 37:
-                this.snake.event('directionChange','左')
-                break;
-            case 38:
-                this.snake.event('directionChange','上')
-                break;
-            case 39:
-                this.snake.event('directionChange','右')
-                break;
-            case 40:
-                this.snake.event('directionChange','下')
-                break;
-        
-            default:
-                break;
-        }
-
-
-        if(this.speedMode){
-            this.snake.event('speedChange',this.velocity+this.acceleratedVelocity)
-        } else {
-            this.headMove(this.currentVelocity)
-            if(this.keyPressTime>this.keyPressDelay){
-                this.speedMode = true;
-                this.snake.event('speedChange',this.velocity+this.acceleratedVelocity)
-            }
-        }
-
-        //方向改变
-        if(this.direction!=predirection){
-            this.keyPressTime = 0;
-            this.snake.event('directionChange',this.direction)
-        } else {
-            this.keyPressTime++;
-        }
-
-        this.speedMode = this.keyPressTime>2;
-        
-        // Laya.timer.once(500,this,Laya.Handler.create(this,()=>{
-        //     this.move(this.velocity+this.acceleratedVelocity)
-        // }))
-        
-    }
-
-    onKeyUp(e){
-        if(this.dead)return;
-        
-        // if(!this.speedMode){
-        //     this.keyPressTime = 0
-        // }
-        // this.snake.event('speedChange',this.velocity)
-        
-        // Laya.timer.once(1000,this,()=>{
-
-        //     this.speedMode = false;
-        // },null,true)
     }
     
     onDisable() {

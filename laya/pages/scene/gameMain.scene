@@ -1,12 +1,12 @@
 {
     "x":0,
     "type":"Scene",
-    "selectedBox":51,
-    "selecteID":13,
+    "selectedBox":13,
+    "selecteID":193,
     "searchKey":"Scene,game_scene",
     "props":{"width":960,"sceneColor":"#ffffff","name":"game_scene","height":540,"autoDestroyAtClosed":true},
     "nodeParent":-1,
-    "maxID":147,
+    "maxID":194,
     "label":"game_scene",
     "isOpen":true,
     "isDirectory":true,
@@ -42,13 +42,14 @@
             "hasChild":false,
             "compId":25,
             "child":[
-                ]
+                ],
+            "$HIDDEN":false
         },
         {
             "x":15,
             "type":"Sprite",
             "searchKey":"Sprite,center",
-            "props":{"y":269,"x":479,"width":1,"name":"center","height":1},
+            "props":{"y":270,"x":480,"width":1,"name":"center","height":1},
             "nodeParent":2,
             "label":"center",
             "isOpen":true,
@@ -59,9 +60,9 @@
             "child":[
                 {
                     "x":30,
-                    "type":"Sprite",
-                    "searchKey":"Sprite,sprite_wall",
-                    "props":{"y":0,"x":0,"width":3000,"texture":"images/map.png","pivotY":750,"pivotX":1500,"name":"sprite_wall","height":1500},
+                    "type":"Image",
+                    "searchKey":"Image,sprite_wall",
+                    "props":{"x":0,"skin":"images/map.png","pivotY":750,"pivotX":1500,"name":"sprite_wall"},
                     "nodeParent":51,
                     "label":"sprite_wall",
                     "isOpen":true,
@@ -70,68 +71,6 @@
                     "hasChild":true,
                     "compId":13,
                     "child":[
-                        {
-                            "x":45,
-                            "type":"Rect",
-                            "searchKey":"Rect,rect_wall",
-                            "props":{"y":0,"x":0,"width":3000,"name":"rect_wall","lineWidth":1,"lineColor":"#ffffff","height":1500},
-                            "nodeParent":13,
-                            "label":"rect_wall",
-                            "isDirectory":false,
-                            "isAniNode":true,
-                            "hasChild":false,
-                            "compId":14,
-                            "child":[
-                                ]
-                        },
-                        {
-                            "x":45,
-                            "type":"ChainCollider",
-                            "switchAble":true,
-                            "searchKey":"ChainCollider,collider_wall",
-                            "removeAble":true,
-                            "props":{"y":-110,"x":-80,"points":"3080,108,3080,1610,80,1610,80,110,3080,110","name":"collider_wall"},
-                            "nodeParent":13,
-                            "label":"collider_wall",
-                            "isDirectory":false,
-                            "isAniNode":true,
-                            "hasChild":false,
-                            "compId":46,
-                            "child":[
-                                ]
-                        },
-                        {
-                            "x":45,
-                            "type":"RigidBody",
-                            "switchAble":true,
-                            "searchKey":"RigidBody",
-                            "removeAble":true,
-                            "props":{"y":2,"x":0,"type":"static"},
-                            "nodeParent":13,
-                            "label":"RigidBody",
-                            "isDirectory":false,
-                            "isAniNode":true,
-                            "hasChild":false,
-                            "compId":43,
-                            "child":[
-                                ]
-                        },
-                        {
-                            "x":45,
-                            "type":"Widget",
-                            "switchAble":true,
-                            "searchKey":"Widget",
-                            "removeAble":true,
-                            "props":{"y":0,"x":0},
-                            "nodeParent":13,
-                            "label":"Widget",
-                            "isDirectory":false,
-                            "isAniNode":true,
-                            "hasChild":false,
-                            "compId":40,
-                            "child":[
-                                ]
-                        },
                         {
                             "x":45,
                             "type":"Script",
@@ -151,72 +90,108 @@
                         },
                         {
                             "x":45,
-                            "type":"Text",
-                            "searchKey":"Text,text_score",
-                            "props":{"zOrder":2,"y":483,"x":1481,"width":53,"name":"text_score","height":18,"color":"#ffffff"},
+                            "type":"RigidBody",
+                            "switchAble":true,
+                            "searchKey":"RigidBody,rigid_wall",
+                            "removeAble":true,
+                            "props":{"type":"static","name":"rigid_wall"},
                             "nodeParent":13,
-                            "label":"text_score",
-                            "isOpen":false,
-                            "isDirectory":true,
-                            "isAniNode":true,
-                            "hasChild":true,
-                            "compId":39,
-                            "child":[
-                                {
-                                    "type":"Script",
-                                    "switchAble":true,
-                                    "source":"src/script/GameMain/ScoreControl.js",
-                                    "searchKey":"Script,ScoreControl",
-                                    "removeAble":true,
-                                    "props":{"scoreText":"@node:39"},
-                                    "nodeParent":39,
-                                    "label":"ScoreControl",
-                                    "isDirectory":false,
-                                    "isAniNode":true,
-                                    "hasChild":false,
-                                    "compId":50,
-                                    "child":[
-                                        ]
-                                }]
-                        },
-                        {
-                            "x":45,
-                            "type":"Text",
-                            "searchKey":"Text,text_score_tip",
-                            "props":{"zOrder":2,"y":483,"x":1428,"width":53,"text":"SCORE：","name":"text_score_tip","height":18,"color":"#ffffff"},
-                            "nodeParent":13,
-                            "label":"text_score_tip",
-                            "isOpen":true,
+                            "label":"rigid_wall",
                             "isDirectory":false,
                             "isAniNode":true,
                             "hasChild":false,
-                            "compId":36,
+                            "compId":186,
                             "child":[
                                 ]
+                        },
+                        {
+                            "x":45,
+                            "type":"ChainCollider",
+                            "switchAble":true,
+                            "searchKey":"ChainCollider,collider_wall",
+                            "removeAble":true,
+                            "props":{"points":"0,0,0,1500,3000,1500,3000,0,0,0","name":"collider_wall"},
+                            "nodeParent":13,
+                            "label":"collider_wall",
+                            "isDirectory":false,
+                            "isAniNode":true,
+                            "hasChild":false,
+                            "compId":190,
+                            "child":[
+                                ]
+                        },
+                        {
+                            "x":45,
+                            "type":"Sprite",
+                            "searchKey":"Sprite",
+                            "props":{"y":750,"x":1550,"presetID":1,"preset":"laya/assets/res/sprite_food.prefab"},
+                            "nodeParent":13,
+                            "label":"sprite_food",
+                            "isOpen":true,
+                            "isDirectory":true,
+                            "isAniNode":true,
+                            "hasChild":true,
+                            "compId":193,
+                            "child":[
+                                {
+                                    "x":60,
+                                    "type":"RigidBody",
+                                    "switchAble":true,
+                                    "searchKey":"RigidBody",
+                                    "removeAble":true,
+                                    "props":{"presetID":2,"preset":"laya/assets/res/sprite_food.prefab"},
+                                    "nodeParent":193,
+                                    "label":"RigidBody(sprite_food)",
+                                    "isDirectory":false,
+                                    "isAniNode":true,
+                                    "hasChild":false,
+                                    "compId":29,
+                                    "child":[
+                                        ]
+                                },
+                                {
+                                    "x":60,
+                                    "type":"Script",
+                                    "switchAble":true,
+                                    "source":"src/script/GameMain/Food.js",
+                                    "searchKey":"Script,Food",
+                                    "removeAble":true,
+                                    "props":{"presetID":3,"preset":"laya/assets/res/sprite_food.prefab"},
+                                    "nodeParent":193,
+                                    "label":"Food",
+                                    "isDirectory":false,
+                                    "isClose":true,
+                                    "isAniNode":true,
+                                    "hasChild":false,
+                                    "compId":49,
+                                    "child":[
+                                        ]
+                                },
+                                {
+                                    "x":60,
+                                    "type":"CircleCollider",
+                                    "switchAble":true,
+                                    "searchKey":"CircleCollider",
+                                    "removeAble":true,
+                                    "props":{"presetID":4,"preset":"laya/assets/res/sprite_food.prefab"},
+                                    "nodeParent":193,
+                                    "label":"collider_food",
+                                    "isDirectory":false,
+                                    "isAniNode":true,
+                                    "hasChild":false,
+                                    "compId":66,
+                                    "child":[
+                                        ]
+                                }],
+                            "$HIDDEN":true
                         }],
-                    "$HIDDEN":false
-                },
-                {
-                    "x":30,
-                    "type":"Widget",
-                    "switchAble":true,
-                    "searchKey":"Widget",
-                    "removeAble":true,
-                    "props":{"centerY":0,"centerX":0},
-                    "nodeParent":51,
-                    "label":"Widget",
-                    "isDirectory":false,
-                    "isAniNode":true,
-                    "hasChild":false,
-                    "compId":52,
-                    "child":[
-                        ]
+                    "$HIDDEN":true
                 },
                 {
                     "x":30,
                     "type":"Sprite",
                     "searchKey":"Sprite,view_score",
-                    "props":{"y":-269,"x":-479,"width":960,"visible":false,"texture":"comp/img_blank.png","sceneColor":"#894f4e","name":"view_score","height":540,"autoDestroyAtClosed":true},
+                    "props":{"y":-270,"x":-480,"width":960,"visible":false,"texture":"comp/img_blank.png","sceneColor":"#894f4e","name":"view_score","height":540,"autoDestroyAtClosed":true},
                     "nodeParent":51,
                     "label":"view_score",
                     "isOpen":false,
@@ -227,10 +202,10 @@
                     "child":[
                         {
                             "type":"Text",
-                            "searchKey":"Text",
-                            "props":{"y":208,"x":372,"width":216,"valign":"top","text":"分数","height":123,"fontSize":50,"color":"#9e5f5e","align":"center"},
+                            "searchKey":"Text,text_title",
+                            "props":{"y":208,"x":372,"width":216,"valign":"top","text":"分数","name":"text_title","height":123,"fontSize":50,"color":"#9e5f5e","align":"center"},
                             "nodeParent":94,
-                            "label":"Text",
+                            "label":"text_title",
                             "isDirectory":false,
                             "isAniNode":true,
                             "hasChild":false,
@@ -302,14 +277,13 @@
                     "props":{"y":-154,"x":-103,"width":206,"visible":false,"name":"sprite_scorelist","height":151},
                     "nodeParent":51,
                     "label":"sprite_scorelist",
-                    "isOpen":true,
+                    "isOpen":false,
                     "isDirectory":true,
                     "isAniNode":true,
                     "hasChild":true,
                     "compId":103,
                     "child":[
                         {
-                            "x":45,
                             "type":"Panel",
                             "searchKey":"Panel,panel_score",
                             "props":{"y":-7,"x":-12,"width":230,"name":"panel_score","height":168},
@@ -326,15 +300,17 @@
                 },
                 {
                     "x":30,
-                    "type":"Button",
-                    "searchKey":"Button,btn_speedup",
-                    "props":{"zOrder":5,"y":108,"x":293,"stateNum":"2","skin":"images/control-flash.png","sizeGrid":"54,0,0,0","name":"btn_speedup"},
+                    "type":"Widget",
+                    "switchAble":true,
+                    "searchKey":"Widget",
+                    "removeAble":true,
+                    "props":{"y":0,"x":0,"centerY":0,"centerX":0},
                     "nodeParent":51,
-                    "label":"btn_speedup",
+                    "label":"Widget",
                     "isDirectory":false,
                     "isAniNode":true,
                     "hasChild":false,
-                    "compId":133,
+                    "compId":52,
                     "child":[
                         ]
                 }]
@@ -358,71 +334,103 @@
         },
         {
             "x":15,
-            "type":"Sprite",
-            "searchKey":"Sprite,left",
-            "props":{"y":0,"x":0,"width":2,"name":"left","height":2},
+            "type":"Text",
+            "searchKey":"Text,text_score",
+            "props":{"zOrder":2,"y":2,"x":460,"width":53,"name":"text_score","height":18,"color":"#000000"},
             "nodeParent":2,
-            "label":"left",
+            "label":"text_score",
             "isOpen":false,
             "isDirectory":true,
             "isAniNode":true,
             "hasChild":true,
-            "compId":145,
+            "compId":39,
             "child":[
                 {
-                    "type":"Widget",
+                    "type":"Script",
                     "switchAble":true,
-                    "searchKey":"Widget",
+                    "source":"src/script/GameMain/ScoreControl.js",
+                    "searchKey":"Script,ScoreControl",
                     "removeAble":true,
-                    "props":{},
-                    "nodeParent":145,
-                    "label":"Widget",
+                    "props":{"scoreText":"@node:39"},
+                    "nodeParent":39,
+                    "label":"ScoreControl",
                     "isDirectory":false,
                     "isAniNode":true,
                     "hasChild":false,
-                    "compId":146,
+                    "compId":50,
                     "child":[
                         ]
-                },
-                {
-                    "type":"Sprite",
-                    "searchKey":"Sprite,sprite_ctrl_rocker_move",
-                    "props":{"zOrder":5,"y":440,"x":68,"width":35,"visible":false,"texture":"images/control-rocker.png","pivotY":18,"pivotX":18,"name":"sprite_ctrl_rocker_move","height":35},
-                    "nodeParent":145,
-                    "label":"sprite_ctrl_rocker_move",
-                    "isDirectory":false,
-                    "isAniNode":true,
-                    "hasChild":false,
-                    "compId":135,
-                    "child":[
-                        ]
-                },
-                {
-                    "type":"Sprite",
-                    "searchKey":"Sprite,sprite_ctrl",
-                    "props":{"zOrder":5,"y":417,"x":146,"width":80,"texture":"images/control-back.png","pivotY":40,"pivotX":40,"name":"sprite_ctrl","height":80},
-                    "nodeParent":145,
-                    "label":"sprite_ctrl",
-                    "isOpen":false,
-                    "isDirectory":true,
-                    "isAniNode":true,
-                    "hasChild":true,
-                    "compId":130,
-                    "child":[
-                        {
-                            "type":"Sprite",
-                            "searchKey":"Sprite,sprite_ctrl_rocker",
-                            "props":{"y":41,"x":41,"width":35,"texture":"images/control-rocker.png","pivotY":18,"pivotX":18,"name":"sprite_ctrl_rocker","height":35},
-                            "nodeParent":130,
-                            "label":"sprite_ctrl_rocker",
-                            "isDirectory":false,
-                            "isAniNode":true,
-                            "hasChild":false,
-                            "compId":131,
-                            "child":[
-                                ]
-                        }]
                 }]
+        },
+        {
+            "x":15,
+            "type":"Text",
+            "searchKey":"Text,text_score_tip",
+            "props":{"zOrder":2,"y":2,"x":407,"width":53,"text":"SCORE：","name":"text_score_tip","height":18,"color":"#000000"},
+            "nodeParent":2,
+            "label":"text_score_tip",
+            "isOpen":true,
+            "isDirectory":false,
+            "isAniNode":true,
+            "hasChild":false,
+            "compId":36,
+            "child":[
+                ]
+        },
+        {
+            "x":15,
+            "type":"Sprite",
+            "searchKey":"Sprite,sprite_ctrl_rocker_move",
+            "props":{"zOrder":5,"y":440,"x":68,"width":35,"visible":false,"texture":"images/control-rocker.png","pivotY":18,"pivotX":18,"name":"sprite_ctrl_rocker_move","height":35},
+            "nodeParent":2,
+            "label":"sprite_ctrl_rocker_move",
+            "isDirectory":false,
+            "isAniNode":true,
+            "hasChild":false,
+            "compId":135,
+            "child":[
+                ]
+        },
+        {
+            "x":15,
+            "type":"Sprite",
+            "searchKey":"Sprite,sprite_ctrl",
+            "props":{"zOrder":5,"y":417,"x":146,"width":80,"texture":"images/control-back.png","pivotY":40,"pivotX":40,"name":"sprite_ctrl","height":80},
+            "nodeParent":2,
+            "label":"sprite_ctrl",
+            "isOpen":false,
+            "isDirectory":true,
+            "isAniNode":true,
+            "hasChild":true,
+            "compId":130,
+            "child":[
+                {
+                    "type":"Sprite",
+                    "searchKey":"Sprite,sprite_ctrl_rocker",
+                    "props":{"y":41,"x":41,"width":35,"texture":"images/control-rocker.png","pivotY":18,"pivotX":18,"name":"sprite_ctrl_rocker","height":35},
+                    "nodeParent":130,
+                    "label":"sprite_ctrl_rocker",
+                    "isDirectory":false,
+                    "isAniNode":true,
+                    "hasChild":false,
+                    "compId":131,
+                    "child":[
+                        ]
+                }]
+        },
+        {
+            "x":15,
+            "type":"Button",
+            "searchKey":"Button,btn_speedup",
+            "props":{"zOrder":5,"y":377.5,"x":758,"stateNum":"2","skin":"images/control-flash.png","sizeGrid":"54,0,0,0","name":"btn_speedup"},
+            "nodeParent":2,
+            "label":"btn_speedup",
+            "isDirectory":false,
+            "isAniNode":true,
+            "hasChild":false,
+            "compId":133,
+            "child":[
+                ]
         }],
     "animations":[
         {
