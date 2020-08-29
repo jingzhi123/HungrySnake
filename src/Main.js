@@ -1,4 +1,6 @@
 ﻿import GameConfig from "./GameConfig";
+import Global from "./common/Global";
+import HttpUtils from "./common/HttpUtils";
 class Main {
 	constructor() {
 		//根据IDE设置初始化引擎		
@@ -33,5 +35,14 @@ class Main {
 		GameConfig.startScene && Laya.Scene.open(GameConfig.startScene);
 	}
 }
-//激活启动类
-new Main();
+
+function getToken(){
+	let http = new HttpUtils()
+	http.get('http://localhost:8888/token/getToken?code=snake',(data)=>{
+		console.log(data);
+		Global.token = data;
+		new Main()
+	})
+}
+getToken()
+

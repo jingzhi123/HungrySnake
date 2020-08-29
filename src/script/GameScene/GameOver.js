@@ -19,7 +19,7 @@ export default class GameOver extends Laya.Script {
         })
         this.retryBtn.clickHandler = Laya.Handler.create(this,(e)=>{
             Laya.timer.resume()
-            Laya.Scene.open('scene/gameMain.scene')
+            Laya.Scene.open('scene/GameScene.scene')
         })
     }
 

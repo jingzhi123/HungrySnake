@@ -1,5 +1,6 @@
 import BaseScript from "../BaseScript";
-import GameUtils from "../GameUtils";
+import GameUtils from "../../common/GameUtils";
+import Global from "../../common/Global";
 export default class Wall extends BaseScript {
 
     constructor() { 
@@ -20,7 +21,7 @@ export default class Wall extends BaseScript {
         let scoreText;
 
 
-        this.foodNum = 0;
+        this.foodNum = 0;//当前食物数量
 
         this.foods = []
         
@@ -33,6 +34,8 @@ export default class Wall extends BaseScript {
         this.snakeNum = 1;//蛇的个数
 
         this.cursnakeNum = 0;
+
+        this.maxFood = 500;//最大食物数量
 
         //当前玩家蛇
         this.playerSnake;
@@ -60,8 +63,8 @@ export default class Wall extends BaseScript {
         this.playerScript = playerSnake.getComponent(Laya.Script)
         this.btn_speedup.on('mousedown',this,this.speedUp)
         this.btn_speedup.on('mouseup',this,this.speedDown)
-        BaseScript.gameScene.on("mouseup", this, this.ctrlRockerUp)
-        BaseScript.gameScene.on("mousemove",this, this.ctrlRockerDown)
+        this.gameScene.on("mouseup", this, this.ctrlRockerUp)
+        this.gameScene.on("mousemove",this, this.ctrlRockerDown)
     }
 
     onKeyDown(e){
@@ -79,24 +82,24 @@ export default class Wall extends BaseScript {
     }
 
     ctrlRockerUp(){
-        if (BaseScript.gameScene.mouseX <= BaseScript.gameScene.width / 1.5) {
+        if (this.gameScene.mouseX <= this.gameScene.width / 1.5) {
             this.btn_ctrl_rocker.visible = true
             this.btn_ctrl_rocker_move.visible = false
         }
     }
     ctrlRockerDown(){
         
-        if (BaseScript.gameScene.mouseX <= BaseScript.gameScene.width / 1.5) {
+        if (this.gameScene.mouseX <= this.gameScene.width / 1.5) {
             this.btn_ctrl_rocker.visible = false
             this.btn_ctrl_rocker_move.visible = true
-            if (BaseScript.distance(BaseScript.gameScene.mouseX, BaseScript.gameScene.mouseY, this.btn_ctrl.x, this.btn_ctrl.y) <= (this.btn_ctrl.width)) {
-                this.btn_ctrl_rocker_move.pos(BaseScript.gameScene.mouseX, BaseScript.gameScene.mouseY)
-                this.playerSnake.rotation = Math.atan2(BaseScript.gameScene.mouseY - this.btn_ctrl.y, BaseScript.gameScene.mouseX - this.btn_ctrl.x) * 180 / Math.PI
+            if (GameUtils.distance(this.gameScene.mouseX, this.gameScene.mouseY, this.btn_ctrl.x, this.btn_ctrl.y) <= (this.btn_ctrl.width)) {
+                this.btn_ctrl_rocker_move.pos(this.gameScene.mouseX, this.gameScene.mouseY)
+                this.playerSnake.rotation = Math.atan2(this.gameScene.mouseY - this.btn_ctrl.y, this.gameScene.mouseX - this.btn_ctrl.x) * 180 / Math.PI
             } else {
                 this.btn_ctrl_rocker_move.pos(
-                    this.btn_ctrl.x + (this.btn_ctrl.width / 2 - this.btn_ctrl.width / 2) * Math.cos(Math.atan2(BaseScript.gameScene.mouseY - this.btn_ctrl.y, BaseScript.gameScene.mouseX - this.btn_ctrl.x))
+                    this.btn_ctrl.x + (this.btn_ctrl.width / 2 - this.btn_ctrl.width / 2) * Math.cos(Math.atan2(this.gameScene.mouseY - this.btn_ctrl.y, this.gameScene.mouseX - this.btn_ctrl.x))
                     ,
-                    this.btn_ctrl.y + (this.btn_ctrl.width / 2 - this.btn_ctrl.width / 2) * Math.sin(Math.atan2(BaseScript.gameScene.mouseY - this.btn_ctrl.y, BaseScript.gameScene.mouseX - this.btn_ctrl.x))
+                    this.btn_ctrl.y + (this.btn_ctrl.width / 2 - this.btn_ctrl.width / 2) * Math.sin(Math.atan2(this.gameScene.mouseY - this.btn_ctrl.y, this.gameScene.mouseX - this.btn_ctrl.x))
                 )
             }
         }
@@ -113,18 +116,22 @@ export default class Wall extends BaseScript {
     }
 
     onAwake(){
+        super.onAwake()
+        console.log(this.owner.script);
         this.owner.on('init',this,this.init)
         this.wallScript = this.owner.getComponent(Laya.Script)
         //加载蛇头资源
-        // this.snakeRes = Laya.loader.getRes('res/sprite_snake.prefab')
+        this.snakeRes = Laya.loader.getRes(Global.SNAKE_PREFAB_PATH)
+        console.log(this.snakeRes);
         if(!this.snakeRes){
             console.log('未获取到蛇头资源!')
             Laya.loader.load('res/sprite_snake1.prefab',Laya.Handler.create(this,(res)=>{
                 this.snakeRes = res;
+                console.log(res);
             }))
         }
         //加载食物资源
-        // this.foodRes = Laya.loader.getRes('res/sprite_food.prefab')
+        this.foodRes = Laya.loader.getRes(Global.FOOD_PREFAB_PATH)
         if(!this.foodRes){
             console.log('未获取到食物资源!')
             Laya.loader.load('res/sprite_food1.prefab',Laya.Handler.create(this,(res)=>{
@@ -147,7 +154,7 @@ export default class Wall extends BaseScript {
      */
     stateCheck(){
         let _this = this;
-        BaseScript.wall = this.owner;
+
         // if(this.snakes){
 
         //     this.snakes = this.snakes.map(snake=>{
@@ -210,7 +217,7 @@ export default class Wall extends BaseScript {
     //初始化食物
     initFood(){
         
-        if(this.foodRes){
+        if(this.foodRes){;
             for(let i = 0 ;i<20;i++){
                 if(this.foodNum<this.maxFood){
                     let x = Math.random()*(this.owner.width-10).toFixed(0)+10;
@@ -244,6 +251,7 @@ export default class Wall extends BaseScript {
         if(this.foodRes){
             for(let i = 0 ;i<20;i++){
                 if(this.foodNum<this.maxFood){
+                    console.log('增加食物');
                     let x = Math.random()*(this.owner.width-10).toFixed(0)+10;
                     let y = Math.random()*(this.owner.height-10).toFixed(0)+10;
                     let food = this.foodRes.create();
@@ -278,7 +286,6 @@ export default class Wall extends BaseScript {
                     this.playerSnake = snake;
                     snakeScript.currentPlayer = true;
                 }
-                snakeScript.wall = this.owner;
                 snakeScript.playerName = '张三' + this.cursnakeNum;
     
     

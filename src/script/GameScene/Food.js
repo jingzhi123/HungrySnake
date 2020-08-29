@@ -12,8 +12,9 @@ export default class Food extends BaseScript {
     }
 
     onAwake(){
+        super.onAwake()
         this.wall = this.owner.parent;
-        this.wallScript = this.wall.getComponent(Laya.Script)
+        this.wallScript = this.wall.script;
         
         this.colorNum = Math.floor(Math.random() * (6 - 1 + 1) + 1);
         this.owner.loadImage("images/bean" + this.colorNum + ".png", 0, 0, 0, 0, new Laya.Handler(this, this.loaded, null))

@@ -3,21 +3,29 @@ export default class BaseScript extends Laya.Script {
 
     constructor() { 
         super(); 
-        let eventDispatcher;
-        /** @prop {name:gameName, tips:"游戏名称", type:String, default:贪吃蛇}*/
-        this.gameName = '贪吃蛇';
-        
-        let bgm;
-
-        //食物数量
-        this.maxFood = 500;
-
         this.script;//脚本
     }
+    onAwake(){
+        this.owner.script = this;
+        this.gameScene = this.owner.scene;
+    }
 
-    //计算距离
-    static distance(x1, y1, x2, y2) {
-        return Math.sqrt((x1 - x2) * (x1 - x2) + (y1 - y2) * (y1 - y2))
+    showLoading(){
+		this.loading = new Laya.Text();
+
+		this.loading.fontSize = 30;
+		this.loading.color = "#FFFFFF";
+		this.loading.align = 'center';
+		this.loading.valign = 'middle';
+
+        this.loading.width = Laya.stage.width
+        this.loading.height =  Laya.stage.height;
+		this.loading.text = "等待响应...\n";
+		Laya.stage.addChild(this.loading);
+    }
+
+    removeLoading(){
+        Laya.stage.removeChild(this.loading)
     }
     
     getEventDispatcher(){
@@ -27,6 +35,7 @@ export default class BaseScript extends Laya.Script {
         return this.eventDispatcher;
     }
 
-    onDisable() {
+    onDestroy() {
+        console.log(this.owner.name + "被销毁");
     }
 }

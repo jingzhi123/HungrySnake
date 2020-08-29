@@ -73,11 +73,8 @@ P 33CA63E2 s1-input.png
 P CBA1994D s1-option-background.png
 P 66D3FD49 s1-radio.png
 D res
-R 8805B8D4 sprite_food - 副本.prefab
-R 38617C3C sprite_food1.prefab
-R 9ADB22D3 sprite_snake - 副本.prefab
-R F0C9C453 sprite_snake1.prefab
-R 1DF2DD19 sprite_snakebody.prefab
-R 26C02B56 sprite_snakebody1.prefab
+R 7E2E511E sprite_food1.prefab
+R 0941B4C4 sprite_snake1.prefab
+R 564B6CF8 sprite_snakebody1.prefab
 D sound
-R 2F9F0F33 THUNDER LANDING.mp3
+R 2F9F0F33 bgm.mp3

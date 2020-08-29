@@ -6,21 +6,29 @@
 
         constructor() { 
             super(); 
-            let eventDispatcher;
-            /** @prop {name:gameName, tips:"游戏名称", type:String, default:贪吃蛇}*/
-            this.gameName = '贪吃蛇';
-            
-            let bgm;
-
-            //食物数量
-            this.maxFood = 500;
-
             this.script;//脚本
         }
+        onAwake(){
+            this.owner.script = this;
+            this.gameScene = this.owner.scene;
+        }
 
-        //计算距离
-        static distance(x1, y1, x2, y2) {
-            return Math.sqrt((x1 - x2) * (x1 - x2) + (y1 - y2) * (y1 - y2))
+        showLoading(){
+    		this.loading = new Laya.Text();
+
+    		this.loading.fontSize = 30;
+    		this.loading.color = "#FFFFFF";
+    		this.loading.align = 'center';
+    		this.loading.valign = 'middle';
+
+            this.loading.width = Laya.stage.width;
+            this.loading.height =  Laya.stage.height;
+    		this.loading.text = "等待响应...\n";
+    		Laya.stage.addChild(this.loading);
+        }
+
+        removeLoading(){
+            Laya.stage.removeChild(this.loading);
         }
         
         getEventDispatcher(){
@@ -30,58 +38,65 @@
             return this.eventDispatcher;
         }
 
-        onDisable() {
+        onDestroy() {
+            console.log(this.owner.name + "被销毁");
         }
     }
 
-    class BtnStartGame extends BaseScript {
-
-        constructor() { 
-            super(); 
-            /** @prop {name:progressBar, tips:"进度条", type:Node, default:null}*/
-            let progressBar;
-            /** @prop {name:btn, tips:"布尔类型示例", type:Node, default:null}*/
-            let btn;
-            // 更多参数说明请访问: https://ldc2.layabox.com/doc/?nav=zh-as-2-4-0
+    const BGM_PATH='sound/bgm.mp3',SNAKE_PREFAB_PATH='res/sprite_snake1.prefab',SNAKEBODY_PREFAB_PATH='res/sprite_snakebody1.prefab',FOOD_PREFAB_PATH='res/sprite_food1.prefab';
+    let resourceMap = {};
+    class Global{
+        /**
+         * 背景音乐资源路径
+         */
+        static get BGM_PATH(){
+            return BGM_PATH
         }
-        
-        onEnable() {
-            BaseScript.progressBar = this.progressBar;
-            console.log('进度:'+this.progressBar.value);
+        /**
+         * 蛇预制体资源路径
+         */
+        static get SNAKE_PREFAB_PATH() {
+            return SNAKE_PREFAB_PATH
+        }
+        /**
+         * 蛇身预制体资源路径
+         */
+        static get SNAKEBODY_PREFAB_PATH() {
+            return SNAKEBODY_PREFAB_PATH
+        }
+        /**
+         * 食物身预制体资源路径
+         */
+        static get FOOD_PREFAB_PATH() {
+            return FOOD_PREFAB_PATH
+        }
+        static get LOAD_RESOURCES() {
+            return [{url:BGM_PATH,type:Laya.Loader.SOUND},{url:SNAKE_PREFAB_PATH,type:Laya.Loader.PREFAB},{url:SNAKEBODY_PREFAB_PATH,type:Laya.Loader.PREFAB},{url:FOOD_PREFAB_PATH,type:Laya.Loader.PREFAB}]
+        }
+        /**
+         * 资源映射关系
+         */
+        static get resourceMap(){
+            return resourceMap
+        }
+
+        constructor(){
+            console.log('global');
+        }
+
+        /**
+         * 资源加载完成回调
+         * @param {是否完成} data 
+         */
+        static onResourcesLoaded(data){
+            console.log(data);
+            if(data){
+                Global.LOAD_RESOURCES.map(r=>{
+                    let d = Laya.loader.getRes(r.url);
+                    resourceMap[r.url] = d;
+                });
+            }
             
-            //btn.clickHandler = Laya.Handler.create(this,this.onStartBtnClick,null,false)
-        }
-
-        onUpdate(e){
-        }
-
-        onClick(e){
-            console.log('游戏开始:',this.owner);
-            e.stopPropagation();
-            this.onStartBtnClick();
-        }
-
-        onStartBtnClick(){
-            
-            console.log('游戏开始:',this.owner);
-            this.progressBar.visible = true;
-            let load = Laya.loader.load(['sound/THUNDER LANDING.mp3','res/sprite_food.prefab'],Laya.Handler.create(this,(data)=>{
-                console.log(data);
-            }),Laya.Handler.create(this,(num)=>{
-                console.log(num);
-                this.progressBar.value = num;
-                if(num==1){
-                    setTimeout(() => {
-                        //加载场景
-                        Laya.Scene.open('scene/gameMain.scene');
-
-                    }, 500);
-                }
-            }),Laya.Loader.SOUND);
-
-        }
-
-        onDisable() {
         }
     }
 
@@ -91,44 +106,61 @@
             super(); 
             /** @prop {name:logo, tips:"LOGO", type:Node, default:null}*/
             let logo;
-            /** @prop {name:btn, tips:"开始按钮", type:Node, default:null}*/
-            let btn;
+            /** @prop {name:progressBar, tips:"进度条", type:Node, default:null}*/
+            let progressBar;
+            /** @prop {name:startBtn, tips:"开始按钮", type:Node, default:null}*/
+            let startBtn;
             /** @prop {name:rankListBtn, tips:"排行榜按钮", type:Node, default:null}*/
             let rankListBtn;
             /** @prop {name:rankListCloseBtn, tips:"排行榜关闭按钮", type:Node, default:null}*/
             let rankListCloseBtn;
             /** @prop {name:gameText, tips:"游戏标题", type:Node, default:null}*/
             let gameText;
-            /** @prop {name:scoreList, tips:"分数列表", type:Node, default:null}*/
-            let scoreList;
+            /** @prop {name:scorePanel, tips:"分数列表", type:Node, default:null}*/
+            let scorePanel;
             /** @prop {name:ani, tips:"动画", type:Node, default:null}*/
             let ani;
         }
         onAwake(){
-            
-            //Laya.stage.screenMode = "horizontal";
+
+            //开始按钮点击
+            this.startBtn.clickHandler = Laya.Handler.create(this,(e)=>{
+                this.onStartBtnClick();
+            });
             //排行榜打开
             this.rankListBtn.clickHandler = Laya.Handler.create(this,(e)=>{
+                let req = new Laya.HttpRequest();
+                req.once(Laya.Event.ERROR,this,(e)=>{
+                    console.log('报错了!' + e);
+                });
+                req.once(Laya.Event.PROGRESS,this,(data)=>{
+                    console.log(data + ":progressing");
+                });
+                req.once(Laya.Event.COMPLETE,this,this.rankDataComplete);
+                req.send('http://localhost:8888/common/diytable/query',null,'get','json',['token',Global.token,'code','snake']);
+                this.showLoading();
+
                 console.log('打开排行!');
                 let scoreArr = Laya.LocalStorage.getJSON('scoreArr');
                 this.scoreList.visible = true;
-                let scorePanel = this.scoreList.getChildByName('panel_score');
                 console.log(Laya.LocalStorage.items);
-                scoreArr.sort((a,b)=>{
-                    return b.score-a.score;
-                });
-                scoreArr.forEach((s,i)=>{
-                    let text = new Laya.Text();
-                    text.width = scorePanel.width;
-                    text.fontSize = 18;
-                    text.height = 20;
-                    text.x = 0;
-                    text.y = i*text.height+ 20;
-                    text.align = 'center';
-                    text.valign = 'top';
-                    text.text = '姓名: ' + s.name + " , 分数: " + s.score;
-                    scorePanel.addChild(text);
-                });
+                if(scoreArr){
+                    scoreArr.sort((a,b)=>{
+                        return b.score-a.score;
+                    });
+                    scoreArr.forEach((s,i)=>{
+                        let text = new Laya.Text();
+                        text.width = this.scorePanel.width;
+                        text.fontSize = 18;
+                        text.height = 20;
+                        text.x = 0;
+                        text.y = i*text.height+ 20;
+                        text.align = 'center';
+                        text.valign = 'top';
+                        text.text = '姓名: ' + s.name + " , 分数: " + s.score;
+                        this.scorePanel.addChild(text);
+                    });
+                }
             },null,false);
             //排行榜关闭
             this.rankListCloseBtn.clickHandler = Laya.Handler.create(this,(e)=>{
@@ -136,17 +168,45 @@
             },null,false);
             
         }
+
+        rankDataComplete(data){
+            this.removeLoading();
+            console.log(data);
+        }
+
+        onStartBtnClick(){
+            console.log('游戏开始:',this.owner);
+            this.progressBar.visible = true;
+
+            let load = Laya.loader.load(Global.LOAD_RESOURCES,Laya.Handler.create(this,Global.onResourcesLoaded),Laya.Handler.create(this,(num)=>{
+                console.log(num);
+                this.progressBar.value = num;
+                if(num==1){
+                    setTimeout(() => {
+                        //加载场景
+                        Laya.Scene.open('scene/GameScene.scene');
+
+                    }, 500);
+                }
+            },null,false),Laya.Loader.SOUND);
+
+            load.on(Laya.Event.ERROR,this,(err)=>{
+                console.log('加载失败:' + err);
+            });
+
+        }
+
         onEnable() {
             
-            this.btn.disabled=true;
+            this.startBtn.disabled=true;
             let timeline = Laya.TimeLine.from(this.logo,{x:0,y:this.logo.y},1000,null);
-            timeline.to(this.btn,{alpha:1},1000,null);
+            timeline.to(this.startBtn,{alpha:1},1000,null);
             timeline.to(this.rankListBtn,{alpha:1},1000,null);
             timeline.to(this.gameText,{alpha:1},1000,null,1000);
             timeline.play();
             timeline.on(Laya.Event.COMPLETE,this,()=>{
                 console.log('动画播放完毕!');
-                this.btn.disabled=false;
+                this.startBtn.disabled=false;
                 this.rankListBtn.disabled=false;
                 timeline.destroy();
                 this.timeline=null;
@@ -193,7 +253,7 @@
             let scoreText;
 
 
-            this.foodNum = 0;
+            this.foodNum = 0;//当前食物数量
 
             this.foods = [];
             
@@ -206,6 +266,8 @@
             this.snakeNum = 1;//蛇的个数
 
             this.cursnakeNum = 0;
+
+            this.maxFood = 500;//最大食物数量
 
             //当前玩家蛇
             this.playerSnake;
@@ -233,8 +295,8 @@
             this.playerScript = playerSnake.getComponent(Laya.Script);
             this.btn_speedup.on('mousedown',this,this.speedUp);
             this.btn_speedup.on('mouseup',this,this.speedDown);
-            BaseScript.gameScene.on("mouseup", this, this.ctrlRockerUp);
-            BaseScript.gameScene.on("mousemove",this, this.ctrlRockerDown);
+            this.gameScene.on("mouseup", this, this.ctrlRockerUp);
+            this.gameScene.on("mousemove",this, this.ctrlRockerDown);
         }
 
         onKeyDown(e){
@@ -252,24 +314,24 @@
         }
 
         ctrlRockerUp(){
-            if (BaseScript.gameScene.mouseX <= BaseScript.gameScene.width / 1.5) {
+            if (this.gameScene.mouseX <= this.gameScene.width / 1.5) {
                 this.btn_ctrl_rocker.visible = true;
                 this.btn_ctrl_rocker_move.visible = false;
             }
         }
         ctrlRockerDown(){
             
-            if (BaseScript.gameScene.mouseX <= BaseScript.gameScene.width / 1.5) {
+            if (this.gameScene.mouseX <= this.gameScene.width / 1.5) {
                 this.btn_ctrl_rocker.visible = false;
                 this.btn_ctrl_rocker_move.visible = true;
-                if (BaseScript.distance(BaseScript.gameScene.mouseX, BaseScript.gameScene.mouseY, this.btn_ctrl.x, this.btn_ctrl.y) <= (this.btn_ctrl.width)) {
-                    this.btn_ctrl_rocker_move.pos(BaseScript.gameScene.mouseX, BaseScript.gameScene.mouseY);
-                    this.playerSnake.rotation = Math.atan2(BaseScript.gameScene.mouseY - this.btn_ctrl.y, BaseScript.gameScene.mouseX - this.btn_ctrl.x) * 180 / Math.PI;
+                if (GameUtils.distance(this.gameScene.mouseX, this.gameScene.mouseY, this.btn_ctrl.x, this.btn_ctrl.y) <= (this.btn_ctrl.width)) {
+                    this.btn_ctrl_rocker_move.pos(this.gameScene.mouseX, this.gameScene.mouseY);
+                    this.playerSnake.rotation = Math.atan2(this.gameScene.mouseY - this.btn_ctrl.y, this.gameScene.mouseX - this.btn_ctrl.x) * 180 / Math.PI;
                 } else {
                     this.btn_ctrl_rocker_move.pos(
-                        this.btn_ctrl.x + (this.btn_ctrl.width / 2 - this.btn_ctrl.width / 2) * Math.cos(Math.atan2(BaseScript.gameScene.mouseY - this.btn_ctrl.y, BaseScript.gameScene.mouseX - this.btn_ctrl.x))
+                        this.btn_ctrl.x + (this.btn_ctrl.width / 2 - this.btn_ctrl.width / 2) * Math.cos(Math.atan2(this.gameScene.mouseY - this.btn_ctrl.y, this.gameScene.mouseX - this.btn_ctrl.x))
                         ,
-                        this.btn_ctrl.y + (this.btn_ctrl.width / 2 - this.btn_ctrl.width / 2) * Math.sin(Math.atan2(BaseScript.gameScene.mouseY - this.btn_ctrl.y, BaseScript.gameScene.mouseX - this.btn_ctrl.x))
+                        this.btn_ctrl.y + (this.btn_ctrl.width / 2 - this.btn_ctrl.width / 2) * Math.sin(Math.atan2(this.gameScene.mouseY - this.btn_ctrl.y, this.gameScene.mouseX - this.btn_ctrl.x))
                     );
                 }
             }
@@ -286,18 +348,22 @@
         }
 
         onAwake(){
+            super.onAwake();
+            console.log(this.owner.script);
             this.owner.on('init',this,this.init);
             this.wallScript = this.owner.getComponent(Laya.Script);
             //加载蛇头资源
-            // this.snakeRes = Laya.loader.getRes('res/sprite_snake.prefab')
+            this.snakeRes = Laya.loader.getRes(Global.SNAKE_PREFAB_PATH);
+            console.log(this.snakeRes);
             if(!this.snakeRes){
                 console.log('未获取到蛇头资源!');
                 Laya.loader.load('res/sprite_snake1.prefab',Laya.Handler.create(this,(res)=>{
                     this.snakeRes = res;
+                    console.log(res);
                 }));
             }
             //加载食物资源
-            // this.foodRes = Laya.loader.getRes('res/sprite_food.prefab')
+            this.foodRes = Laya.loader.getRes(Global.FOOD_PREFAB_PATH);
             if(!this.foodRes){
                 console.log('未获取到食物资源!');
                 Laya.loader.load('res/sprite_food1.prefab',Laya.Handler.create(this,(res)=>{
@@ -320,7 +386,7 @@
          */
         stateCheck(){
             let _this = this;
-            BaseScript.wall = this.owner;
+
             // if(this.snakes){
 
             //     this.snakes = this.snakes.map(snake=>{
@@ -383,7 +449,7 @@
         //初始化食物
         initFood(){
             
-            if(this.foodRes){
+            if(this.foodRes){;
                 for(let i = 0 ;i<20;i++){
                     if(this.foodNum<this.maxFood){
                         let x = Math.random()*(this.owner.width-10).toFixed(0)+10;
@@ -417,6 +483,7 @@
             if(this.foodRes){
                 for(let i = 0 ;i<20;i++){
                     if(this.foodNum<this.maxFood){
+                        console.log('增加食物');
                         let x = Math.random()*(this.owner.width-10).toFixed(0)+10;
                         let y = Math.random()*(this.owner.height-10).toFixed(0)+10;
                         let food = this.foodRes.create();
@@ -451,7 +518,6 @@
                         this.playerSnake = snake;
                         snakeScript.currentPlayer = true;
                     }
-                    snakeScript.wall = this.owner;
                     snakeScript.playerName = '张三' + this.cursnakeNum;
         
         
@@ -495,7 +561,7 @@
             });
             this.retryBtn.clickHandler = Laya.Handler.create(this,(e)=>{
                 Laya.timer.resume();
-                Laya.Scene.open('scene/gameMain.scene');
+                Laya.Scene.open('scene/GameScene.scene');
             });
         }
 
@@ -503,7 +569,7 @@
         }
     }
 
-    class GameMain extends BaseScript {
+    class GameScene extends BaseScript {
 
         constructor() { 
             super(); 
@@ -515,13 +581,6 @@
             let wall;
             
         }
-
-        onAwake(){
-            BaseScript.gameScene = this.owner;
-            BaseScript.wall = this.wall;
-        }
-
-
 
         onStart() {
             console.log('start');
@@ -535,7 +594,7 @@
         
         onLoadComplete(){
             //播放bgm
-            this.bgm = Laya.SoundManager.playSound("sound/THUNDER LANDING.mp3",1,Laya.Handler.create(this,()=>{
+            this.bgm = Laya.SoundManager.playSound("sound/bgm.mp3",1,Laya.Handler.create(this,()=>{
                 console.log('播放完毕');
             }));
             
@@ -554,36 +613,6 @@
         }
     }
 
-    class ScoreControl extends Laya.Script {
-
-        constructor() { 
-            super(); 
-            /** @prop {name:scoreText, tips:"分数Text", type:Node, default:null}*/
-            let scoreText;
-        }
-
-        changeScore(score){
-            this.score = score;
-            this.scoreText.text = this.score;
-        }
-
-        plusScore(score){
-            score?this.score+=score:this.score++;
-            this.scoreText.text = this.score;
-        }
-
-        minusScore(score){
-            score?this.score+=score:this.score++;
-            this.scoreText.text = this.score;
-        }
-
-        onEnable() {
-        }
-
-        onDisable() {
-        }
-    }
-
     class Food extends BaseScript {
 
         constructor() { 
@@ -596,8 +625,9 @@
         }
 
         onAwake(){
+            super.onAwake();
             this.wall = this.owner.parent;
-            this.wallScript = this.wall.getComponent(Laya.Script);
+            this.wallScript = this.wall.script;
             
             this.colorNum = Math.floor(Math.random() * (6 - 1 + 1) + 1);
             this.owner.loadImage("images/bean" + this.colorNum + ".png", 0, 0, 0, 0, new Laya.Handler(this, this.loaded, null));
@@ -674,6 +704,51 @@
         }
     }
 
+    class HttpUtils{
+        
+        constructor() {
+            this.hr = new Laya.HttpRequest;
+        }
+        /**
+         * 发送 HTTP 请求。
+         * @param url 请求的地址。大多数浏览器实施了一个同源安全策略，并且要求这个 URL 与包含脚本的文本具有相同的主机名和端口。
+         * @param callback 请求成功调用的回调函数
+         * @param headers (default = null) HTTP 请求的头部信息。参数形如key-value数组：key是头部的名称，不应该包括空白、冒号或换行；value是头部的值，不应该包括换行。比如["Content-Type", "application/json"]。
+         */
+        get(url,callback,headers){
+            this.hr.on(Laya.Event.PROGRESS, this,(e)=>{
+                console.log('加载中...');
+                console.log(e);
+            });
+            this.hr.on(Laya.Event.ERROR, this,(e)=>{
+                console.log(e);
+            });
+            this.hr.on(Laya.Event.COMPLETE, this,callback);
+            this.hr.send(url,null,'get','text',headers);
+
+            return this.hr
+        }
+        /**
+         * 发送 HTTP 请求。
+         * @param url 请求的地址。大多数浏览器实施了一个同源安全策略，并且要求这个 URL 与包含脚本的文本具有相同的主机名和端口。
+         * @param callback 请求成功调用的回调函数
+         * @param headers (default = null) HTTP 请求的头部信息。参数形如key-value数组：key是头部的名称，不应该包括空白、冒号或换行；value是头部的值，不应该包括换行。比如["Content-Type", "application/json"]。
+         */
+        getJson(url,callback,headers){
+            this.hr.on(Laya.Event.PROGRESS, this,(e)=>{
+                console.log('加载中...');
+                console.log(e);
+            });
+            this.hr.on(Laya.Event.ERROR, this,(e)=>{
+                console.log(e);
+            });
+            this.hr.on(Laya.Event.COMPLETE, this,callback);
+            this.hr.send(url,null,'get','json',headers);
+
+            return this.hr
+        }
+    }
+
     class Snake extends BaseScript {
 
         constructor() { 
@@ -690,8 +765,6 @@
             /** @prop {name:rigid, tips:"刚体", type:Node, default:null}*/
             let rigid;
 
-            /** @prop {name:wall, tips:"墙", type:Node, default:null}*/
-            let wall;
             /** @prop {name:step, tips:"步长", type:Number, default:1}*/
             this.step = 1;
 
@@ -773,6 +846,10 @@
         }
 
         onAwake(){
+            super.onAwake();
+            console.log(this.owner.script);
+            this.wall = this.owner.parent;
+            this.wallScript = this.wall.script;
             this.owner.zOrder = 1;
             
             this.owner.loadImage("images/head" + this.colorNum + ".png", 0, 0, 0, 0, Laya.Handler.create(this,()=>{
@@ -798,58 +875,30 @@
 
             
             
-            this.gameMain = this.owner.scene.getComponent(Laya.Script);
-            this.scoreView = this.gameMain.scoreView;
+            this.GameScene = this.owner.scene.getComponent(Laya.Script);
+            this.scoreView = this.GameScene.scoreView;
 
-            Laya.loader.load('res/sprite_snakebody1.prefab',Laya.Handler.create(this,(res)=>{
-                this.bodyRes = res;
+            this.bodyRes = Laya.loader.getRes(Global.SNAKEBODY_PREFAB_PATH);
+            if(!this.bodyRes){
+                console.log('重新加载蛇身资源');
+                Laya.loader.load('res/sprite_snakebody1.prefab',Laya.Handler.create(this,(res)=>{
+                    this.bodyRes = res;
+                    for(let i = 0;i<this.curBodyNum;i++){
+                        this.addBody();
+                    }
+                    
+                    // this.snakeBody = res.create();
+                }));
+            } else {
                 for(let i = 0;i<this.curBodyNum;i++){
                     this.addBody();
                 }
-                this.scaleCheck();
-                // this.snakeBody = res.create();
-            }));
-
-
-        }
-
-        //方向改变
-        directionChange(direction){
-            switch (direction) {
-                case '右':
-                    if(this.direction=='左'){
-                        return;
-                    } 
-                    this.snake.rotation = 90;
-                    //this.rigid.setVelocity({x:this.currentVelocity,y:0})
-                    break;
-                case '左':
-                    if(this.direction=='右'){
-                        return;
-                    }
-                    this.snake.rotation = -90;
-                    //this.rigid.setVelocity({x:-this.currentVelocity,y:0})
-                    break;
-                case '上':
-                    if(this.direction=='下'){
-                        return;
-                    }
-                    this.snake.rotation = 180;
-                    //this.rigid.setVelocity({x:0,y:-this.currentVelocity})
-                    break;
-                case '下':
-                    if(this.direction=='上'){
-                        return;
-                    }
-                    this.snake.rotation = 0;
-                    //this.rigid.setVelocity({x:0,y:this.currentVelocity})
-                    break;
-            
-                default:
-                    break;
             }
-            this.direction = direction;
+            
+
+
         }
+
         //速度改变
         speedChange(velocity){
             this.currentVelocity = velocity;
@@ -901,13 +950,18 @@
                 }
                 
                 //存储数据
-                let scoreArr = Laya.LocalStorage.getJSON('scoreArr');
-                if(!scoreArr){
-                    scoreArr = [{name:this.playerName,score:this.score}];
-                } else {
-                    scoreArr.push({name:this.playerName,score:this.score});
-                }
-                Laya.LocalStorage.setJSON('scoreArr',scoreArr);
+                new HttpUtils().getJson('http://localhost:8888/api/snake/rankList',(data)=>{
+                    console.log(data);
+                    let scoreArr = Laya.LocalStorage.getJSON('scoreArr');
+                    if(!scoreArr){
+                        scoreArr = [{name:this.playerName,score:this.score}];
+                    } else {
+                        scoreArr.push({name:this.playerName,score:this.score});
+                    }
+                    Laya.LocalStorage.setJSON('scoreArr',scoreArr);
+                });
+                
+                
 
             });
         }
@@ -919,6 +973,7 @@
 
         touchWall(){
             //碰到墙了
+            this.owner.event('dead','创强了!');
         }
 
         /**
@@ -955,7 +1010,7 @@
             
             for (let index = 1; index <= this.currentVelocity; index++) {
                 this.times++;
-                console.log(this.times-this.lastTimes);
+                // console.log(this.times-this.lastTimes);
                 this.lastTimes = this.times;
                 if(this.snakeBodyArr.length){
                     this.pathArr.unshift({x:this.snake.x,y:this.snake.y,rotation:this.snake.rotation});
@@ -972,7 +1027,6 @@
         stateCheck(){
             this.curBodyNum = this.snakeBodyArr.length;
             this.attackScale = this.owner.width * this.curBodySize + 10;
-            console.log(this.attackScale);
         }
 
         /**
@@ -1050,7 +1104,7 @@
             //加分
             this.score++;
             this.curScore++;
-            this.wall.foodNum--;
+            this.wallScript.foodNum--;
             if(this.curScore>=this.scoreForBody){
                 this.curScore = 0;
                 this.addBody();
@@ -1100,24 +1154,22 @@
         static init() {
             //注册Script或者Runtime引用
             let reg = Laya.ClassUtils.regClass;
-    		reg("script/GameMain/BtnStartGame.js",BtnStartGame);
-    		reg("script/GameMenu/GameControl.js",GameControl);
-    		reg("script/GameMain/Wall.js",Wall);
-    		reg("script/GameMain/GameOver.js",GameOver);
-    		reg("script/GameMain/GameMain.js",GameMain);
-    		reg("script/GameMain/ScoreControl.js",ScoreControl);
-    		reg("script/GameMain/Food.js",Food);
-    		reg("script/GameMain/Snake.js",Snake);
-    		reg("script/GameMain/SnakeBody.js",SnakeBody);
+    		reg("script/GameControl.js",GameControl);
+    		reg("script/GameScene/Wall.js",Wall);
+    		reg("script/GameScene/GameOver.js",GameOver);
+    		reg("script/GameScene/GameScene.js",GameScene);
+    		reg("script/GameScene/Food.js",Food);
+    		reg("script/GameScene/Snake.js",Snake);
+    		reg("script/GameScene/SnakeBody.js",SnakeBody);
         }
     }
     GameConfig.width = 960;
     GameConfig.height = 540;
     GameConfig.scaleMode ="fixedheight";
     GameConfig.screenMode = "horizontal";
-    GameConfig.alignV = "top";
-    GameConfig.alignH = "left";
-    GameConfig.startScene = "scene/gameMain.scene";
+    GameConfig.alignV = "middle";
+    GameConfig.alignH = "center";
+    GameConfig.startScene = "init.scene";
     GameConfig.sceneRoot = "";
     GameConfig.debug = false;
     GameConfig.stat = false;
@@ -1160,7 +1212,15 @@
     		GameConfig.startScene && Laya.Scene.open(GameConfig.startScene);
     	}
     }
-    //激活启动类
-    new Main();
+
+    function getToken(){
+    	let http = new HttpUtils();
+    	http.get('http://localhost:8888/token/getToken?code=snake',(data)=>{
+    		console.log(data);
+    		Global.token = data;
+    		new Main();
+    	});
+    }
+    getToken();
 
 }());

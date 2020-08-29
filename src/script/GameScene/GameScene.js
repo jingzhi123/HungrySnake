@@ -1,5 +1,6 @@
 import BaseScript from '../BaseScript'
-export default class GameMain extends BaseScript {
+import Global from '../../common/Global';
+export default class GameScene extends BaseScript {
 
     constructor() { 
         super(); 
@@ -11,13 +12,6 @@ export default class GameMain extends BaseScript {
         let wall;
         
     }
-
-    onAwake(){
-        BaseScript.gameScene = this.owner
-        BaseScript.wall = this.wall
-    }
-
-
 
     onStart() {
         console.log('start')
@@ -31,7 +25,7 @@ export default class GameMain extends BaseScript {
     
     onLoadComplete(){
         //播放bgm
-        this.bgm = Laya.SoundManager.playSound("sound/THUNDER LANDING.mp3",1,Laya.Handler.create(this,()=>{
+        this.bgm = Laya.SoundManager.playSound("sound/bgm.mp3",1,Laya.Handler.create(this,()=>{
             console.log('播放完毕')
         }))
         

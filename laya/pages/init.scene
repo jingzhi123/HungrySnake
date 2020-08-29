@@ -2,11 +2,11 @@
     "x":0,
     "type":"Scene",
     "selectedBox":2,
-    "selecteID":49,
+    "selecteID":51,
     "searchKey":"Scene,init_scene,init",
     "props":{"width":960,"var":"init","sceneColor":"#000000","name":"init_scene","height":540,"autoDestroyAtClosed":true},
     "nodeParent":-1,
-    "maxID":50,
+    "maxID":52,
     "label":"init_scene",
     "isOpen":true,
     "isDirectory":true,
@@ -51,28 +51,13 @@
             "props":{"y":387,"x":401,"width":158,"stateNum":"3","skin":"comp/button.png","name":"btn_startGame","labelAlign":"center","label":"开始游戏","height":47,"gray":true,"alpha":0},
             "nodeParent":2,
             "label":"btn_startGame",
-            "isOpen":false,
-            "isDirectory":true,
+            "isOpen":true,
+            "isDirectory":false,
             "isAniNode":true,
-            "hasChild":true,
+            "hasChild":false,
             "compId":26,
             "child":[
-                {
-                    "type":"Script",
-                    "switchAble":true,
-                    "source":"src/script/GameMain/BtnStartGame.js",
-                    "searchKey":"Script,BtnStartGame",
-                    "removeAble":true,
-                    "props":{"progressBar":"@node:34","btn":"@node:26"},
-                    "nodeParent":26,
-                    "label":"BtnStartGame",
-                    "isDirectory":false,
-                    "isAniNode":true,
-                    "hasChild":false,
-                    "compId":39,
-                    "child":[
-                        ]
-                }],
+                ],
             "$HIDDEN":false
         },
         {
@@ -137,23 +122,6 @@
         },
         {
             "x":15,
-            "type":"Script",
-            "switchAble":true,
-            "source":"src/script/GameMenu/GameControl.js",
-            "searchKey":"Script,GameControl",
-            "removeAble":true,
-            "props":{"scoreList":"@node:40","rankListCloseBtn":"@node:46","rankListBtn":"@node:42","logo":"@node:24","gameText":"@node:37","btn":"@node:26"},
-            "nodeParent":2,
-            "label":"GameControl",
-            "isDirectory":false,
-            "isAniNode":true,
-            "hasChild":false,
-            "compId":38,
-            "child":[
-                ]
-        },
-        {
-            "x":15,
             "type":"Sprite",
             "searchKey":"Sprite,sprite_scorelist",
             "props":{"y":164,"x":447,"width":307,"visible":false,"texture":"comp/label.png","pivotY":129,"pivotX":121,"name":"sprite_scorelist","height":437},
@@ -195,6 +163,23 @@
                         ]
                 }],
             "$HIDDEN":true
+        },
+        {
+            "x":15,
+            "type":"Script",
+            "switchAble":true,
+            "source":"src/script/GameControl.js",
+            "searchKey":"Script,GameControl",
+            "removeAble":true,
+            "props":{"startBtn":"@node:26","scorePanel":"@node:41","scoreList":"@node:40","rankListCloseBtn":"@node:46","rankListBtn":"@node:42","progressBar":"@node:34","logo":"@node:24","gameText":"@node:37"},
+            "nodeParent":2,
+            "label":"GameControl",
+            "isDirectory":false,
+            "isAniNode":true,
+            "hasChild":false,
+            "compId":51,
+            "child":[
+                ]
         }],
     "animations":[
         {

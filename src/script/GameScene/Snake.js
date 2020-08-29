@@ -1,6 +1,8 @@
 import Food from "./Food";
 import GameConfig from "../../GameConfig";
 import BaseScript from "../BaseScript";
+import Global from "../../common/Global";
+import HttpUtils from "../../common/HttpUtils";
 
 export default class Snake extends BaseScript {
 
@@ -18,8 +20,6 @@ export default class Snake extends BaseScript {
         /** @prop {name:rigid, tips:"刚体", type:Node, default:null}*/
         let rigid;
 
-        /** @prop {name:wall, tips:"墙", type:Node, default:null}*/
-        let wall;
         /** @prop {name:step, tips:"步长", type:Number, default:1}*/
         this.step = 1;
 
@@ -101,6 +101,10 @@ export default class Snake extends BaseScript {
     }
 
     onAwake(){
+        super.onAwake()
+        console.log(this.owner.script);
+        this.wall = this.owner.parent;
+        this.wallScript = this.wall.script;
         this.owner.zOrder = 1;
         
         this.owner.loadImage("images/head" + this.colorNum + ".png", 0, 0, 0, 0, Laya.Handler.create(this,()=>{
@@ -126,58 +130,30 @@ export default class Snake extends BaseScript {
 
         
         
-        this.gameMain = this.owner.scene.getComponent(Laya.Script)
-        this.scoreView = this.gameMain.scoreView;
+        this.GameScene = this.owner.scene.getComponent(Laya.Script)
+        this.scoreView = this.GameScene.scoreView;
 
-        Laya.loader.load('res/sprite_snakebody1.prefab',Laya.Handler.create(this,(res)=>{
-            this.bodyRes = res;
+        this.bodyRes = Laya.loader.getRes(Global.SNAKEBODY_PREFAB_PATH)
+        if(!this.bodyRes){
+            console.log('重新加载蛇身资源');
+            Laya.loader.load('res/sprite_snakebody1.prefab',Laya.Handler.create(this,(res)=>{
+                this.bodyRes = res;
+                for(let i = 0;i<this.curBodyNum;i++){
+                    this.addBody()
+                }
+                
+                // this.snakeBody = res.create();
+            }))
+        } else {
             for(let i = 0;i<this.curBodyNum;i++){
                 this.addBody()
             }
-            this.scaleCheck()
-            // this.snakeBody = res.create();
-        }))
-
-
-    }
-
-    //方向改变
-    directionChange(direction){
-        switch (direction) {
-            case '右':
-                if(this.direction=='左'){
-                    return;
-                } 
-                this.snake.rotation = 90;
-                //this.rigid.setVelocity({x:this.currentVelocity,y:0})
-                break;
-            case '左':
-                if(this.direction=='右'){
-                    return;
-                }
-                this.snake.rotation = -90;
-                //this.rigid.setVelocity({x:-this.currentVelocity,y:0})
-                break;
-            case '上':
-                if(this.direction=='下'){
-                    return;
-                }
-                this.snake.rotation = 180;
-                //this.rigid.setVelocity({x:0,y:-this.currentVelocity})
-                break;
-            case '下':
-                if(this.direction=='上'){
-                    return;
-                }
-                this.snake.rotation = 0;
-                //this.rigid.setVelocity({x:0,y:this.currentVelocity})
-                break;
-        
-            default:
-                break;
         }
-        this.direction = direction;
+        
+
+
     }
+
     //速度改变
     speedChange(velocity){
         this.currentVelocity = velocity;
@@ -229,13 +205,18 @@ export default class Snake extends BaseScript {
             }
             
             //存储数据
-            let scoreArr = Laya.LocalStorage.getJSON('scoreArr')
-            if(!scoreArr){
-                scoreArr = [{name:this.playerName,score:this.score}]
-            } else {
-                scoreArr.push({name:this.playerName,score:this.score})
-            }
-            Laya.LocalStorage.setJSON('scoreArr',scoreArr)
+            new HttpUtils().getJson('http://localhost:8888/api/snake/rankList',(data)=>{
+                console.log(data);
+                let scoreArr = Laya.LocalStorage.getJSON('scoreArr')
+                if(!scoreArr){
+                    scoreArr = [{name:this.playerName,score:this.score}]
+                } else {
+                    scoreArr.push({name:this.playerName,score:this.score})
+                }
+                Laya.LocalStorage.setJSON('scoreArr',scoreArr)
+            })
+            
+            
 
         })
     }
@@ -247,6 +228,7 @@ export default class Snake extends BaseScript {
 
     touchWall(){
         //碰到墙了
+        this.owner.event('dead','创强了!')
     }
 
     /**
@@ -283,7 +265,7 @@ export default class Snake extends BaseScript {
         
         for (let index = 1; index <= this.currentVelocity; index++) {
             this.times++;
-            console.log(this.times-this.lastTimes);
+            // console.log(this.times-this.lastTimes);
             this.lastTimes = this.times;
             if(this.snakeBodyArr.length){
                 this.pathArr.unshift({x:this.snake.x,y:this.snake.y,rotation:this.snake.rotation})
@@ -300,7 +282,6 @@ export default class Snake extends BaseScript {
     stateCheck(){
         this.curBodyNum = this.snakeBodyArr.length;
         this.attackScale = this.owner.width * this.curBodySize + 10;
-        console.log(this.attackScale);
     }
 
     /**
@@ -378,7 +359,7 @@ export default class Snake extends BaseScript {
         //加分
         this.score++;
         this.curScore++;
-        this.wall.foodNum--;
+        this.wallScript.foodNum--;
         if(this.curScore>=this.scoreForBody){
             this.curScore = 0;
             this.addBody()

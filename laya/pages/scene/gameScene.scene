@@ -1,12 +1,12 @@
 {
     "x":0,
     "type":"Scene",
-    "selectedBox":13,
-    "selecteID":215,
+    "selectedBox":39,
+    "selecteID":50,
     "searchKey":"Scene,game_scene",
     "props":{"width":960,"sceneColor":"#ffffff","sceneBg":"laya/views/scene/gameMain.png","name":"game_scene","height":540,"autoDestroyAtClosed":true},
     "nodeParent":-1,
-    "maxID":216,
+    "maxID":226,
     "label":"game_scene",
     "isOpen":true,
     "isDirectory":true,
@@ -65,31 +65,13 @@
                     "props":{"y":0,"x":0,"skin":"images/map.png","pivotY":750,"pivotX":1500,"name":"sprite_wall"},
                     "nodeParent":51,
                     "label":"sprite_wall",
-                    "isOpen":true,
+                    "isOpen":false,
                     "isDirectory":true,
                     "isAniNode":true,
                     "hasChild":true,
                     "compId":13,
                     "child":[
                         {
-                            "x":45,
-                            "type":"Script",
-                            "switchAble":true,
-                            "source":"src/script/GameMain/Wall.js",
-                            "searchKey":"Script,Wall",
-                            "removeAble":true,
-                            "props":{"snakeRes":"@Prefab:res/sprite_snake1.prefab","scoreText":"@node:39","foodRes":"@Prefab:res/sprite_food1.prefab","btn_speedup":"@node:133","btn_ctrl_rocker_move":"@node:135","btn_ctrl_rocker":"@node:131","btn_ctrl":"@node:130"},
-                            "nodeParent":13,
-                            "label":"Wall",
-                            "isDirectory":false,
-                            "isAniNode":true,
-                            "hasChild":false,
-                            "compId":125,
-                            "child":[
-                                ]
-                        },
-                        {
-                            "x":45,
                             "type":"RigidBody",
                             "switchAble":true,
                             "searchKey":"RigidBody,rigid_wall",
@@ -105,7 +87,6 @@
                                 ]
                         },
                         {
-                            "x":45,
                             "type":"ChainCollider",
                             "switchAble":true,
                             "searchKey":"ChainCollider,collider_wall",
@@ -119,23 +100,41 @@
                             "compId":190,
                             "child":[
                                 ]
+                        },
+                        {
+                            "x":0,
+                            "type":"Script",
+                            "switchAble":true,
+                            "source":"src/script/GameScene/Wall.js",
+                            "searchKey":"Script,Wall",
+                            "removeAble":true,
+                            "props":{"snakeRes":"@Prefab:res/sprite_snake1.prefab","scoreText":"@node:39","foodRes":"@Prefab:res/sprite_food1.prefab","btn_speedup":"@node:133","btn_ctrl_rocker_move":"@node:135","btn_ctrl_rocker":"@node:131","btn_ctrl":"@node:130"},
+                            "nodeParent":13,
+                            "label":"Wall",
+                            "isDirectory":false,
+                            "isAniNode":true,
+                            "hasChild":false,
+                            "compId":224,
+                            "child":[
+                                ]
                         }],
                     "$HIDDEN":false
                 },
                 {
-                    "x":30,
+                    "x":0,
                     "type":"Sprite",
                     "searchKey":"Sprite,view_score",
                     "props":{"y":-270,"x":-480,"width":960,"visible":false,"texture":"comp/img_blank.png","sceneColor":"#894f4e","name":"view_score","height":540,"autoDestroyAtClosed":true},
                     "nodeParent":51,
                     "label":"view_score",
-                    "isOpen":false,
+                    "isOpen":true,
                     "isDirectory":true,
                     "isAniNode":true,
                     "hasChild":true,
                     "compId":94,
                     "child":[
                         {
+                            "x":45,
                             "type":"Text",
                             "searchKey":"Text,text_title",
                             "props":{"y":208,"x":372,"width":216,"valign":"top","text":"分数","name":"text_title","height":123,"fontSize":50,"color":"#9e5f5e","align":"center"},
@@ -149,6 +148,7 @@
                                 ]
                         },
                         {
+                            "x":0,
                             "type":"Label",
                             "searchKey":"Label,label_score",
                             "props":{"y":270,"x":444,"width":73,"text":"0","name":"label_score","height":27,"fontSize":20,"color":"#ffffff","align":"center"},
@@ -162,6 +162,7 @@
                                 ]
                         },
                         {
+                            "x":45,
                             "type":"Button",
                             "searchKey":"Button,btn_retry",
                             "props":{"y":307.5,"x":416,"skin":"comp/button.png","name":"btn_retry","labelSize":16,"label":"再试一次"},
@@ -175,6 +176,7 @@
                                 ]
                         },
                         {
+                            "x":45,
                             "type":"Button",
                             "searchKey":"Button,btn_return",
                             "props":{"y":373,"x":416,"skin":"comp/button.png","name":"btn_return","labelSize":16,"label":"返回"},
@@ -188,9 +190,10 @@
                                 ]
                         },
                         {
+                            "x":0,
                             "type":"Script",
                             "switchAble":true,
-                            "source":"src/script/GameMain/GameOver.js",
+                            "source":"src/script/GameScene/GameOver.js",
                             "searchKey":"Script,GameOver",
                             "removeAble":true,
                             "props":{"returnBtn":"@node:98","retryBtn":"@node:97"},
@@ -199,26 +202,27 @@
                             "isDirectory":false,
                             "isAniNode":true,
                             "hasChild":false,
-                            "compId":99,
+                            "compId":225,
                             "child":[
                                 ]
                         }],
                     "$HIDDEN":true
                 },
                 {
-                    "x":30,
+                    "x":0,
                     "type":"Sprite",
                     "searchKey":"Sprite,sprite_scorelist",
                     "props":{"y":-154,"x":-103,"width":206,"visible":false,"name":"sprite_scorelist","height":151},
                     "nodeParent":51,
                     "label":"sprite_scorelist",
-                    "isOpen":false,
+                    "isOpen":true,
                     "isDirectory":true,
                     "isAniNode":true,
                     "hasChild":true,
                     "compId":103,
                     "child":[
                         {
+                            "x":0,
                             "type":"Panel",
                             "searchKey":"Panel,panel_score",
                             "props":{"y":-7,"x":-12,"width":230,"name":"panel_score","height":168},
@@ -248,57 +252,26 @@
                     "compId":52,
                     "child":[
                         ]
-                }]
+                }],
+            "$HIDDEN":true
         },
         {
-            "x":15,
-            "type":"Script",
-            "switchAble":true,
-            "source":"src/script/GameMain/GameMain.js",
-            "searchKey":"Script,GameMain",
-            "removeAble":true,
-            "props":{"y":0,"x":0,"wall":"@node:13","scoreView":"@node:94","returnBtn":"@node:3","btn_speedup":"@node:133","btn_ctrl":"@node:130"},
-            "nodeParent":2,
-            "label":"GameMain",
-            "isDirectory":false,
-            "isAniNode":true,
-            "hasChild":false,
-            "compId":47,
-            "child":[
-                ]
-        },
-        {
-            "x":15,
+            "x":0,
             "type":"Text",
             "searchKey":"Text,text_score",
             "props":{"zOrder":2,"y":2,"x":460,"width":53,"name":"text_score","height":18,"color":"#000000"},
             "nodeParent":2,
             "label":"text_score",
             "isOpen":false,
-            "isDirectory":true,
+            "isDirectory":false,
             "isAniNode":true,
-            "hasChild":true,
+            "hasChild":false,
             "compId":39,
             "child":[
-                {
-                    "type":"Script",
-                    "switchAble":true,
-                    "source":"src/script/GameMain/ScoreControl.js",
-                    "searchKey":"Script,ScoreControl",
-                    "removeAble":true,
-                    "props":{"scoreText":"@node:39"},
-                    "nodeParent":39,
-                    "label":"ScoreControl",
-                    "isDirectory":false,
-                    "isAniNode":true,
-                    "hasChild":false,
-                    "compId":50,
-                    "child":[
-                        ]
-                }]
+                ]
         },
         {
-            "x":15,
+            "x":0,
             "type":"Text",
             "searchKey":"Text,text_score_tip",
             "props":{"zOrder":2,"y":2,"x":407,"width":53,"text":"SCORE：","name":"text_score_tip","height":18,"color":"#000000"},
@@ -364,6 +337,23 @@
             "isAniNode":true,
             "hasChild":false,
             "compId":133,
+            "child":[
+                ]
+        },
+        {
+            "x":0,
+            "type":"Script",
+            "switchAble":true,
+            "source":"src/script/GameScene/GameScene.js",
+            "searchKey":"Script,GameScene",
+            "removeAble":true,
+            "props":{"wall":"@node:13","scoreView":"@node:94","returnBtn":"@node:3"},
+            "nodeParent":2,
+            "label":"GameScene",
+            "isDirectory":false,
+            "isAniNode":true,
+            "hasChild":false,
+            "compId":223,
             "child":[
                 ]
         }],
