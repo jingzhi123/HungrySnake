@@ -1,6 +1,9 @@
 const BGM_PATH='sound/bgm.mp3',SNAKE_PREFAB_PATH='res/sprite_snake1.prefab',SNAKEBODY_PREFAB_PATH='res/sprite_snakebody1.prefab',FOOD_PREFAB_PATH='res/sprite_food1.prefab'
-let resourceMap = {}
+const ctx = 'http://localhost:8888'
 export default class Global{
+    static get ctx(){
+        return ctx;
+    }
     /**
      * 背景音乐资源路径
      */
@@ -39,18 +42,4 @@ export default class Global{
         console.log('global');
     }
 
-    /**
-     * 资源加载完成回调
-     * @param {是否完成} data 
-     */
-    static onResourcesLoaded(data){
-        console.log(data);
-        if(data){
-            Global.LOAD_RESOURCES.map(r=>{
-                let d = Laya.loader.getRes(r.url)
-                resourceMap[r.url] = d;
-            })
-        }
-        
-    }
 }

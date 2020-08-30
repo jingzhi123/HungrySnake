@@ -44,8 +44,11 @@
     }
 
     const BGM_PATH='sound/bgm.mp3',SNAKE_PREFAB_PATH='res/sprite_snake1.prefab',SNAKEBODY_PREFAB_PATH='res/sprite_snakebody1.prefab',FOOD_PREFAB_PATH='res/sprite_food1.prefab';
-    let resourceMap = {};
+    const ctx = 'http://localhost:8888';
     class Global{
+        static get ctx(){
+            return ctx;
+        }
         /**
          * 背景音乐资源路径
          */
@@ -84,19 +87,69 @@
             console.log('global');
         }
 
+    }
+
+    class HttpUtils extends Laya.HttpRequest{
+        
+        constructor(caller) {
+            super();
+            this.callback = (data)=>{
+                console.log(data);
+            };
+            this.progressCallback = (e)=>{
+                console.log('加载中...');
+                console.log(e);
+            };
+            this.errorCallback = (e)=>{
+                console.log(e);
+            };;
+        }
         /**
-         * 资源加载完成回调
-         * @param {是否完成} data 
+         * 发送 HTTP 请求。
+         * @param url 请求的地址。大多数浏览器实施了一个同源安全策略，并且要求这个 URL 与包含脚本的文本具有相同的主机名和端口。
+         * @param callback 请求成功调用的回调函数
+         * @param headers (default = null) HTTP 请求的头部信息。参数形如key-value数组：key是头部的名称，不应该包括空白、冒号或换行；value是头部的值，不应该包括换行。比如["Content-Type", "application/json"]。
          */
-        static onResourcesLoaded(data){
-            console.log(data);
-            if(data){
-                Global.LOAD_RESOURCES.map(r=>{
-                    let d = Laya.loader.getRes(r.url);
-                    resourceMap[r.url] = d;
-                });
-            }
-            
+        get(url,callback,headers){
+            this.callback = callback;
+            this.once(Laya.Event.PROGRESS, this,this.progressCallback);
+            this.once(Laya.Event.ERROR, this,this.errorCallback);
+            this.once(Laya.Event.COMPLETE, this,this.callback);
+            this.send(url,null,'get','text',headers);
+
+            return this
+        }
+        /**
+         * 发送 HTTP 请求。
+         * @param url 请求的地址。大多数浏览器实施了一个同源安全策略，并且要求这个 URL 与包含脚本的文本具有相同的主机名和端口。
+         * @param callback 请求成功调用的回调函数
+         * @param headers (default = null) HTTP 请求的头部信息。参数形如key-value数组：key是头部的名称，不应该包括空白、冒号或换行；value是头部的值，不应该包括换行。比如["Content-Type", "application/json"]。
+         */
+        getJson(url,callback,headers){
+            this.callback = callback;
+            this.once(Laya.Event.PROGRESS, this,this.progressCallback);
+            this.once(Laya.Event.ERROR, this,this.errorCallback);
+            this.once(Laya.Event.COMPLETE, this,this.callback);
+            this.send(url,null,'get','json',headers);
+
+            return this
+        }
+
+        /**
+         * 发送 HTTP 请求。
+         * @param url 请求的地址。大多数浏览器实施了一个同源安全策略，并且要求这个 URL 与包含脚本的文本具有相同的主机名和端口。
+         * @param callback 请求成功调用的回调函数
+         * @param headers (default = null) HTTP 请求的头部信息。参数形如key-value数组：key是头部的名称，不应该包括空白、冒号或换行；value是头部的值，不应该包括换行。比如["Content-Type", "application/json"]。
+         */
+        post(url,data,callback,headers){
+            headers = headers.concat(['Content-Type','application/x-www-form-urlencoded;charset=utf-8']);
+            this.callback = callback;
+            this.once(Laya.Event.PROGRESS, this,this.progressCallback);
+            this.once(Laya.Event.ERROR, this,this.errorCallback);
+            this.once(Laya.Event.COMPLETE, this,this.callback);
+            this.send(url,data,'post','json',headers);
+
+            return this
         }
     }
 
@@ -128,39 +181,39 @@
                 this.onStartBtnClick();
             });
             //排行榜打开
+            console.log(this.trankListBtn);
             this.rankListBtn.clickHandler = Laya.Handler.create(this,(e)=>{
-                let req = new Laya.HttpRequest();
-                req.once(Laya.Event.ERROR,this,(e)=>{
-                    console.log('报错了!' + e);
-                });
-                req.once(Laya.Event.PROGRESS,this,(data)=>{
-                    console.log(data + ":progressing");
-                });
-                req.once(Laya.Event.COMPLETE,this,this.rankDataComplete);
-                req.send('http://localhost:8888/common/diytable/query',null,'get','json',['token',Global.token,'code','snake']);
+                let req = new HttpUtils();
                 this.showLoading();
+                req.once(Laya.Event.ERROR,this,(e)=>{
+                    this.removeLoading();
+                });
+                req.getJson(`${Global.ctx}/common/snake_score/query`,(data)=>{
+                    console.log(data);
+                    console.log('打开排行!');
+                    let scoreArr = data;
+                    this.scoreList.visible = true;
 
-                console.log('打开排行!');
-                let scoreArr = Laya.LocalStorage.getJSON('scoreArr');
-                this.scoreList.visible = true;
-                console.log(Laya.LocalStorage.items);
-                if(scoreArr){
-                    scoreArr.sort((a,b)=>{
-                        return b.score-a.score;
-                    });
-                    scoreArr.forEach((s,i)=>{
-                        let text = new Laya.Text();
-                        text.width = this.scorePanel.width;
-                        text.fontSize = 18;
-                        text.height = 20;
-                        text.x = 0;
-                        text.y = i*text.height+ 20;
-                        text.align = 'center';
-                        text.valign = 'top';
-                        text.text = '姓名: ' + s.name + " , 分数: " + s.score;
-                        this.scorePanel.addChild(text);
-                    });
-                }
+                    if(scoreArr){
+                        scoreArr.sort((a,b)=>{
+                            return b.score-a.score;
+                        });
+                        scoreArr.forEach((s,i)=>{
+                            let text = new Laya.Text();
+                            text.width = this.scorePanel.width;
+                            text.fontSize = 18;
+                            text.height = 20;
+                            text.x = 0;
+                            text.y = i*text.height+ 20;
+                            text.align = 'center';
+                            text.valign = 'top';
+                            text.text = '姓名: ' + s.name + " , 分数: " + s.score;
+                            this.scorePanel.addChild(text);
+                        });
+                    }
+                    this.removeLoading();
+                },['token',Global.token,'code','snake']);
+
             },null,false);
             //排行榜关闭
             this.rankListCloseBtn.clickHandler = Laya.Handler.create(this,(e)=>{
@@ -429,16 +482,14 @@
         mapMove(snakeScript){
             //return;
 
-            let mapScale = snakeScript.snakeInitSize / snakeScript.snakeSize < 0.7 ? 0.7 : snakeScript.snakeInitSize / snakeScript.snakeSize;
-            // BaseScript.wall.x = -1 * (this.snake.x - GameConfig.width / 2 + this.snake.width / 2 - BaseScript.wall.width / 2) * mapScale
-            // BaseScript.wall.y = -1 * (this.snake.y - GameConfig.height / 2 + this.snake.height / 2 - BaseScript.wall.height / 2) * mapScale
+            let mapScale = 0.5 / snakeScript.curBodySize < 0.7 ? 0.7 : 0.5 / snakeScript.curBodySize;
 
-            // BaseScript.wall.x = -1 * (this.snake.x + this.snake.width / 2 - BaseScript.wall.width / 2) * mapScale + GameConfig.width / 2
-            // BaseScript.wall.y = -1 * (this.snake.y + this.snake.height / 2 - BaseScript.wall.height / 2) * mapScale + GameConfig.height / 2
+            // this.owner.x = -1 * (this.playerSnake.x + this.playerSnake.width / 2 - this.owner.width / 2) * mapScale + this.owner.width / 2
+            // this.owner.y = -1 * (this.playerSnake.y + this.playerSnake.height / 2 - this.owner.height / 2) * mapScale + this.owner.height / 2
 
             //固定视角
-            this.owner.x = -(this.playerSnake.x-this.owner.width / 2);
-            this.owner.y = -(this.playerSnake.y-this.owner.height / 2);
+            this.owner.x = -(this.playerSnake.x-this.owner.width / 2); 
+            this.owner.y = -(this.playerSnake.y-this.owner.height / 2); 
 
             // this.owner.x = -1300
             // this.owner.y = -700
@@ -704,51 +755,6 @@
         }
     }
 
-    class HttpUtils{
-        
-        constructor() {
-            this.hr = new Laya.HttpRequest;
-        }
-        /**
-         * 发送 HTTP 请求。
-         * @param url 请求的地址。大多数浏览器实施了一个同源安全策略，并且要求这个 URL 与包含脚本的文本具有相同的主机名和端口。
-         * @param callback 请求成功调用的回调函数
-         * @param headers (default = null) HTTP 请求的头部信息。参数形如key-value数组：key是头部的名称，不应该包括空白、冒号或换行；value是头部的值，不应该包括换行。比如["Content-Type", "application/json"]。
-         */
-        get(url,callback,headers){
-            this.hr.on(Laya.Event.PROGRESS, this,(e)=>{
-                console.log('加载中...');
-                console.log(e);
-            });
-            this.hr.on(Laya.Event.ERROR, this,(e)=>{
-                console.log(e);
-            });
-            this.hr.on(Laya.Event.COMPLETE, this,callback);
-            this.hr.send(url,null,'get','text',headers);
-
-            return this.hr
-        }
-        /**
-         * 发送 HTTP 请求。
-         * @param url 请求的地址。大多数浏览器实施了一个同源安全策略，并且要求这个 URL 与包含脚本的文本具有相同的主机名和端口。
-         * @param callback 请求成功调用的回调函数
-         * @param headers (default = null) HTTP 请求的头部信息。参数形如key-value数组：key是头部的名称，不应该包括空白、冒号或换行；value是头部的值，不应该包括换行。比如["Content-Type", "application/json"]。
-         */
-        getJson(url,callback,headers){
-            this.hr.on(Laya.Event.PROGRESS, this,(e)=>{
-                console.log('加载中...');
-                console.log(e);
-            });
-            this.hr.on(Laya.Event.ERROR, this,(e)=>{
-                console.log(e);
-            });
-            this.hr.on(Laya.Event.COMPLETE, this,callback);
-            this.hr.send(url,null,'get','json',headers);
-
-            return this.hr
-        }
-    }
-
     class Snake extends BaseScript {
 
         constructor() { 
@@ -818,7 +824,7 @@
             this.curBodySize = 0.5;
             //当前身体个数
             this.curBodyNum = 3;
-            //做大身体大小
+            //最大身体大小
             this.maxBodySize = 2;
 
             this.scoreForBody = 5;//几分一个身体
@@ -950,16 +956,9 @@
                 }
                 
                 //存储数据
-                new HttpUtils().getJson('http://localhost:8888/api/snake/rankList',(data)=>{
+                new HttpUtils().post(`${Global.ctx}/common/snake_score/insert`,`name=${this.playerName}&score=${this.score}`,(data)=>{
                     console.log(data);
-                    let scoreArr = Laya.LocalStorage.getJSON('scoreArr');
-                    if(!scoreArr){
-                        scoreArr = [{name:this.playerName,score:this.score}];
-                    } else {
-                        scoreArr.push({name:this.playerName,score:this.score});
-                    }
-                    Laya.LocalStorage.setJSON('scoreArr',scoreArr);
-                });
+                },['token',Global.token,'code','snake']);
                 
                 
 
@@ -1215,7 +1214,11 @@
 
     function getToken(){
     	let http = new HttpUtils();
-    	http.get('http://localhost:8888/token/getToken?code=snake',(data)=>{
+    	http.errorCallback = (e)=>{
+    		console.log(e);
+    		new Main();
+    	};
+    	http.get(`${Global.ctx}/token/getToken?code=snake`,(data)=>{
     		console.log(data);
     		Global.token = data;
     		new Main();

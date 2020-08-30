@@ -38,7 +38,11 @@ class Main {
 
 function getToken(){
 	let http = new HttpUtils()
-	http.get('http://localhost:8888/token/getToken?code=snake',(data)=>{
+	http.errorCallback = (e)=>{
+		console.log(e);
+		new Main()
+	}
+	http.get(`${Global.ctx}/token/getToken?code=snake`,(data)=>{
 		console.log(data);
 		Global.token = data;
 		new Main()

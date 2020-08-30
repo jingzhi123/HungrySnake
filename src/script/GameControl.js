@@ -1,5 +1,6 @@
 import BaseScript from './BaseScript'
 import Global from '../common/Global';
+import HttpUtils from '../common/HttpUtils';
 export default class GameControl extends BaseScript {
 
     constructor() { 
@@ -22,45 +23,43 @@ export default class GameControl extends BaseScript {
         let ani;
     }
     onAwake(){
-
         //开始按钮点击
         this.startBtn.clickHandler = Laya.Handler.create(this,(e)=>{
             this.onStartBtnClick()
         })
         //排行榜打开
         this.rankListBtn.clickHandler = Laya.Handler.create(this,(e)=>{
-            let req = new Laya.HttpRequest()
-            req.once(Laya.Event.ERROR,this,(e)=>{
-                console.log('报错了!' + e);
-            })
-            req.once(Laya.Event.PROGRESS,this,(data)=>{
-                console.log(data + ":progressing");
-            })
-            req.once(Laya.Event.COMPLETE,this,this.rankDataComplete)
-            req.send('http://localhost:8888/common/diytable/query',null,'get','json',['token',Global.token,'code','snake'])
+            let req = new HttpUtils()
             this.showLoading()
+            req.once(Laya.Event.ERROR,this,(e)=>{
+                this.removeLoading()
+            })
+            req.getJson(`${Global.ctx}/common/snake_score/query`,(data)=>{
+                console.log(data);
+                console.log('打开排行!')
+                let scoreArr = data
+                this.scoreList.visible = true;
 
-            console.log('打开排行!')
-            let scoreArr = Laya.LocalStorage.getJSON('scoreArr')
-            this.scoreList.visible = true;
-            console.log(Laya.LocalStorage.items)
-            if(scoreArr){
-                scoreArr.sort((a,b)=>{
-                    return b.score-a.score;
-                })
-                scoreArr.forEach((s,i)=>{
-                    let text = new Laya.Text()
-                    text.width = this.scorePanel.width
-                    text.fontSize = 18;
-                    text.height = 20;
-                    text.x = 0;
-                    text.y = i*text.height+ 20;
-                    text.align = 'center'
-                    text.valign = 'top'
-                    text.text = '姓名: ' + s.name + " , 分数: " + s.score;
-                    this.scorePanel.addChild(text)
-                })
-            }
+                if(scoreArr){
+                    scoreArr.sort((a,b)=>{
+                        return b.score-a.score;
+                    })
+                    scoreArr.forEach((s,i)=>{
+                        let text = new Laya.Text()
+                        text.width = this.scorePanel.width
+                        text.fontSize = 18;
+                        text.height = 20;
+                        text.x = 0;
+                        text.y = i*text.height+ 20;
+                        text.align = 'center'
+                        text.valign = 'top'
+                        text.text = '姓名: ' + s.name + " , 分数: " + s.score;
+                        this.scorePanel.addChild(text)
+                    })
+                }
+                this.removeLoading()
+            },['token',Global.token,'code','snake'])
+
         },null,false)
         //排行榜关闭
         this.rankListCloseBtn.clickHandler = Laya.Handler.create(this,(e)=>{

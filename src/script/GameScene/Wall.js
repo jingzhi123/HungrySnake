@@ -1,6 +1,8 @@
 import BaseScript from "../BaseScript";
 import GameUtils from "../../common/GameUtils";
 import Global from "../../common/Global";
+import GameConfig from "../../GameConfig";
+
 export default class Wall extends BaseScript {
 
     constructor() { 
@@ -197,16 +199,14 @@ export default class Wall extends BaseScript {
     mapMove(snakeScript){
         //return;
 
-        let mapScale = snakeScript.snakeInitSize / snakeScript.snakeSize < 0.7 ? 0.7 : snakeScript.snakeInitSize / snakeScript.snakeSize
-        // BaseScript.wall.x = -1 * (this.snake.x - GameConfig.width / 2 + this.snake.width / 2 - BaseScript.wall.width / 2) * mapScale
-        // BaseScript.wall.y = -1 * (this.snake.y - GameConfig.height / 2 + this.snake.height / 2 - BaseScript.wall.height / 2) * mapScale
+        let mapScale = 0.5 / snakeScript.curBodySize < 0.7 ? 0.7 : 0.5 / snakeScript.curBodySize
 
-        // BaseScript.wall.x = -1 * (this.snake.x + this.snake.width / 2 - BaseScript.wall.width / 2) * mapScale + GameConfig.width / 2
-        // BaseScript.wall.y = -1 * (this.snake.y + this.snake.height / 2 - BaseScript.wall.height / 2) * mapScale + GameConfig.height / 2
+        // this.owner.x = -1 * (this.playerSnake.x + this.playerSnake.width / 2 - this.owner.width / 2) * mapScale + this.owner.width / 2
+        // this.owner.y = -1 * (this.playerSnake.y + this.playerSnake.height / 2 - this.owner.height / 2) * mapScale + this.owner.height / 2
 
         //固定视角
-        this.owner.x = -(this.playerSnake.x-this.owner.width / 2);
-        this.owner.y = -(this.playerSnake.y-this.owner.height / 2);
+        this.owner.x = -(this.playerSnake.x-this.owner.width / 2) 
+        this.owner.y = -(this.playerSnake.y-this.owner.height / 2) 
 
         // this.owner.x = -1300
         // this.owner.y = -700

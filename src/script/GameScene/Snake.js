@@ -73,7 +73,7 @@ export default class Snake extends BaseScript {
         this.curBodySize = 0.5;
         //当前身体个数
         this.curBodyNum = 3;
-        //做大身体大小
+        //最大身体大小
         this.maxBodySize = 2;
 
         this.scoreForBody = 5;//几分一个身体
@@ -205,16 +205,9 @@ export default class Snake extends BaseScript {
             }
             
             //存储数据
-            new HttpUtils().getJson('http://localhost:8888/api/snake/rankList',(data)=>{
+            new HttpUtils().post(`${Global.ctx}/common/snake_score/insert`,`name=${this.playerName}&score=${this.score}`,(data)=>{
                 console.log(data);
-                let scoreArr = Laya.LocalStorage.getJSON('scoreArr')
-                if(!scoreArr){
-                    scoreArr = [{name:this.playerName,score:this.score}]
-                } else {
-                    scoreArr.push({name:this.playerName,score:this.score})
-                }
-                Laya.LocalStorage.setJSON('scoreArr',scoreArr)
-            })
+            },['token',Global.token,'code','snake'])
             
             
 
