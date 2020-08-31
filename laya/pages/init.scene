@@ -184,7 +184,7 @@
             "x":15,
             "type":"Image",
             "searchKey":"Image,avatar_img",
-            "props":{"zOrder":1,"y":7,"x":7,"width":71,"top":7,"skin":"images/avatar.jpg","name":"avatar_img","left":7,"height":67},
+            "props":{"zOrder":1,"y":7,"x":7,"width":71,"top":7,"name":"avatar_img","left":7,"height":67},
             "nodeParent":2,
             "label":"avatar_img",
             "isDirectory":false,

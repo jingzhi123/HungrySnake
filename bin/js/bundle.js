@@ -579,19 +579,29 @@
         }
 
         loadAvatar(avatarUrl){
-            console.log('加载头像');
-            let img = new Laya.Image(avatarUrl);
-            img.zOrder = 2;
-            img.width = this.avatarImg.width;
-            img.height = this.avatarImg.height;
-            img.pos(this.avatarImg.x,this.avatarImg.y);
-            img.on(Laya.Event.LOADED,this,()=>{
+            console.log('加载头像',this.avatarImg);
+            this.avatarImg.loadImage(avatarUrl,0,0,0,0,()=>{
                 this.avatarImg.removeSelf();
                 wx.showToast({title:'头像加载成功'});
                 this.owner.addChild(img);
             });
+            // let img = new Laya.Image(avatarUrl);
+            // img.zOrder = 2;
+            // img.width = this.avatarImg.width;
+            // img.height = this.avatarImg.height;
+            // img.pos(this.avatarImg.x,this.avatarImg.y)
+            // img.on(Laya.Event.LOADED,this,()=>{
+            //     this.avatarImg.removeSelf()
+            //     wx.showToast({title:'头像加载成功'})
+            //     this.owner.addChild(img)
+            // })
         }
         onAwake(){
+            this.avatarImg.loadImage('images/avatar.jpg',0,0,0,0,()=>{
+                this.avatarImg.removeSelf();
+                wx.showToast({title:'头像加载成功'});
+                this.owner.addChild(img);
+            });
             if(Global.userInfo){
                 this.loadAvatar(Global.userInfo.avatarUrl);
             }
