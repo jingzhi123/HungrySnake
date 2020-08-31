@@ -1,5 +1,5 @@
 import BaseScript from '../BaseScript'
-import Global from '../../common/Global';
+import GameControl from '../GameControl';
 export default class GameScene extends BaseScript {
 
     constructor() { 
@@ -11,6 +11,15 @@ export default class GameScene extends BaseScript {
         /** @prop {name:wall, tips:"墙", type:Node, default:null}*/
         let wall;
         
+    }
+
+    onAwake(){
+        super.onAwake()
+        if(GameControl.loginButton){
+            wx.showToast({title:'hiGameScene'})
+            console.log(GameControl.loginButton);
+            GameControl.loginButton.destroy()
+        }
     }
 
     onStart() {
@@ -25,9 +34,9 @@ export default class GameScene extends BaseScript {
     
     onLoadComplete(){
         //播放bgm
-        this.bgm = Laya.SoundManager.playSound("sound/bgm.mp3",1,Laya.Handler.create(this,()=>{
-            console.log('播放完毕')
-        }))
+        // this.bgm = Laya.SoundManager.playSound("sound/bgm.mp3",1,Laya.Handler.create(this,()=>{
+        //     console.log('播放完毕')
+        // }))
         
         
     }

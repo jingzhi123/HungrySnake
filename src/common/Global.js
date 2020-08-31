@@ -1,5 +1,6 @@
 const BGM_PATH='sound/bgm.mp3',SNAKE_PREFAB_PATH='res/sprite_snake1.prefab',SNAKEBODY_PREFAB_PATH='res/sprite_snakebody1.prefab',FOOD_PREFAB_PATH='res/sprite_food1.prefab'
 const ctx = 'http://localhost:8888'
+let resourceMap = {}
 export default class Global{
     static get ctx(){
         return ctx;
@@ -29,7 +30,8 @@ export default class Global{
         return FOOD_PREFAB_PATH
     }
     static get LOAD_RESOURCES() {
-        return [{url:BGM_PATH,type:Laya.Loader.SOUND},{url:SNAKE_PREFAB_PATH,type:Laya.Loader.PREFAB},{url:SNAKEBODY_PREFAB_PATH,type:Laya.Loader.PREFAB},{url:FOOD_PREFAB_PATH,type:Laya.Loader.PREFAB}]
+        //{url:BGM_PATH,type:Laya.Loader.SOUND},
+        return [{url:SNAKE_PREFAB_PATH,type:Laya.Loader.PREFAB},{url:SNAKEBODY_PREFAB_PATH,type:Laya.Loader.PREFAB},{url:FOOD_PREFAB_PATH,type:Laya.Loader.PREFAB}]
     }
     /**
      * 资源映射关系
@@ -38,8 +40,27 @@ export default class Global{
         return resourceMap
     }
 
-    constructor(){
-        console.log('global');
+    /**
+     * 资源加载完成回调
+     * @param {是否完成} data 
+     */
+    static onResourcesLoaded(data){
+        console.log(data);
+        if(data){
+            Global.LOAD_RESOURCES.map(r=>{
+                let d = Laya.loader.getRes(r.url)
+                resourceMap[r.url] = d;
+            })
+        }
+        
+    }
+
+    static log(msg){
+        if(Laya.Browser.onMiniGame){
+            wx.showToast({title:msg+""})
+        } else {
+            console.log(msg);
+        }
     }
 
 }

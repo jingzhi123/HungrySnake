@@ -41,6 +41,7 @@ P 5FD17798 vscroll.png
 P DDDDFB9E vslider$bar.png
 P 01BAE7F5 vslider.png
 D images
+P 5C898035 avatar.jpg
 P 68764FF8 bean1.png
 P 5D07C774 bean2.png
 P 6AA3ADF2 bean3.png
@@ -77,4 +78,3 @@ R 7E2E511E sprite_food1.prefab
 R 0941B4C4 sprite_snake1.prefab
 R 564B6CF8 sprite_snakebody1.prefab
 D sound
-R 2F9F0F33 bgm.mp3

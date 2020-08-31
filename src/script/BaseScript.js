@@ -4,6 +4,8 @@ export default class BaseScript extends Laya.Script {
     constructor() { 
         super(); 
         this.script;//脚本
+
+        
     }
     onAwake(){
         this.owner.script = this;

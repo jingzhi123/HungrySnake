@@ -1,6 +1,7 @@
 import BaseScript from './BaseScript'
 import Global from '../common/Global';
 import HttpUtils from '../common/HttpUtils';
+
 export default class GameControl extends BaseScript {
 
     constructor() { 
@@ -19,34 +20,62 @@ export default class GameControl extends BaseScript {
         let gameText;
         /** @prop {name:scorePanel, tips:"分数列表", type:Node, default:null}*/
         let scorePanel;
-        /** @prop {name:ani, tips:"动画", type:Node, default:null}*/
-        let ani;
+        /** @prop {name:avatarImg, tips:"头像", type:Node, default:null}*/
+        let avatarImg;
+    }
+
+    createUserInfoButton(){
+        if(Laya.Browser.onMiniGame){
+            //登陆按钮
+            let button = wx.createUserInfoButton({
+                type:'text',
+                text:'登陆!',
+                style: {
+                    left: wx.getSystemInfoSync().screenWidth/2-100,
+                    top: 76,
+                    width: 200,
+                    height: 40,
+                    lineHeight: 40,
+                    backgroundColor: '#ff0000',
+                    color: '#ffffff',
+                    textAlign: 'center',
+                    fontSize: 16,
+                    borderRadius: 4
+                    }
+                })
+            button.onTap((res) => {
+                if(res.userInfo){
+                    console.log(res.userInfo)
+
+                    let img = new Laya.Image(res.userInfo.avatarUrl);
+                    img.zOrder = 2;
+                    img.width = this.avatarImg.width;
+                    img.height = this.avatarImg.height;
+                    img.pos(this.avatarImg.x,this.avatarImg.y)
+                    img.on(Laya.Event.LOADED,this,()=>{
+                        this.avatarImg.removeSelf()
+                        wx.showToast({title:'头像加载成功'})
+                        this.owner.addChild(img)
+                    })
+                    
+                    console.log(Global.SysInfo.windowWidth,Global.SysInfo.windowHeight);
+    
+                    wx.showToast({title:res.userInfo.nickName,icon:'success'})
+                    //this.onStartBtnClick()
+
+                } else {
+                }
+            })
+            GameControl.loginButton = button;
+        }
     }
     onAwake(){
         console.log('是否微信小游戏',Laya.Browser.onMiniGame);
-        if(!Laya.Browser.onMiniGame){
-            wx = Laya.Browser.window.wx;
-        }
-        //登陆按钮
-        let button = wx.createUserInfoButton({
-            type:'text',
-            text:'登陆!',
-            style: {
-                left: wx.getSystemInfoSync().windowWidth/2-100,
-                top: 76,
-                width: 200,
-                height: 40,
-                lineHeight: 40,
-                backgroundColor: '#ff0000',
-                color: '#ffffff',
-                textAlign: 'center',
-                fontSize: 16,
-                borderRadius: 4
-                }
-            })
-        button.onTap((res) => {
-            console.log(res)
-        })
+        this.owner.width = Laya.stage.width;
+        this.owner.getChildByName('sprite_bg').width = Laya.stage.width;
+        this.owner.pos(0,0)
+        
+        this.createUserInfoButton();
         //开始按钮点击
         this.startBtn.clickHandler = Laya.Handler.create(this,(e)=>{
             this.onStartBtnClick()
@@ -56,6 +85,7 @@ export default class GameControl extends BaseScript {
             let req = new HttpUtils()
             this.showLoading()
             req.once(Laya.Event.ERROR,this,(e)=>{
+                console.log(e);
                 this.removeLoading()
             })
             req.getJson(`${Global.ctx}/common/snake_score/query`,(data)=>{
@@ -100,14 +130,18 @@ export default class GameControl extends BaseScript {
     onStartBtnClick(){
         console.log('游戏开始:',this.owner)
         this.progressBar.visible = true;
-
+        console.log(Global.LOAD_RESOURCES);
         let load = Laya.loader.load(Global.LOAD_RESOURCES,Laya.Handler.create(this,Global.onResourcesLoaded),Laya.Handler.create(this,(num)=>{
-            console.log(num)
+            Global.log("进度:"+num)
             this.progressBar.value = num;
             if(num==1){
                 setTimeout(() => {
+                    Global.log("加载场景")
                     //加载场景
-                    Laya.Scene.open('scene/GameScene.scene')
+                    Laya.Scene.open('scene/GameScene.scene',true,null,Laya.Handler.create(this,(scene)=>{
+                        console.log(scene)
+                        Global.log("加载场景完毕")
+                    }))
 
                 }, 500);
             }
@@ -115,15 +149,25 @@ export default class GameControl extends BaseScript {
 
         load.on(Laya.Event.ERROR,this,(err)=>{
             console.log('加载失败:' + err);
+            setTimeout(() => {
+                //加载场景
+                Laya.Scene.open('scene/GameScene.scene')
+
+            }, 500);
         })
 
+    }
+
+    onStart(){
+        this.owner.width = Laya.stage.width
     }
 
     onEnable() {
         
         this.startBtn.disabled=true;
-        let timeline = Laya.TimeLine.from(this.logo,{x:0,y:this.logo.y},1000,null);
-        timeline.to(this.startBtn,{alpha:1},1000,null)
+        // let timeline = Laya.TimeLine.from(this.logo,{x:0,y:this.logo.y},1000,null);
+        this.gameText.x = Laya.stage.width/2 - this.gameText.width/2
+        let timeline = Laya.TimeLine.to(this.startBtn,{alpha:1},1000,null)
         timeline.to(this.rankListBtn,{alpha:1},1000,null)
         timeline.to(this.gameText,{alpha:1},1000,null,1000)
         timeline.play()

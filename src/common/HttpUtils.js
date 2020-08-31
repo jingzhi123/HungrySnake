@@ -21,9 +21,9 @@ export default class HttpUtils extends Laya.HttpRequest{
      */
     get(url,callback,headers){
         this.callback = callback;
-        this.once(Laya.Event.PROGRESS, this,this.progressCallback);
-        this.once(Laya.Event.ERROR, this,this.errorCallback);
-        this.once(Laya.Event.COMPLETE, this,this.callback);
+        this.on(Laya.Event.PROGRESS, this,this.progressCallback);
+        this.on(Laya.Event.ERROR, this,this.errorCallback);
+        this.on(Laya.Event.COMPLETE, this,this.callback);
         this.send(url,null,'get','text',headers)
 
         return this
@@ -36,9 +36,9 @@ export default class HttpUtils extends Laya.HttpRequest{
      */
     getJson(url,callback,headers){
         this.callback = callback;
-        this.once(Laya.Event.PROGRESS, this,this.progressCallback);
-        this.once(Laya.Event.ERROR, this,this.errorCallback);
-        this.once(Laya.Event.COMPLETE, this,this.callback);
+        this.on(Laya.Event.PROGRESS, this,this.progressCallback);
+        this.on(Laya.Event.ERROR, this,this.errorCallback);
+        this.on(Laya.Event.COMPLETE, this,this.callback);
         this.send(url,null,'get','json',headers)
 
         return this
@@ -53,9 +53,9 @@ export default class HttpUtils extends Laya.HttpRequest{
     post(url,data,callback,headers){
         headers = headers.concat(['Content-Type','application/x-www-form-urlencoded;charset=utf-8'])
         this.callback = callback;
-        this.once(Laya.Event.PROGRESS, this,this.progressCallback);
-        this.once(Laya.Event.ERROR, this,this.errorCallback);
-        this.once(Laya.Event.COMPLETE, this,this.callback);
+        this.on(Laya.Event.PROGRESS, this,this.progressCallback);
+        this.on(Laya.Event.ERROR, this,this.errorCallback);
+        this.on(Laya.Event.COMPLETE, this,this.callback);
         this.send(url,data,'post','json',headers)
 
         return this

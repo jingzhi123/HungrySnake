@@ -7,6 +7,8 @@
         constructor() { 
             super(); 
             this.script;//脚本
+
+            
         }
         onAwake(){
             this.owner.script = this;
@@ -43,8 +45,17 @@
         }
     }
 
+    class GameUtils {
+
+        //计算两点之间距离
+        static distance(x1, y1, x2, y2) {
+            return Math.sqrt((x1 - x2) * (x1 - x2) + (y1 - y2) * (y1 - y2))
+        }
+    }
+
     const BGM_PATH='sound/bgm.mp3',SNAKE_PREFAB_PATH='res/sprite_snake1.prefab',SNAKEBODY_PREFAB_PATH='res/sprite_snakebody1.prefab',FOOD_PREFAB_PATH='res/sprite_food1.prefab';
     const ctx = 'http://localhost:8888';
+    let resourceMap = {};
     class Global{
         static get ctx(){
             return ctx;
@@ -74,7 +85,8 @@
             return FOOD_PREFAB_PATH
         }
         static get LOAD_RESOURCES() {
-            return [{url:BGM_PATH,type:Laya.Loader.SOUND},{url:SNAKE_PREFAB_PATH,type:Laya.Loader.PREFAB},{url:SNAKEBODY_PREFAB_PATH,type:Laya.Loader.PREFAB},{url:FOOD_PREFAB_PATH,type:Laya.Loader.PREFAB}]
+            //{url:BGM_PATH,type:Laya.Loader.SOUND},
+            return [{url:SNAKE_PREFAB_PATH,type:Laya.Loader.PREFAB},{url:SNAKEBODY_PREFAB_PATH,type:Laya.Loader.PREFAB},{url:FOOD_PREFAB_PATH,type:Laya.Loader.PREFAB}]
         }
         /**
          * 资源映射关系
@@ -83,229 +95,36 @@
             return resourceMap
         }
 
-        constructor(){
-            console.log('global');
+        static getLeftX(sceneWidth){
+            return -(Laya.stage.width - Global.SysInfo.screenWidth);
         }
-
-    }
-
-    class HttpUtils extends Laya.HttpRequest{
-        
-        constructor(caller) {
-            super();
-            this.callback = (data)=>{
-                console.log(data);
-            };
-            this.progressCallback = (e)=>{
-                console.log('加载中...');
-                console.log(e);
-            };
-            this.errorCallback = (e)=>{
-                console.log(e);
-            };;
-        }
-        /**
-         * 发送 HTTP 请求。
-         * @param url 请求的地址。大多数浏览器实施了一个同源安全策略，并且要求这个 URL 与包含脚本的文本具有相同的主机名和端口。
-         * @param callback 请求成功调用的回调函数
-         * @param headers (default = null) HTTP 请求的头部信息。参数形如key-value数组：key是头部的名称，不应该包括空白、冒号或换行；value是头部的值，不应该包括换行。比如["Content-Type", "application/json"]。
-         */
-        get(url,callback,headers){
-            this.callback = callback;
-            this.once(Laya.Event.PROGRESS, this,this.progressCallback);
-            this.once(Laya.Event.ERROR, this,this.errorCallback);
-            this.once(Laya.Event.COMPLETE, this,this.callback);
-            this.send(url,null,'get','text',headers);
-
-            return this
-        }
-        /**
-         * 发送 HTTP 请求。
-         * @param url 请求的地址。大多数浏览器实施了一个同源安全策略，并且要求这个 URL 与包含脚本的文本具有相同的主机名和端口。
-         * @param callback 请求成功调用的回调函数
-         * @param headers (default = null) HTTP 请求的头部信息。参数形如key-value数组：key是头部的名称，不应该包括空白、冒号或换行；value是头部的值，不应该包括换行。比如["Content-Type", "application/json"]。
-         */
-        getJson(url,callback,headers){
-            this.callback = callback;
-            this.once(Laya.Event.PROGRESS, this,this.progressCallback);
-            this.once(Laya.Event.ERROR, this,this.errorCallback);
-            this.once(Laya.Event.COMPLETE, this,this.callback);
-            this.send(url,null,'get','json',headers);
-
-            return this
+        static getTopY(sceneHeight){
+            return -(Laya.stage.height - Global.SysInfo.screenHeight);
         }
 
         /**
-         * 发送 HTTP 请求。
-         * @param url 请求的地址。大多数浏览器实施了一个同源安全策略，并且要求这个 URL 与包含脚本的文本具有相同的主机名和端口。
-         * @param callback 请求成功调用的回调函数
-         * @param headers (default = null) HTTP 请求的头部信息。参数形如key-value数组：key是头部的名称，不应该包括空白、冒号或换行；value是头部的值，不应该包括换行。比如["Content-Type", "application/json"]。
+         * 资源加载完成回调
+         * @param {是否完成} data 
          */
-        post(url,data,callback,headers){
-            headers = headers.concat(['Content-Type','application/x-www-form-urlencoded;charset=utf-8']);
-            this.callback = callback;
-            this.once(Laya.Event.PROGRESS, this,this.progressCallback);
-            this.once(Laya.Event.ERROR, this,this.errorCallback);
-            this.once(Laya.Event.COMPLETE, this,this.callback);
-            this.send(url,data,'post','json',headers);
-
-            return this
-        }
-    }
-
-    class GameControl extends BaseScript {
-
-        constructor() { 
-            super(); 
-            /** @prop {name:logo, tips:"LOGO", type:Node, default:null}*/
-            let logo;
-            /** @prop {name:progressBar, tips:"进度条", type:Node, default:null}*/
-            let progressBar;
-            /** @prop {name:startBtn, tips:"开始按钮", type:Node, default:null}*/
-            let startBtn;
-            /** @prop {name:rankListBtn, tips:"排行榜按钮", type:Node, default:null}*/
-            let rankListBtn;
-            /** @prop {name:rankListCloseBtn, tips:"排行榜关闭按钮", type:Node, default:null}*/
-            let rankListCloseBtn;
-            /** @prop {name:gameText, tips:"游戏标题", type:Node, default:null}*/
-            let gameText;
-            /** @prop {name:scorePanel, tips:"分数列表", type:Node, default:null}*/
-            let scorePanel;
-            /** @prop {name:ani, tips:"动画", type:Node, default:null}*/
-            let ani;
-        }
-        onAwake(){
-            console.log('是否微信小游戏',Laya.Browser.onMiniGame);
-            if(!Laya.Browser.onMiniGame){
-                wx = Laya.Browser.window.wx;
-            }
-            //登陆按钮
-            let button = wx.createUserInfoButton({
-                type:'text',
-                text:'登陆!',
-                style: {
-                    left: wx.getSystemInfoSync().windowWidth/2-100,
-                    top: 76,
-                    width: 200,
-                    height: 40,
-                    lineHeight: 40,
-                    backgroundColor: '#ff0000',
-                    color: '#ffffff',
-                    textAlign: 'center',
-                    fontSize: 16,
-                    borderRadius: 4
-                    }
-                });
-            button.onTap((res) => {
-                console.log(res);
-            });
-            //开始按钮点击
-            this.startBtn.clickHandler = Laya.Handler.create(this,(e)=>{
-                this.onStartBtnClick();
-            });
-            //排行榜打开
-            this.rankListBtn.clickHandler = Laya.Handler.create(this,(e)=>{
-                let req = new HttpUtils();
-                this.showLoading();
-                req.once(Laya.Event.ERROR,this,(e)=>{
-                    this.removeLoading();
-                });
-                req.getJson(`${Global.ctx}/common/snake_score/query`,(data)=>{
-                    console.log(data);
-                    console.log('打开排行!');
-                    let scoreArr = data;
-                    this.scoreList.visible = true;
-
-                    if(scoreArr){
-                        scoreArr.sort((a,b)=>{
-                            return b.score-a.score;
-                        });
-                        scoreArr.forEach((s,i)=>{
-                            let text = new Laya.Text();
-                            text.width = this.scorePanel.width;
-                            text.fontSize = 18;
-                            text.height = 20;
-                            text.x = 0;
-                            text.y = i*text.height+ 20;
-                            text.align = 'center';
-                            text.valign = 'top';
-                            text.text = '姓名: ' + s.name + " , 分数: " + s.score;
-                            this.scorePanel.addChild(text);
-                        });
-                    }
-                    this.removeLoading();
-                },['token',Global.token,'code','snake']);
-
-            },null,false);
-            //排行榜关闭
-            this.rankListCloseBtn.clickHandler = Laya.Handler.create(this,(e)=>{
-                this.scoreList.visible = false;
-            },null,false);
-            
-        }
-
-        rankDataComplete(data){
-            this.removeLoading();
+        static onResourcesLoaded(data){
             console.log(data);
-        }
-
-        onStartBtnClick(){
-            console.log('游戏开始:',this.owner);
-            this.progressBar.visible = true;
-
-            let load = Laya.loader.load(Global.LOAD_RESOURCES,Laya.Handler.create(this,Global.onResourcesLoaded),Laya.Handler.create(this,(num)=>{
-                console.log(num);
-                this.progressBar.value = num;
-                if(num==1){
-                    setTimeout(() => {
-                        //加载场景
-                        Laya.Scene.open('scene/GameScene.scene');
-
-                    }, 500);
-                }
-            },null,false),Laya.Loader.SOUND);
-
-            load.on(Laya.Event.ERROR,this,(err)=>{
-                console.log('加载失败:' + err);
-            });
-
-        }
-
-        onEnable() {
+            if(data){
+                Global.LOAD_RESOURCES.map(r=>{
+                    let d = Laya.loader.getRes(r.url);
+                    resourceMap[r.url] = d;
+                });
+            }
             
-            this.startBtn.disabled=true;
-            let timeline = Laya.TimeLine.from(this.logo,{x:0,y:this.logo.y},1000,null);
-            timeline.to(this.startBtn,{alpha:1},1000,null);
-            timeline.to(this.rankListBtn,{alpha:1},1000,null);
-            timeline.to(this.gameText,{alpha:1},1000,null,1000);
-            timeline.play();
-            timeline.on(Laya.Event.COMPLETE,this,()=>{
-                console.log('动画播放完毕!');
-                this.startBtn.disabled=false;
-                this.rankListBtn.disabled=false;
-                timeline.destroy();
-                this.timeline=null;
-            });
-            this.timeline = timeline;
         }
 
-        onClick(){
-            if(this.timeline){
-                this.timeline.gotoTime(5000);
+        static log(msg){
+            if(Laya.Browser.onMiniGame){
+                wx.showToast({title:msg+""});
+            } else {
+                console.log(msg);
             }
         }
 
-        onDisable() {
-        }
-
-    }
-
-    class GameUtils {
-
-        //计算两点之间距离
-        static distance(x1, y1, x2, y2) {
-            return Math.sqrt((x1 - x2) * (x1 - x2) + (y1 - y2) * (y1 - y2))
-        }
     }
 
     class Wall extends BaseScript {
@@ -642,6 +461,260 @@
         }
     }
 
+    class HttpUtils extends Laya.HttpRequest{
+        
+        constructor(caller) {
+            super();
+            this.callback = (data)=>{
+                console.log(data);
+            };
+            this.progressCallback = (e)=>{
+                console.log('加载中...');
+                console.log(e);
+            };
+            this.errorCallback = (e)=>{
+                console.log(e);
+            };;
+        }
+        /**
+         * 发送 HTTP 请求。
+         * @param url 请求的地址。大多数浏览器实施了一个同源安全策略，并且要求这个 URL 与包含脚本的文本具有相同的主机名和端口。
+         * @param callback 请求成功调用的回调函数
+         * @param headers (default = null) HTTP 请求的头部信息。参数形如key-value数组：key是头部的名称，不应该包括空白、冒号或换行；value是头部的值，不应该包括换行。比如["Content-Type", "application/json"]。
+         */
+        get(url,callback,headers){
+            this.callback = callback;
+            this.on(Laya.Event.PROGRESS, this,this.progressCallback);
+            this.on(Laya.Event.ERROR, this,this.errorCallback);
+            this.on(Laya.Event.COMPLETE, this,this.callback);
+            this.send(url,null,'get','text',headers);
+
+            return this
+        }
+        /**
+         * 发送 HTTP 请求。
+         * @param url 请求的地址。大多数浏览器实施了一个同源安全策略，并且要求这个 URL 与包含脚本的文本具有相同的主机名和端口。
+         * @param callback 请求成功调用的回调函数
+         * @param headers (default = null) HTTP 请求的头部信息。参数形如key-value数组：key是头部的名称，不应该包括空白、冒号或换行；value是头部的值，不应该包括换行。比如["Content-Type", "application/json"]。
+         */
+        getJson(url,callback,headers){
+            this.callback = callback;
+            this.on(Laya.Event.PROGRESS, this,this.progressCallback);
+            this.on(Laya.Event.ERROR, this,this.errorCallback);
+            this.on(Laya.Event.COMPLETE, this,this.callback);
+            this.send(url,null,'get','json',headers);
+
+            return this
+        }
+
+        /**
+         * 发送 HTTP 请求。
+         * @param url 请求的地址。大多数浏览器实施了一个同源安全策略，并且要求这个 URL 与包含脚本的文本具有相同的主机名和端口。
+         * @param callback 请求成功调用的回调函数
+         * @param headers (default = null) HTTP 请求的头部信息。参数形如key-value数组：key是头部的名称，不应该包括空白、冒号或换行；value是头部的值，不应该包括换行。比如["Content-Type", "application/json"]。
+         */
+        post(url,data,callback,headers){
+            headers = headers.concat(['Content-Type','application/x-www-form-urlencoded;charset=utf-8']);
+            this.callback = callback;
+            this.on(Laya.Event.PROGRESS, this,this.progressCallback);
+            this.on(Laya.Event.ERROR, this,this.errorCallback);
+            this.on(Laya.Event.COMPLETE, this,this.callback);
+            this.send(url,data,'post','json',headers);
+
+            return this
+        }
+    }
+
+    class GameControl extends BaseScript {
+
+        constructor() { 
+            super(); 
+            /** @prop {name:logo, tips:"LOGO", type:Node, default:null}*/
+            let logo;
+            /** @prop {name:progressBar, tips:"进度条", type:Node, default:null}*/
+            let progressBar;
+            /** @prop {name:startBtn, tips:"开始按钮", type:Node, default:null}*/
+            let startBtn;
+            /** @prop {name:rankListBtn, tips:"排行榜按钮", type:Node, default:null}*/
+            let rankListBtn;
+            /** @prop {name:rankListCloseBtn, tips:"排行榜关闭按钮", type:Node, default:null}*/
+            let rankListCloseBtn;
+            /** @prop {name:gameText, tips:"游戏标题", type:Node, default:null}*/
+            let gameText;
+            /** @prop {name:scorePanel, tips:"分数列表", type:Node, default:null}*/
+            let scorePanel;
+            /** @prop {name:avatarImg, tips:"头像", type:Node, default:null}*/
+            let avatarImg;
+        }
+
+        createUserInfoButton(){
+            if(Laya.Browser.onMiniGame){
+                //登陆按钮
+                let button = wx.createUserInfoButton({
+                    type:'text',
+                    text:'登陆!',
+                    style: {
+                        left: wx.getSystemInfoSync().screenWidth/2-100,
+                        top: 76,
+                        width: 200,
+                        height: 40,
+                        lineHeight: 40,
+                        backgroundColor: '#ff0000',
+                        color: '#ffffff',
+                        textAlign: 'center',
+                        fontSize: 16,
+                        borderRadius: 4
+                        }
+                    });
+                button.onTap((res) => {
+                    if(res.userInfo){
+                        console.log(res.userInfo);
+
+                        let img = new Laya.Image(res.userInfo.avatarUrl);
+                        img.zOrder = 2;
+                        img.width = this.avatarImg.width;
+                        img.height = this.avatarImg.height;
+                        img.pos(this.avatarImg.x,this.avatarImg.y);
+                        img.on(Laya.Event.LOADED,this,()=>{
+                            this.avatarImg.removeSelf();
+                            wx.showToast({title:'头像加载成功'});
+                            this.owner.addChild(img);
+                        });
+                        
+                        console.log(Global.SysInfo.windowWidth,Global.SysInfo.windowHeight);
+        
+                        wx.showToast({title:res.userInfo.nickName,icon:'success'});
+                        //this.onStartBtnClick()
+
+                    } else {
+                    }
+                });
+                GameControl.loginButton = button;
+            }
+        }
+        onAwake(){
+            console.log('是否微信小游戏',Laya.Browser.onMiniGame);
+            this.owner.width = Laya.stage.width;
+            this.owner.getChildByName('sprite_bg').width = Laya.stage.width;
+            this.owner.pos(0,0);
+            
+            this.createUserInfoButton();
+            //开始按钮点击
+            this.startBtn.clickHandler = Laya.Handler.create(this,(e)=>{
+                this.onStartBtnClick();
+            });
+            //排行榜打开
+            this.rankListBtn.clickHandler = Laya.Handler.create(this,(e)=>{
+                let req = new HttpUtils();
+                this.showLoading();
+                req.once(Laya.Event.ERROR,this,(e)=>{
+                    console.log(e);
+                    this.removeLoading();
+                });
+                req.getJson(`${Global.ctx}/common/snake_score/query`,(data)=>{
+                    console.log(data);
+                    console.log('打开排行!');
+                    let scoreArr = data;
+                    this.scoreList.visible = true;
+
+                    if(scoreArr){
+                        scoreArr.sort((a,b)=>{
+                            return b.score-a.score;
+                        });
+                        scoreArr.forEach((s,i)=>{
+                            let text = new Laya.Text();
+                            text.width = this.scorePanel.width;
+                            text.fontSize = 18;
+                            text.height = 20;
+                            text.x = 0;
+                            text.y = i*text.height+ 20;
+                            text.align = 'center';
+                            text.valign = 'top';
+                            text.text = '姓名: ' + s.name + " , 分数: " + s.score;
+                            this.scorePanel.addChild(text);
+                        });
+                    }
+                    this.removeLoading();
+                },['token',Global.token,'code','snake']);
+
+            },null,false);
+            //排行榜关闭
+            this.rankListCloseBtn.clickHandler = Laya.Handler.create(this,(e)=>{
+                this.scoreList.visible = false;
+            },null,false);
+            
+        }
+
+        rankDataComplete(data){
+            this.removeLoading();
+            console.log(data);
+        }
+
+        onStartBtnClick(){
+            console.log('游戏开始:',this.owner);
+            this.progressBar.visible = true;
+            console.log(Global.LOAD_RESOURCES);
+            let load = Laya.loader.load(Global.LOAD_RESOURCES,Laya.Handler.create(this,Global.onResourcesLoaded),Laya.Handler.create(this,(num)=>{
+                Global.log("进度:"+num);
+                this.progressBar.value = num;
+                if(num==1){
+                    setTimeout(() => {
+                        Global.log("加载场景");
+                        //加载场景
+                        Laya.Scene.open('scene/GameScene.scene',true,null,Laya.Handler.create(this,(scene)=>{
+                            console.log(scene);
+                            Global.log("加载场景完毕");
+                        }));
+
+                    }, 500);
+                }
+            },null,false),Laya.Loader.SOUND);
+
+            load.on(Laya.Event.ERROR,this,(err)=>{
+                console.log('加载失败:' + err);
+                setTimeout(() => {
+                    //加载场景
+                    Laya.Scene.open('scene/GameScene.scene');
+
+                }, 500);
+            });
+
+        }
+
+        onStart(){
+            this.owner.width = Laya.stage.width;
+        }
+
+        onEnable() {
+            
+            this.startBtn.disabled=true;
+            // let timeline = Laya.TimeLine.from(this.logo,{x:0,y:this.logo.y},1000,null);
+            this.gameText.x = Laya.stage.width/2 - this.gameText.width/2;
+            let timeline = Laya.TimeLine.to(this.startBtn,{alpha:1},1000,null);
+            timeline.to(this.rankListBtn,{alpha:1},1000,null);
+            timeline.to(this.gameText,{alpha:1},1000,null,1000);
+            timeline.play();
+            timeline.on(Laya.Event.COMPLETE,this,()=>{
+                console.log('动画播放完毕!');
+                this.startBtn.disabled=false;
+                this.rankListBtn.disabled=false;
+                timeline.destroy();
+                this.timeline=null;
+            });
+            this.timeline = timeline;
+        }
+
+        onClick(){
+            if(this.timeline){
+                this.timeline.gotoTime(5000);
+            }
+        }
+
+        onDisable() {
+        }
+
+    }
+
     class GameScene extends BaseScript {
 
         constructor() { 
@@ -653,6 +726,15 @@
             /** @prop {name:wall, tips:"墙", type:Node, default:null}*/
             let wall;
             
+        }
+
+        onAwake(){
+            super.onAwake();
+            if(GameControl.loginButton){
+                wx.showToast({title:'hiGameScene'});
+                console.log(GameControl.loginButton);
+                GameControl.loginButton.destroy();
+            }
         }
 
         onStart() {
@@ -667,9 +749,9 @@
         
         onLoadComplete(){
             //播放bgm
-            this.bgm = Laya.SoundManager.playSound("sound/bgm.mp3",1,Laya.Handler.create(this,()=>{
-                console.log('播放完毕');
-            }));
+            // this.bgm = Laya.SoundManager.playSound("sound/bgm.mp3",1,Laya.Handler.create(this,()=>{
+            //     console.log('播放完毕')
+            // }))
             
             
         }
@@ -1175,10 +1257,10 @@
         static init() {
             //注册Script或者Runtime引用
             let reg = Laya.ClassUtils.regClass;
-    		reg("script/GameControl.js",GameControl);
     		reg("script/GameScene/Wall.js",Wall);
     		reg("script/GameScene/GameOver.js",GameOver);
     		reg("script/GameScene/GameScene.js",GameScene);
+    		reg("script/GameControl.js",GameControl);
     		reg("script/GameScene/Food.js",Food);
     		reg("script/GameScene/Snake.js",Snake);
     		reg("script/GameScene/SnakeBody.js",SnakeBody);
@@ -1221,6 +1303,11 @@
 
     		//激活资源版本控制，version.json由IDE发布功能自动生成，如果没有也不影响后续流程
     		Laya.ResourceVersion.enable("version.json", Laya.Handler.create(this, this.onVersionLoaded), Laya.ResourceVersion.FILENAME_VERSION);
+
+    		if(Laya.Browser.onMiniGame){
+    			Global.SysInfo = wx.getSystemInfoSync();
+    			console.log(Global.SysInfo);
+    		}
     	}
 
     	onVersionLoaded() {
