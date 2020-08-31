@@ -1,6 +1,8 @@
 const BGM_PATH='sound/bgm.mp3',SNAKE_PREFAB_PATH='res/sprite_snake1.prefab',SNAKEBODY_PREFAB_PATH='res/sprite_snakebody1.prefab',FOOD_PREFAB_PATH='res/sprite_food1.prefab'
-const ctx = 'http://localhost:8888'
+const MAP_PATH='images/map.png'
+const ctx = 'http://132.232.4.180:8888'
 let resourceMap = {}
+let userInfo = {}
 export default class Global{
     static get ctx(){
         return ctx;
@@ -31,7 +33,7 @@ export default class Global{
     }
     static get LOAD_RESOURCES() {
         //{url:BGM_PATH,type:Laya.Loader.SOUND},
-        return [{url:SNAKE_PREFAB_PATH,type:Laya.Loader.PREFAB},{url:SNAKEBODY_PREFAB_PATH,type:Laya.Loader.PREFAB},{url:FOOD_PREFAB_PATH,type:Laya.Loader.PREFAB}]
+        return [{url:MAP_PATH,type:Laya.Loader.IMAGE},{url:SNAKE_PREFAB_PATH,type:Laya.Loader.PREFAB},{url:SNAKEBODY_PREFAB_PATH,type:Laya.Loader.PREFAB},{url:FOOD_PREFAB_PATH,type:Laya.Loader.PREFAB}]
     }
     /**
      * 资源映射关系

@@ -45,18 +45,11 @@ export default class GameControl extends BaseScript {
                 })
             button.onTap((res) => {
                 if(res.userInfo){
+                    Global.userInfo = res.userInfo;
+                    console.log(Global.userInfo)
                     console.log(res.userInfo)
 
-                    let img = new Laya.Image(res.userInfo.avatarUrl);
-                    img.zOrder = 2;
-                    img.width = this.avatarImg.width;
-                    img.height = this.avatarImg.height;
-                    img.pos(this.avatarImg.x,this.avatarImg.y)
-                    img.on(Laya.Event.LOADED,this,()=>{
-                        this.avatarImg.removeSelf()
-                        wx.showToast({title:'头像加载成功'})
-                        this.owner.addChild(img)
-                    })
+                    this.loadAvatar(res.userInfo.avatarUrl)
                     
                     console.log(Global.SysInfo.windowWidth,Global.SysInfo.windowHeight);
     
@@ -69,7 +62,24 @@ export default class GameControl extends BaseScript {
             GameControl.loginButton = button;
         }
     }
+
+    loadAvatar(avatarUrl){
+        console.log('加载头像');
+        let img = new Laya.Image(avatarUrl);
+        img.zOrder = 2;
+        img.width = this.avatarImg.width;
+        img.height = this.avatarImg.height;
+        img.pos(this.avatarImg.x,this.avatarImg.y)
+        img.on(Laya.Event.LOADED,this,()=>{
+            this.avatarImg.removeSelf()
+            wx.showToast({title:'头像加载成功'})
+            this.owner.addChild(img)
+        })
+    }
     onAwake(){
+        if(Global.userInfo){
+            this.loadAvatar(Global.userInfo.avatarUrl)
+        }
         console.log('是否微信小游戏',Laya.Browser.onMiniGame);
         this.owner.width = Laya.stage.width;
         this.owner.getChildByName('sprite_bg').width = Laya.stage.width;
@@ -138,7 +148,7 @@ export default class GameControl extends BaseScript {
                 setTimeout(() => {
                     Global.log("加载场景")
                     //加载场景
-                    Laya.Scene.open('scene/GameScene.scene',true,null,Laya.Handler.create(this,(scene)=>{
+                    Laya.Scene.open('gameScene.scene',true,null,Laya.Handler.create(this,(scene)=>{
                         console.log(scene)
                         Global.log("加载场景完毕")
                     }))
@@ -149,11 +159,6 @@ export default class GameControl extends BaseScript {
 
         load.on(Laya.Event.ERROR,this,(err)=>{
             console.log('加载失败:' + err);
-            setTimeout(() => {
-                //加载场景
-                Laya.Scene.open('scene/GameScene.scene')
-
-            }, 500);
         })
 
     }

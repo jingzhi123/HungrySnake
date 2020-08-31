@@ -195,7 +195,6 @@ export default class Snake extends BaseScript {
         this.owner.on('dead',this,(msg)=>{
             this.dead = true;
             console.log(msg)
-
             if(this.currentPlayer){//显示得分
                 this.scoreView.visible = true;
                 let scoreLabel = this.scoreView.getChildByName('label_score')
@@ -205,9 +204,9 @@ export default class Snake extends BaseScript {
             }
             
             //存储数据
-            new HttpUtils().post(`${Global.ctx}/common/snake_score/insert`,`name=${this.playerName}&score=${this.score}`,(data)=>{
-                console.log(data);
-            },['token',Global.token,'code','snake'])
+            // new HttpUtils().post(`${Global.ctx}/common/snake_score/insert`,`name=${this.playerName}&score=${this.score}`,(data)=>{
+            //     console.log(data);
+            // },['token',Global.token,'code','snake'])
             
             
 

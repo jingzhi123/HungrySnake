@@ -53,5 +53,6 @@ function getToken(){
 		new Main()
 	})
 }
+// new Main()
 getToken()
 

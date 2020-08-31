@@ -54,8 +54,10 @@
     }
 
     const BGM_PATH='sound/bgm.mp3',SNAKE_PREFAB_PATH='res/sprite_snake1.prefab',SNAKEBODY_PREFAB_PATH='res/sprite_snakebody1.prefab',FOOD_PREFAB_PATH='res/sprite_food1.prefab';
-    const ctx = 'http://localhost:8888';
+    const MAP_PATH='images/map.png';
+    const ctx = 'http://132.232.4.180:8888';
     let resourceMap = {};
+    let userInfo = {};
     class Global{
         static get ctx(){
             return ctx;
@@ -86,20 +88,13 @@
         }
         static get LOAD_RESOURCES() {
             //{url:BGM_PATH,type:Laya.Loader.SOUND},
-            return [{url:SNAKE_PREFAB_PATH,type:Laya.Loader.PREFAB},{url:SNAKEBODY_PREFAB_PATH,type:Laya.Loader.PREFAB},{url:FOOD_PREFAB_PATH,type:Laya.Loader.PREFAB}]
+            return [{url:MAP_PATH,type:Laya.Loader.IMAGE},{url:SNAKE_PREFAB_PATH,type:Laya.Loader.PREFAB},{url:SNAKEBODY_PREFAB_PATH,type:Laya.Loader.PREFAB},{url:FOOD_PREFAB_PATH,type:Laya.Loader.PREFAB}]
         }
         /**
          * 资源映射关系
          */
         static get resourceMap(){
             return resourceMap
-        }
-
-        static getLeftX(sceneWidth){
-            return -(Laya.stage.width - Global.SysInfo.screenWidth);
-        }
-        static getTopY(sceneHeight){
-            return -(Laya.stage.height - Global.SysInfo.screenHeight);
         }
 
         /**
@@ -447,13 +442,10 @@
         
         onStart() {
             this.returnBtn.clickHandler = Laya.Handler.create(this,(e)=>{
-                console.log('return');
-                Laya.timer.resume();
                 Laya.Scene.open('init.scene');
             });
             this.retryBtn.clickHandler = Laya.Handler.create(this,(e)=>{
-                Laya.timer.resume();
-                Laya.Scene.open('scene/GameScene.scene');
+                Laya.Scene.open('gameScene.scene');
             });
         }
 
@@ -568,18 +560,11 @@
                     });
                 button.onTap((res) => {
                     if(res.userInfo){
+                        Global.userInfo = res.userInfo;
+                        console.log(Global.userInfo);
                         console.log(res.userInfo);
 
-                        let img = new Laya.Image(res.userInfo.avatarUrl);
-                        img.zOrder = 2;
-                        img.width = this.avatarImg.width;
-                        img.height = this.avatarImg.height;
-                        img.pos(this.avatarImg.x,this.avatarImg.y);
-                        img.on(Laya.Event.LOADED,this,()=>{
-                            this.avatarImg.removeSelf();
-                            wx.showToast({title:'头像加载成功'});
-                            this.owner.addChild(img);
-                        });
+                        this.loadAvatar(res.userInfo.avatarUrl);
                         
                         console.log(Global.SysInfo.windowWidth,Global.SysInfo.windowHeight);
         
@@ -592,7 +577,24 @@
                 GameControl.loginButton = button;
             }
         }
+
+        loadAvatar(avatarUrl){
+            console.log('加载头像');
+            let img = new Laya.Image(avatarUrl);
+            img.zOrder = 2;
+            img.width = this.avatarImg.width;
+            img.height = this.avatarImg.height;
+            img.pos(this.avatarImg.x,this.avatarImg.y);
+            img.on(Laya.Event.LOADED,this,()=>{
+                this.avatarImg.removeSelf();
+                wx.showToast({title:'头像加载成功'});
+                this.owner.addChild(img);
+            });
+        }
         onAwake(){
+            if(Global.userInfo){
+                this.loadAvatar(Global.userInfo.avatarUrl);
+            }
             console.log('是否微信小游戏',Laya.Browser.onMiniGame);
             this.owner.width = Laya.stage.width;
             this.owner.getChildByName('sprite_bg').width = Laya.stage.width;
@@ -661,7 +663,7 @@
                     setTimeout(() => {
                         Global.log("加载场景");
                         //加载场景
-                        Laya.Scene.open('scene/GameScene.scene',true,null,Laya.Handler.create(this,(scene)=>{
+                        Laya.Scene.open('gameScene.scene',true,null,Laya.Handler.create(this,(scene)=>{
                             console.log(scene);
                             Global.log("加载场景完毕");
                         }));
@@ -672,11 +674,6 @@
 
             load.on(Laya.Event.ERROR,this,(err)=>{
                 console.log('加载失败:' + err);
-                setTimeout(() => {
-                    //加载场景
-                    Laya.Scene.open('scene/GameScene.scene');
-
-                }, 500);
             });
 
         }
@@ -742,7 +739,6 @@
             this.onLoadComplete();
 
             this.returnBtn.clickHandler = Laya.Handler.create(this,(e)=>{
-                Laya.timer.resume();
                 Laya.Scene.open('init.scene');
             });
         }
@@ -1050,7 +1046,6 @@
             this.owner.on('dead',this,(msg)=>{
                 this.dead = true;
                 console.log(msg);
-
                 if(this.currentPlayer){//显示得分
                     this.scoreView.visible = true;
                     let scoreLabel = this.scoreView.getChildByName('label_score');
@@ -1060,9 +1055,9 @@
                 }
                 
                 //存储数据
-                new HttpUtils().post(`${Global.ctx}/common/snake_score/insert`,`name=${this.playerName}&score=${this.score}`,(data)=>{
-                    console.log(data);
-                },['token',Global.token,'code','snake']);
+                // new HttpUtils().post(`${Global.ctx}/common/snake_score/insert`,`name=${this.playerName}&score=${this.score}`,(data)=>{
+                //     console.log(data);
+                // },['token',Global.token,'code','snake'])
                 
                 
 
@@ -1333,6 +1328,7 @@
     		new Main();
     	});
     }
+    // new Main()
     getToken();
 
 }());
