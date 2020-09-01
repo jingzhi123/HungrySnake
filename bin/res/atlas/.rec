@@ -65,9 +65,9 @@ P C1231F9C head3.png
 P 94E68FC4 head4.png
 P 73A8D07E head5.png
 P 9F526653 map-tile.jpg
-S DEB39FE1 map.png
 R 10F4AE84 mask.png
 R BB18F14E s1-background.jpg
+S DEB39FE1 s1-bg.png
 P C7D9E72B s1-btn1.png
 P A568C48D s1-btn2.png
 P 33CA63E2 s1-input.png

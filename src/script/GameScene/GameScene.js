@@ -15,10 +15,8 @@ export default class GameScene extends BaseScript {
 
     onAwake(){
         super.onAwake()
-        if(GameControl.loginButton){
+        if(Laya.Browser.onMiniGame){
             wx.showToast({title:'hiGameScene'})
-            console.log(GameControl.loginButton);
-            GameControl.loginButton.destroy()
         }
     }
 
