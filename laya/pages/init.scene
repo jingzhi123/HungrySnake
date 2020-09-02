@@ -2,11 +2,11 @@
     "x":0,
     "type":"Scene",
     "selectedBox":2,
-    "selecteID":66,
-    "searchKey":"Scene,init_scene,init",
-    "props":{"width":960,"var":"init","sceneColor":"#ffffff","runtime":"script/Common/SceneScale.js","name":"init_scene","height":540,"autoDestroyAtClosed":true},
+    "selecteID":26,
+    "searchKey":"Scene,init_scene,initScene",
+    "props":{"width":960,"var":"initScene","sceneColor":"#ffffff","runtime":"script/Common/SceneScale.js","name":"init_scene","height":540,"autoDestroyAtClosed":true},
     "nodeParent":-1,
-    "maxID":67,
+    "maxID":70,
     "label":"init_scene",
     "isOpen":true,
     "isDirectory":true,
@@ -112,27 +112,13 @@
             "source":"src/script/GameControl.js",
             "searchKey":"Script,GameControl",
             "removeAble":true,
-            "props":{"startBtn":"@node:26","scorePanel":"@node:41","scoreList":"@node:40","rankListCloseBtn":"@node:46","rankListBtn":"@node:42","progressBar":"@node:34","logo":"@node:24","gameText":"@node:37","divTop":"@node:66","avatarImg":"@node:63"},
+            "props":{"startBtn":"@node:26","scorePanel":"@node:41","scoreList":"@node:40","rankListCloseBtn":"@node:46","rankListBtn":"@node:42","progressBar":"@node:34","nicknameLabel":"@node:69","logo":"@node:24","gameText":"@node:37","avatarImg":"@node:63"},
             "nodeParent":2,
             "label":"GameControl",
             "isDirectory":false,
             "isAniNode":true,
             "hasChild":false,
             "compId":51,
-            "child":[
-                ]
-        },
-        {
-            "x":15,
-            "type":"Image",
-            "searchKey":"Image,avatar_img",
-            "props":{"zOrder":1,"y":7,"x":7,"width":71,"top":7,"name":"avatar_img","left":7,"height":67},
-            "nodeParent":2,
-            "label":"avatar_img",
-            "isDirectory":false,
-            "isAniNode":true,
-            "hasChild":false,
-            "compId":63,
             "child":[
                 ]
         },
@@ -204,6 +190,64 @@
                                 ]
                         }],
                     "$HIDDEN":true
+                }]
+        },
+        {
+            "x":15,
+            "type":"Sprite",
+            "searchKey":"Sprite,top",
+            "props":{"y":0,"x":0,"width":960,"name":"top","height":86},
+            "nodeParent":2,
+            "label":"top",
+            "isOpen":true,
+            "isDirectory":true,
+            "isAniNode":true,
+            "hasChild":true,
+            "compId":67,
+            "child":[
+                {
+                    "x":30,
+                    "type":"Widget",
+                    "switchAble":true,
+                    "searchKey":"Widget",
+                    "removeAble":true,
+                    "props":{"top":0,"left":0},
+                    "nodeParent":67,
+                    "label":"Widget",
+                    "isDirectory":false,
+                    "isAniNode":true,
+                    "hasChild":false,
+                    "compId":68,
+                    "child":[
+                        ]
+                },
+                {
+                    "x":30,
+                    "type":"Label",
+                    "searchKey":"Label,label_nickname",
+                    "props":{"x":89,"width":70,"valign":"middle","top":0,"text":"username","name":"label_nickname","height":86,"fontSize":30,"bottom":0},
+                    "nodeParent":67,
+                    "label":"label_nickname",
+                    "isDirectory":false,
+                    "isAniNode":true,
+                    "hasChild":false,
+                    "compId":69,
+                    "child":[
+                        ]
+                },
+                {
+                    "x":30,
+                    "type":"Image",
+                    "searchKey":"Image,img_avatar",
+                    "props":{"zOrder":1,"y":7,"width":71,"top":7,"name":"img_avatar","left":7,"height":67},
+                    "nodeParent":67,
+                    "label":"img_avatar",
+                    "isDirectory":false,
+                    "isAniNode":true,
+                    "hasChild":false,
+                    "compId":63,
+                    "child":[
+                        ]
                 }]
         }],
     "animations":[

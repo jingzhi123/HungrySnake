@@ -136,6 +136,10 @@ export default class Wall extends BaseScript {
 
     onAwake(){
         super.onAwake()
+
+        this.controlPad.getChildByName('btn_shoot').clickHandler = Laya.Handler.create(this,()=>{
+            this.playerScript.shoot()
+        },null,false)
         this.controlPad.onDestroy = ()=>{
             this.btn_speedup.off('mousedown',this,this.speedUp)
             this.btn_speedup.off('mouseup',this,this.speedDown)
@@ -238,6 +242,7 @@ export default class Wall extends BaseScript {
         //return;
 
         let mapScale = 0.5 / snakeScript.curBodySize < 0.7 ? 0.7 : 0.5 / snakeScript.curBodySize
+
 
         // this.owner.x = -1 * (this.playerSnake.x + this.playerSnake.width / 2 - this.owner.width / 2) * mapScale + this.owner.width / 2
         // this.owner.y = -1 * (this.playerSnake.y + this.playerSnake.height / 2 - this.owner.height / 2) * mapScale + this.owner.height / 2

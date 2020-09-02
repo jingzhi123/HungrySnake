@@ -303,6 +303,10 @@
 
         onAwake(){
             super.onAwake();
+
+            this.controlPad.getChildByName('btn_shoot').clickHandler = Laya.Handler.create(this,()=>{
+                this.playerScript.shoot();
+            },null,false);
             this.controlPad.onDestroy = ()=>{
                 this.btn_speedup.off('mousedown',this,this.speedUp);
                 this.btn_speedup.off('mouseup',this,this.speedDown);
@@ -405,6 +409,9 @@
             //return;
 
             let mapScale = 0.5 / snakeScript.curBodySize < 0.7 ? 0.7 : 0.5 / snakeScript.curBodySize;
+
+            this.owner.scaleX -= 0.0001;
+            this.owner.scaleY -= 0.0001;
 
             // this.owner.x = -1 * (this.playerSnake.x + this.playerSnake.width / 2 - this.owner.width / 2) * mapScale + this.owner.width / 2
             // this.owner.y = -1 * (this.playerSnake.y + this.playerSnake.height / 2 - this.owner.height / 2) * mapScale + this.owner.height / 2
@@ -622,8 +629,8 @@
             let scorePanel;
             /** @prop {name:avatarImg, tips:"头像", type:Node, default:null}*/
             let avatarImg;
-            /** @prop {name:divTop, tips:"上div", type:Node, default:null}*/
-            let divTop;
+            /** @prop {name:nicknameLabel, tips:"用户昵称", type:Node, default:null}*/
+            let nicknameLabel;
         }
 
         /**
@@ -746,6 +753,8 @@
                 // })
 
 
+            } else {
+                this.nicknameLabel.text = '游客1';
             }
         }
 
@@ -1093,8 +1102,8 @@
 
             this.snakeSize = this.snakeInitSize;
             
-            /** @prop {name:acceleratedVelocity, tips:"加速度", type:Number, default:1}*/
-            this.acceleratedVelocity = 1;
+            /** @prop {name:acceleratedVelocity, tips:"加速度", type:Number, default:1.2}*/
+            this.acceleratedVelocity = 1.2;
             
             //按键时间
             this.keyPressTime=0;
@@ -1207,8 +1216,10 @@
 
         }
 
-        onKeyUp(){
-            this.shoot();
+        onKeyUp(e){
+            if(e.keyCode == Laya.Keyboard.SPACE){
+                this.shoot();
+            }
         }
 
         shoot(){
@@ -1494,7 +1505,7 @@
     GameConfig.screenMode = "horizontal";
     GameConfig.alignV = "middle";
     GameConfig.alignH = "center";
-    GameConfig.startScene = "init.scene";
+    GameConfig.startScene = "gameScene.scene";
     GameConfig.sceneRoot = "";
     GameConfig.debug = false;
     GameConfig.stat = false;

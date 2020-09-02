@@ -22,8 +22,8 @@ export default class GameControl extends BaseScript {
         let scorePanel;
         /** @prop {name:avatarImg, tips:"头像", type:Node, default:null}*/
         let avatarImg;
-        /** @prop {name:divTop, tips:"上div", type:Node, default:null}*/
-        let divTop;
+        /** @prop {name:nicknameLabel, tips:"用户昵称", type:Node, default:null}*/
+        let nicknameLabel;
     }
 
     /**
@@ -146,6 +146,8 @@ export default class GameControl extends BaseScript {
             // })
 
 
+        } else {
+            this.nicknameLabel.text = '游客1'
         }
     }
 

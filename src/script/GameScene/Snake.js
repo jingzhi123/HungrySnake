@@ -34,8 +34,8 @@ export default class Snake extends BaseScript {
 
         this.snakeSize = this.snakeInitSize;
         
-        /** @prop {name:acceleratedVelocity, tips:"加速度", type:Number, default:1}*/
-        this.acceleratedVelocity = 1;
+        /** @prop {name:acceleratedVelocity, tips:"加速度", type:Number, default:1.2}*/
+        this.acceleratedVelocity = 1.2;
         
         //按键时间
         this.keyPressTime=0;
@@ -148,8 +148,10 @@ export default class Snake extends BaseScript {
 
     }
 
-    onKeyUp(){
-        this.shoot();
+    onKeyUp(e){
+        if(e.keyCode == Laya.Keyboard.SPACE){
+            this.shoot();
+        }
     }
 
     shoot(){

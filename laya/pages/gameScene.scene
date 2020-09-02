@@ -1,12 +1,12 @@
 {
     "x":0,
     "type":"Scene",
-    "selectedBox":51,
-    "selecteID":13,
+    "selectedBox":2,
+    "selecteID":258,
     "searchKey":"Scene,game_scene",
     "props":{"width":960,"texture":"images/s1-option-background.png","sceneColor":"#ffffff","sceneBg":"laya/views/scene/gameMain.png","runtime":"script/Common/SceneScale.js","name":"game_scene","height":540,"autoDestroyAtClosed":true},
     "nodeParent":-1,
-    "maxID":259,
+    "maxID":260,
     "label":"game_scene",
     "isOpen":true,
     "isDirectory":true,
@@ -14,20 +14,6 @@
     "hasChild":true,
     "compId":2,
     "child":[
-        {
-            "x":15,
-            "type":"Button",
-            "searchKey":"Button,btn_return",
-            "props":{"zOrder":2,"width":50,"top":0,"stateNum":"1","skin":"images/btn-back.png","name":"btn_return","left":40,"height":50},
-            "nodeParent":2,
-            "label":"btn_return",
-            "isDirectory":false,
-            "isAniNode":true,
-            "hasChild":false,
-            "compId":3,
-            "child":[
-                ]
-        },
         {
             "x":15,
             "type":"Widget",
@@ -53,14 +39,13 @@
             "props":{"y":270,"x":479,"width":1,"runtime":"script/Common/CenterPos.js","name":"center","height":1},
             "nodeParent":2,
             "label":"center",
-            "isOpen":true,
+            "isOpen":false,
             "isDirectory":true,
             "isAniNode":true,
             "hasChild":true,
             "compId":51,
             "child":[
                 {
-                    "x":30,
                     "type":"Image",
                     "searchKey":"Image,sprite_wall",
                     "props":{"y":0,"x":0,"width":3000,"skin":"images/s1-background.jpg","pivotY":750,"pivotX":1500,"name":"sprite_wall","height":1500},
@@ -121,7 +106,6 @@
                     "$HIDDEN":false
                 },
                 {
-                    "x":30,
                     "type":"Sprite",
                     "searchKey":"Sprite,view_score",
                     "props":{"y":-270,"x":-480,"width":960,"visible":false,"texture":"comp/img_blank.png","sceneColor":"#894f4e","name":"view_score","height":540,"autoDestroyAtClosed":true},
@@ -204,7 +188,6 @@
                     "$HIDDEN":true
                 },
                 {
-                    "x":30,
                     "type":"Sprite",
                     "searchKey":"Sprite,sprite_scorelist",
                     "props":{"y":-154,"x":-103,"width":206,"visible":false,"name":"sprite_scorelist","height":151},
@@ -232,7 +215,6 @@
                         }]
                 },
                 {
-                    "x":30,
                     "type":"Widget",
                     "switchAble":true,
                     "searchKey":"Widget",
@@ -248,23 +230,6 @@
                         ]
                 }],
             "$HIDDEN":true
-        },
-        {
-            "x":15,
-            "type":"Script",
-            "switchAble":true,
-            "source":"src/script/GameScene/GameScene.js",
-            "searchKey":"Script,GameScene",
-            "removeAble":true,
-            "props":{"wall":"@node:13","scoreView":"@node:94","returnBtn":"@node:3"},
-            "nodeParent":2,
-            "label":"GameScene",
-            "isDirectory":false,
-            "isAniNode":true,
-            "hasChild":false,
-            "compId":223,
-            "child":[
-                ]
         },
         {
             "x":15,
@@ -356,14 +321,13 @@
                     "props":{"y":427,"x":150,"width":100,"skin":"images/control-back.png","pivotY":50,"pivotX":50,"name":"sprite_ctrl","left":100,"height":100},
                     "nodeParent":258,
                     "label":"sprite_ctrl",
-                    "isOpen":true,
+                    "isOpen":false,
                     "isDirectory":true,
                     "isAniNode":true,
                     "hasChild":true,
                     "compId":130,
                     "child":[
                         {
-                            "x":45,
                             "type":"Image",
                             "searchKey":"Image,sprite_ctrl_rocker",
                             "props":{"skin":"images/control-rocker.png","pivotY":18,"pivotX":18,"name":"sprite_ctrl_rocker","centerY":0,"centerX":0},
@@ -390,7 +354,52 @@
                     "compId":133,
                     "child":[
                         ]
+                },
+                {
+                    "x":30,
+                    "type":"Button",
+                    "searchKey":"Button,btn_shoot",
+                    "props":{"y":392,"x":656,"stateNum":"1","skin":"images/control-back.png","name":"btn_shoot"},
+                    "nodeParent":258,
+                    "label":"btn_shoot",
+                    "isDirectory":false,
+                    "isAniNode":true,
+                    "hasChild":false,
+                    "compId":259,
+                    "child":[
+                        ]
+                },
+                {
+                    "x":30,
+                    "type":"Button",
+                    "searchKey":"Button,btn_return",
+                    "props":{"zOrder":2,"y":0,"x":40,"width":50,"top":0,"stateNum":"1","skin":"images/btn-back.png","name":"btn_return","left":40,"height":50},
+                    "nodeParent":258,
+                    "label":"btn_return",
+                    "isDirectory":false,
+                    "isAniNode":true,
+                    "hasChild":false,
+                    "compId":3,
+                    "child":[
+                        ]
                 }]
+        },
+        {
+            "x":15,
+            "type":"Script",
+            "switchAble":true,
+            "source":"src/script/GameScene/GameScene.js",
+            "searchKey":"Script,GameScene",
+            "removeAble":true,
+            "props":{"y":0,"x":0,"wall":"@node:13","scoreView":"@node:94","returnBtn":"@node:3"},
+            "nodeParent":2,
+            "label":"GameScene",
+            "isDirectory":false,
+            "isAniNode":true,
+            "hasChild":false,
+            "compId":223,
+            "child":[
+                ]
         }],
     "animations":[
         {
