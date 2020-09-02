@@ -12,10 +12,8 @@ export default class Snake extends BaseScript {
         let snake;
         /** @prop {name:snakeBody, tips:"蛇身", type:Prefab, default:null}*/
         let snakeBody;
-        /** @prop {name:scoreList, tips:"分数列表", type:Node, default:null}*/
-        let scoreList;
-        /** @prop {name:scoreScript, tips:"分数脚本", type:Node, default:null}*/
-        this.scoreScript;
+        /** @prop {name:bulletRes, tips:"子弹资源", type:Prefab, default:null}*/
+        let bulletRes;
 
         /** @prop {name:rigid, tips:"刚体", type:Node, default:null}*/
         let rigid;
@@ -72,7 +70,7 @@ export default class Snake extends BaseScript {
         //当前身体大小
         this.curBodySize = 0.5;
         //当前身体个数
-        this.curBodyNum = 3;
+        this.curBodyNum = 10;
         //最大身体大小
         this.maxBodySize = 2;
 
@@ -102,7 +100,7 @@ export default class Snake extends BaseScript {
 
     onAwake(){
         super.onAwake()
-        console.log(this.owner.script);
+        
         this.wall = this.owner.parent;
         this.wallScript = this.wall.script;
         this.owner.zOrder = 1;
@@ -138,20 +136,43 @@ export default class Snake extends BaseScript {
             console.log('重新加载蛇身资源');
             Laya.loader.load('res/sprite_snakebody1.prefab',Laya.Handler.create(this,(res)=>{
                 this.bodyRes = res;
-                for(let i = 0;i<this.curBodyNum;i++){
-                    this.addBody()
-                }
+                this.initBody()
                 
                 // this.snakeBody = res.create();
             }))
         } else {
-            for(let i = 0;i<this.curBodyNum;i++){
-                this.addBody()
-            }
+            this.initBody()
         }
         
 
 
+    }
+
+    onKeyUp(){
+        this.shoot();
+    }
+
+    shoot(){
+        let bullet = this.bulletRes.create()
+        bullet.x = this.owner.x;
+        bullet.y = this.owner.y;
+        console.log(bullet);
+
+        this.owner.parent.addChild(bullet)
+    }
+
+    initBody(){
+        for(let i = 0;i<this.curBodyNum;i++){
+            let snakeBody = Laya.Pool.getItemByCreateFun('snakebody',this.bodyRes.create,this.bodyRes)
+            snakeBody.loadImage("images/body" + this.colorNum + ".png", 0, 0, 0, 0, Laya.Handler.create(this,()=>{
+                console.log('loaded');
+            }))
+            //添加身体
+            let lastBody = this.snakeBodyArr[this.snakeBodyArr.length-1]
+            this.wall.addChild(snakeBody)
+            snakeBody.zOrder = lastBody?--lastBody.zOrder:0;
+            this.snakeBodyArr.push(snakeBody)
+        }
     }
 
     //速度改变
@@ -168,10 +189,6 @@ export default class Snake extends BaseScript {
     onTriggerEnter(other,self,contact){
         if(other.name=='collider_wall'){
             this.owner.event('dead','撞墙了!');
-        }
-        if(other.name=='collider_food'){
-            this.foodEat(other.owner)
-            // this.addBody(other.owner)
         }
     }
 
@@ -199,7 +216,7 @@ export default class Snake extends BaseScript {
                 this.scoreView.visible = true;
                 let scoreLabel = this.scoreView.getChildByName('label_score')
                 scoreLabel.text = this.score;
-                
+                this.wallScript.controlPad.destroy()
 
             }
             
@@ -329,8 +346,7 @@ export default class Snake extends BaseScript {
 
     addBody(){
         //长度增加
-        let snakeBody = this.bodyRes.create()
-
+        let snakeBody = Laya.Pool.getItemByCreateFun('snakebody',this.bodyRes.create,this.bodyRes)
         snakeBody.loadImage("images/body" + this.colorNum + ".png", 0, 0, 0, 0, Laya.Handler.create(this,()=>{
             console.log('loaded');
         }))

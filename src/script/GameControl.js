@@ -22,6 +22,8 @@ export default class GameControl extends BaseScript {
         let scorePanel;
         /** @prop {name:avatarImg, tips:"头像", type:Node, default:null}*/
         let avatarImg;
+        /** @prop {name:divTop, tips:"上div", type:Node, default:null}*/
+        let divTop;
     }
 
     /**
@@ -259,6 +261,12 @@ export default class GameControl extends BaseScript {
     }
 
     onEnable() {
+        // console.log(this.divTop);
+        // this.divTop.innerHTML = `<span>金币:123</span>`
+        // this.divTop.style.width = this.owner.width;
+        // this.divTop.style.align = "center";
+        // this.divTop.style.height = 83;
+        // this.divTop.style.bgColor = "blue"
 
         this.startBtn.disabled = true;
         // let timeline = Laya.TimeLine.from(this.logo,{x:0,y:this.logo.y},1000,null);

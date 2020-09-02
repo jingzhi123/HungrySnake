@@ -5,6 +5,7 @@ import Wall from "./script/GameScene/Wall"
 import GameOver from "./script/GameScene/GameOver"
 import GameScene from "./script/GameScene/GameScene"
 import GameControl from "./script/GameControl"
+import Bullet from "./script/GameScene/Bullet"
 import Food from "./script/GameScene/Food"
 import Snake from "./script/GameScene/Snake"
 import SnakeBody from "./script/GameScene/SnakeBody"
@@ -19,6 +20,7 @@ export default class GameConfig {
 		reg("script/GameScene/GameOver.js",GameOver);
 		reg("script/GameScene/GameScene.js",GameScene);
 		reg("script/GameControl.js",GameControl);
+		reg("script/GameScene/Bullet.js",Bullet);
 		reg("script/GameScene/Food.js",Food);
 		reg("script/GameScene/Snake.js",Snake);
 		reg("script/GameScene/SnakeBody.js",SnakeBody);

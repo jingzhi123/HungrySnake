@@ -74,7 +74,8 @@ P 33CA63E2 s1-input.png
 P CBA1994D s1-option-background.png
 P 66D3FD49 s1-radio.png
 D res
+R 13140974 bullet.prefab
 R 7E2E511E sprite_food1.prefab
-R 0941B4C4 sprite_snake1.prefab
+R 156D2958 sprite_snake1.prefab
 R 564B6CF8 sprite_snakebody1.prefab
 D sound

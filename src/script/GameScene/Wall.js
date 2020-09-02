@@ -21,7 +21,12 @@ export default class Wall extends BaseScript {
         let btn_speedup;
         /** @prop {name:scoreText, tips:"分数面板", type:Node, default:null}*/
         let scoreText;
+        /** @prop {name:controlPad, tips:"操作面板", type:Node, default:null}*/
+        let controlPad;
 
+
+
+        this.ctrlDefaultPos = {}
 
         this.foodNum = 0;//当前食物数量
 
@@ -67,6 +72,15 @@ export default class Wall extends BaseScript {
         this.btn_speedup.on('mouseup',this,this.speedDown)
         this.gameScene.on("mouseup", this, this.ctrlRockerUp)
         this.gameScene.on("mousemove",this, this.ctrlRockerDown)
+        console.log(this.gameScene);
+    }
+
+    onStageMouseDown(e){
+        console.log(e);
+        if(e.stageX+this.btn_ctrl.width/2<=this.gameScene.width/2 && e.stageX>this.btn_ctrl.width/2){
+            this.btn_ctrl.x = e.stageX;
+            this.btn_ctrl.y = e.stageY;
+        }
     }
 
     onKeyDown(e){
@@ -84,17 +98,20 @@ export default class Wall extends BaseScript {
     }
 
     ctrlRockerUp(){
-        if (this.gameScene.mouseX <= this.gameScene.width / 1.5) {
+        if (this.gameScene.mouseX <= this.gameScene.width / 2 + this.btn_ctrl.width/2) {
             this.btn_ctrl_rocker.visible = true
             this.btn_ctrl_rocker_move.visible = false
+            this.btn_ctrl.x = this.ctrlDefaultPos.x;
+            this.btn_ctrl.y = this.ctrlDefaultPos.y;
+
         }
     }
     ctrlRockerDown(){
         
-        if (this.gameScene.mouseX <= this.gameScene.width / 1.5) {
+        if (this.gameScene.mouseX <= this.gameScene.width / 2 + this.btn_ctrl.width/2) {
             this.btn_ctrl_rocker.visible = false
             this.btn_ctrl_rocker_move.visible = true
-            if (GameUtils.distance(this.gameScene.mouseX, this.gameScene.mouseY, this.btn_ctrl.x, this.btn_ctrl.y) <= (this.btn_ctrl.width)) {
+            if (GameUtils.distance(this.gameScene.mouseX, this.gameScene.mouseY, this.btn_ctrl.x, this.btn_ctrl.y) <= (this.gameScene.height)) {
                 this.btn_ctrl_rocker_move.pos(this.gameScene.mouseX, this.gameScene.mouseY)
                 this.playerSnake.rotation = Math.atan2(this.gameScene.mouseY - this.btn_ctrl.y, this.gameScene.mouseX - this.btn_ctrl.x) * 180 / Math.PI
             } else {
@@ -119,6 +136,20 @@ export default class Wall extends BaseScript {
 
     onAwake(){
         super.onAwake()
+        this.controlPad.onDestroy = ()=>{
+            this.btn_speedup.off('mousedown',this,this.speedUp)
+            this.btn_speedup.off('mouseup',this,this.speedDown)
+            this.gameScene.off("mouseup", this, this.ctrlRockerUp)
+            this.gameScene.off("mousemove",this, this.ctrlRockerDown)
+        }
+        this.btn_speedup.right = this.owner.width*0.05;
+        // this.btn_speedup.width = this.btn_speedup.width*this.owner.width/Laya.stage.width*.3;
+        // this.btn_speedup.height = this.btn_speedup.width*this.owner.width/Laya.stage.width*.3;
+        this.btn_ctrl.left = this.owner.width*0.05;
+        // this.btn_ctrl.scale();
+
+        this.ctrlDefaultPos = {x:this.btn_ctrl.x,y:this.btn_ctrl.y}
+
         console.log(this.owner.script);
         this.owner.on('init',this,this.init)
         this.wallScript = this.owner.getComponent(Laya.Script)
@@ -144,6 +175,13 @@ export default class Wall extends BaseScript {
         Laya.timer.frameLoop(1,this,this.initFood)
         
         // Laya.timer.loop(1,this,this.mainLoop)
+    }
+
+    onTriggerEnter(other,self){
+        if(other.name=='bullet_collider'){
+            other.owner.destroy()
+        }
+
     }
 
     init(){
@@ -222,13 +260,12 @@ export default class Wall extends BaseScript {
                 if(this.foodNum<this.maxFood){
                     let x = Math.random()*(this.owner.width-10).toFixed(0)+10;
                     let y = Math.random()*(this.owner.height-10).toFixed(0)+10;
-                    let food = this.foodRes.create();
-                    let foodScript = food.getComponent(Laya.Script)
+                    let food = Laya.Pool.getItemByCreateFun('food',this.foodRes.create,this.foodRes)
+
                     food.x = x;
                     food.y = y;
                     food.foodOrder = this.foodOrder;
 
-                    // food = foodScript.create(x,y)
                     this.foods[this.foodOrder] = food;
                     // Laya.stage.addChild(food)
                     this.owner.addChild(food)
@@ -254,13 +291,12 @@ export default class Wall extends BaseScript {
                     console.log('增加食物');
                     let x = Math.random()*(this.owner.width-10).toFixed(0)+10;
                     let y = Math.random()*(this.owner.height-10).toFixed(0)+10;
-                    let food = this.foodRes.create();
-                    let foodScript = food.getComponent(Laya.Script)
+                    let food = Laya.Pool.getItem('food')
+
                     food.x = x;
                     food.y = y;
                     food.foodOrder = this.foodOrder;
 
-                    // food = foodScript.create(x,y)
                     this.foods[this.foodOrder] = food;
                     // Laya.stage.addChild(food)
                     this.owner.addChild(food)
@@ -305,5 +341,6 @@ export default class Wall extends BaseScript {
 
 
     onDisable() {
+
     }
 }

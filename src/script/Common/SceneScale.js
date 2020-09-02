@@ -6,6 +6,10 @@ export default class SceneScale extends Laya.Scene {
     }
 
     onAwake(){
+        
+    }
+    
+    onEnable() {
         this.width = Laya.stage.width;
         this.pos(0,0);
         console.log("当前为:["+this.name + "]场景");
@@ -20,9 +24,6 @@ export default class SceneScale extends Laya.Scene {
             //     console.log("图片加载完毕!");
             // }))
         }
-    }
-    
-    onEnable() {
     }
 
     onDisable() {
