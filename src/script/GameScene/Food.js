@@ -33,8 +33,8 @@ export default class Food extends BaseScript {
                 if(snake){
                     let other = snake.getComponent(Laya.CircleCollider)
                     let self = this.owner.getComponent(Laya.CircleCollider)
-                    this.snakeScript = snake.getComponent(Laya.Script)
-                    if(!this.eating && Math.abs(snake.x-this.owner.x)<this.snakeScript.attackScale && Math.abs(snake.y-this.owner.y)<this.snakeScript.attackScale){
+                    let snakeScript = snake.getComponent(Laya.Script)
+                    if(!this.eating && Math.abs(snake.x-this.owner.x)<snakeScript.attackScale && Math.abs(snake.y-this.owner.y)<snakeScript.attackScale){
                         this.onEaten(snake)
                     }
                 }
@@ -54,11 +54,11 @@ export default class Food extends BaseScript {
 
     foodAnime(snake){
 
-        let s = snake.getComponent(Laya.Script)
+        let snakeScript = snake.getComponent(Laya.Script)
         let self = this.owner;
         this.animTime++;
-        self.x += (s.currentVelocity + 0.1) * Math.cos(Math.atan2(snake.y - self.y, snake.x - self.x))
-        self.y += (s.currentVelocity + 0.1) * Math.sin(Math.atan2(snake.y - self.y, snake.x - self.x))
+        self.x += (snakeScript.currentVelocity + 0.1) * Math.cos(Math.atan2(snake.y - self.y, snake.x - self.x))
+        self.y += (snakeScript.currentVelocity + 0.1) * Math.sin(Math.atan2(snake.y - self.y, snake.x - self.x))
 
         if(this.animTime>=60){
             Laya.timer.clear(this,this.foodAnime)
@@ -66,8 +66,9 @@ export default class Food extends BaseScript {
             this.eating = false;
             this.animTime = 0;
 
-            if(this.snakeScript && !this.snakeScript.dead){
-                this.snakeScript.foodEat()
+            if(snakeScript && !snakeScript.dead){
+                snakeScript.foodEat(this.owner)
+                snakeScript.foods.push(this.owner)
                 Laya.Pool.recover('food',self.removeSelf())
             }
         }

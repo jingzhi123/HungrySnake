@@ -38,9 +38,9 @@ export default class Wall extends BaseScript {
 
         this.snakeMap = {}
 
-        this.snakeNum = 1;//蛇的个数
+        this.snakeNum = 2;//蛇的个数
 
-        this.cursnakeNum = 0;
+        this.cursnakeNum = 0;//当前蛇的数量
 
         this.maxFood = 500;//最大食物数量
 
@@ -48,25 +48,11 @@ export default class Wall extends BaseScript {
         this.playerSnake;
     }
 
-    changeScore(score){
-        this.score = score;
-        this.scoreText.text = this.score;
-    }
 
-    plusScore(score){
-        score?this.score+=score:this.score++;
-        this.scoreText.text = this.score;
-    }
-
-    minusScore(score){
-        score?this.score+=score:this.score++;
-        this.scoreText.text = this.score;
-    }
 
     //玩家操控的蛇准备完毕
     playerComplete(playerSnake){
         console.log('playercom')
-        this.changeScore(playerSnake.score)
         this.playerScript = playerSnake.getComponent(Laya.Script)
         this.btn_speedup.on('mousedown',this,this.speedUp)
         this.btn_speedup.on('mouseup',this,this.speedDown)
@@ -137,7 +123,7 @@ export default class Wall extends BaseScript {
     onAwake(){
         super.onAwake()
 
-        this.controlPad.getChildByName('btn_shoot').clickHandler = Laya.Handler.create(this,()=>{
+        this.controlPad.getChildByName('view_right').getChildByName('btn_shoot').clickHandler = Laya.Handler.create(this,()=>{
             this.playerScript.shoot()
         },null,false)
         this.controlPad.onDestroy = ()=>{
@@ -154,7 +140,6 @@ export default class Wall extends BaseScript {
 
         this.ctrlDefaultPos = {x:this.btn_ctrl.x,y:this.btn_ctrl.y}
 
-        console.log(this.owner.script);
         this.owner.on('init',this,this.init)
         this.wallScript = this.owner.getComponent(Laya.Script)
         //加载蛇头资源
@@ -183,7 +168,11 @@ export default class Wall extends BaseScript {
 
     onTriggerEnter(other,self){
         if(other.name=='bullet_collider'){
-            other.owner.destroy()
+            // console.log('子弹创强');
+            if(other.owner){
+                // other.owner.destroy()
+                other.owner.removeSelf()
+            }
         }
 
     }
@@ -228,7 +217,6 @@ export default class Wall extends BaseScript {
         this.loadFood()
         this.stateCheck();
         this.snakesLoop();
-        this.changeScore(this.playerScript.score)
         if(this.playerSnake){
             this.mapMove(this.playerScript)
         }
@@ -256,6 +244,22 @@ export default class Wall extends BaseScript {
         // console.log(this.owner);
         // this.owner.scale(2, 2)
 
+    }
+
+    /**
+     * 按照数量获取随机食物
+     */
+    getFoods(foodNum){
+        let foods = []
+        for(let i = 0;i<foodNum;i++){
+            let x = Math.random()*(this.owner.width-10).toFixed(0)+10;
+            let y = Math.random()*(this.owner.height-10).toFixed(0)+10;
+            let food = Laya.Pool.getItemByCreateFun('food',this.foodRes.create,this.foodRes)
+            food.x = x;
+            food.y = y;
+            foods.push(food)
+        }
+        return foods;
     }
     //初始化食物
     initFood(){
@@ -293,7 +297,7 @@ export default class Wall extends BaseScript {
         if(this.foodRes){
             for(let i = 0 ;i<20;i++){
                 if(this.foodNum<this.maxFood){
-                    console.log('增加食物');
+                    // console.log('增加食物');
                     let x = Math.random()*(this.owner.width-10).toFixed(0)+10;
                     let y = Math.random()*(this.owner.height-10).toFixed(0)+10;
                     let food = Laya.Pool.getItem('food')
@@ -326,14 +330,19 @@ export default class Wall extends BaseScript {
                 if(this.cursnakeNum==0){
                     this.playerSnake = snake;
                     snakeScript.currentPlayer = true;
+                } else{
+                    snakeScript.AI = true;
                 }
+                snakeScript.index = i;
                 snakeScript.playerName = '张三' + this.cursnakeNum;
+
+                console.log(snakeScript);
     
     
                 this.owner.addChild(snake)
                 this.snakes.push(snake)
                 this.snakeMap[snake.getChildIndex()] = snake;
-                this.cursnakeNum = i;
+                this.cursnakeNum++;
 
             }
             this.owner.event('init')

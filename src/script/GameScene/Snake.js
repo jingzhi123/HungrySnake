@@ -1,8 +1,7 @@
-import Food from "./Food";
-import GameConfig from "../../GameConfig";
 import BaseScript from "../BaseScript";
 import Global from "../../common/Global";
-import HttpUtils from "../../common/HttpUtils";
+import GameSceneRuntime from "../runtime/GameSceneRuntime";
+import GameUtils from "../../common/GameUtils";
 
 export default class Snake extends BaseScript {
 
@@ -20,15 +19,14 @@ export default class Snake extends BaseScript {
 
         /** @prop {name:step, tips:"步长", type:Number, default:1}*/
         this.step = 1;
-
-        /** @prop {name:direction, tips:"初始方向", type:String, default:"右"}*/
-        this.direction = '上';
-        
-        /** @prop {name:frame, tips:"速率(刷新率)", type:Number, default:1}*/
-        this.frame = 1;
         
         /** @prop {name:velocity, tips:"初始速度", type:Number, default:1}*/
         this.velocity = 1;
+
+        /**
+         * 蛇编号
+         */
+        this.index = 0;
         
         this.snakeInitSize = 0.45;
 
@@ -37,11 +35,6 @@ export default class Snake extends BaseScript {
         /** @prop {name:acceleratedVelocity, tips:"加速度", type:Number, default:1.2}*/
         this.acceleratedVelocity = 1.2;
         
-        //按键时间
-        this.keyPressTime=0;
-
-        //按键延迟多久加速
-        this.keyPressDelay = 6;
 
         //当前速度
         this.currentVelocity = 0;
@@ -74,16 +67,32 @@ export default class Snake extends BaseScript {
         //最大身体大小
         this.maxBodySize = 2;
 
-        this.scoreForBody = 5;//几分一个身体
+        this.foodNumPerBody = 5;//几分一个身体
 
         this.curScore = 0;//当前临时分数,为了计算蛇身
 
         this.score = 0;//玩家分数
 
-        this.bodySpace = 6;//身体间距
+        this.bodySpace = 10;//身体间距
 
         //是否为当前玩家
         this.currentPlayer = false;//当前玩家
+
+        /**
+         * 所吃的所有食物数组
+         */
+        this.foods = []
+        /**
+         * 所吃的食物临时数组,给蛇身
+         */
+        this._tmpFoods = []
+
+        /**
+         * 是否开启AI
+         */
+        this.AI = false;
+
+        this.cameraWidth;
 
         this.times = 0;
 
@@ -91,6 +100,8 @@ export default class Snake extends BaseScript {
 
         //当前蛇的颜色编号
         this.colorNum = Math.floor(Math.random() * (5 - 1 + 1) + 1);
+
+        this.currentConcatIndex = -1;
 
     }
 
@@ -101,6 +112,12 @@ export default class Snake extends BaseScript {
     onAwake(){
         super.onAwake()
         
+        this.owner.on('concat',this,(index)=>{
+            console.log('concatafter:' + index);
+            this.currentConcatIndex = index;
+            this.bodyConcat()
+        })
+        this.cameraWidth = this.gameScene.width/2;
         this.wall = this.owner.parent;
         this.wallScript = this.wall.script;
         this.owner.zOrder = 1;
@@ -150,15 +167,20 @@ export default class Snake extends BaseScript {
 
     onKeyUp(e){
         if(e.keyCode == Laya.Keyboard.SPACE){
-            this.shoot();
+            if(this.currentPlayer){
+                this.shoot();
+            }
         }
     }
 
     shoot(){
         let bullet = this.bulletRes.create()
+        bullet.snake = this.owner;
         bullet.x = this.owner.x;
         bullet.y = this.owner.y;
-        console.log(bullet);
+
+        bullet.getComponent(Laya.Script).snakeScript = this;
+
 
         this.owner.parent.addChild(bullet)
     }
@@ -169,10 +191,15 @@ export default class Snake extends BaseScript {
             snakeBody.loadImage("images/body" + this.colorNum + ".png", 0, 0, 0, 0, Laya.Handler.create(this,()=>{
                 console.log('loaded');
             }))
+
+            let bodyScript = snakeBody.getComponent(Laya.Script)
+            bodyScript.snake = this.owner;
+            bodyScript.foods = this.wallScript.getFoods(5);
+            bodyScript.index = this.snakeBodyArr.length;
+            
             //添加身体
             let lastBody = this.snakeBodyArr[this.snakeBodyArr.length-1]
             this.wall.addChild(snakeBody)
-            snakeBody.zOrder = lastBody?--lastBody.zOrder:0;
             this.snakeBodyArr.push(snakeBody)
         }
     }
@@ -265,12 +292,12 @@ export default class Snake extends BaseScript {
         if(this.owner.x + x + this.owner.width*this.curBodySize/2 < this.wall.width && this.owner.x + x >= this.owner.width*this.curBodySize/2){
             this.owner.x += x
         } else {
-            this.touchWall()
+            //this.touchWall()
         }
         if(this.owner.y + y + this.owner.height*this.curBodySize/2 < this.wall.height && this.owner.y + y >= this.owner.height*this.curBodySize/2){
             this.owner.y += y
         } else {
-            this.touchWall()
+            //this.touchWall()
         }
 
         
@@ -290,9 +317,64 @@ export default class Snake extends BaseScript {
 
     }
 
+    AIMove(){
+        if(this.AI){
+            let self = null;
+            let player = null;
+            let selfScript = null;
+            let playerScript = null;
+            this.wallScript.snakes.forEach(snake=>{
+                let snakeScript = snake.getComponent(Laya.Script);
+                if(snakeScript.index == this.owner.script.index){//自己
+                    self = snake;
+                    selfScript = snakeScript;
+                } else {
+                    if(snakeScript.currentPlayer){
+                        player = snake;
+                        playerScript = snakeScript;
+                        // if(GameUtils.distance(snake.x,snake.y,this.owner.x,this.owner.y) >= this.cameraWidth){
+                        //     console.log('接近',this.cameraWidth);
+                        //     // this.owner.rotation = Math.atan2(this.owner.y - snake.y, this.owner.x - snake.x) * 180 / Math.PI
+                        //     this.owner.rotation = Math.atan2(snake.y - this.owner.y, snake.x - this.owner.x) * 180 / Math.PI
+                        //     this.speedMode = true;
+                        // } else {
+                        //     if(GameUtils.distance(snake.x,snake.y,this.owner.x,this.owner.y) < this.cameraWidth/2-100){
+                        //         console.log('远离');
+                        //         this.owner.rotation = Math.atan2(this.owner.y - snake.y, this.owner.x - snake.x) * 180 / Math.PI
+                        //         // this.owner.rotation = Math.atan2(snake.y - this.owner.y, snake.x - this.owner.x) * 180 / Math.PI
+                                
+                        //         this.speedMode = false;
+                        //     }
+                        // }
+                        
+
+                    }
+
+                }
+            })
+
+            if(GameUtils.distance(playerScript.owner.x,playerScript.owner.y,this.owner.x,this.owner.y) >= this.cameraWidth){
+                // console.log('接近',this.cameraWidth);
+                // this.owner.rotation = Math.atan2(this.owner.y - playerScript.owner.y, this.owner.x - playerScript.owner.x) * 180 / Math.PI
+                this.owner.rotation = Math.atan2(playerScript.owner.y - this.owner.y, playerScript.owner.x - this.owner.x) * 180 / Math.PI
+                this.speedMode = true;
+            } else {
+                if(GameUtils.distance(playerScript.owner.x,playerScript.owner.y,this.owner.x,this.owner.y) < this.cameraWidth/2-100){
+                    // console.log('远离');
+                    this.owner.rotation = Math.atan2(this.owner.y - playerScript.owner.y, this.owner.x - playerScript.owner.x) * 180 / Math.PI
+                    // this.owner.rotation = Math.atan2(playerScript.owner.y - this.owner.y, playerScript.owner.x - this.owner.x) * 180 / Math.PI
+                    
+                    this.speedMode = false;
+                }
+            }
+        }
+    }
+
     stateCheck(){
         this.curBodyNum = this.snakeBodyArr.length;
         this.attackScale = this.owner.width * this.curBodySize + 10;
+        this.bodySpace = this.owner.width * this.curBodySize ;
+        
     }
 
     /**
@@ -303,6 +385,7 @@ export default class Snake extends BaseScript {
         this.stateCheck();
         this.headMove()
         this.bodyMove()
+        this.AIMove();
     }
 
     //大小检查
@@ -310,9 +393,31 @@ export default class Snake extends BaseScript {
         this.owner.scale(this.curBodySize,this.curBodySize)
         for(let i = 0;i<this.snakeBodyArr.length;i++){
             let body = this.snakeBodyArr[i];
-            body.scale(this.curBodySize,this.curBodySize)
+            if(body.parent){
+                // console.log(body);
+                body.scale(this.curBodySize,this.curBodySize)
+            }
         }
 
+    }
+    bodyConcat(){
+        setInterval(() => {
+            this.snakeBodyArr.forEach((body,i)=>{
+                if(!body.parent){
+                    this.snakeBodyArr.splice(i,1)
+                }
+            })
+        }, 1000);
+        // for(let index=this.currentConcatIndex;index<this.snakeBodyArr.length;index++){
+        //     let body = this.snakeBodyArr[index];
+        //     let lastBody = this.snakeBodyArr[index-1]
+        //     body.x = lastBody.x + 5;
+        //     body.y = lastBody.y + 5;
+        // }
+        // for(let i = 0; i<this.snakeBodyArr.length;i++){
+        //     let body = this.snakeBodyArr[i]
+        //     body.script.index = i;
+        // }
     }
     /**
      * 蛇身移动
@@ -326,15 +431,24 @@ export default class Snake extends BaseScript {
 
             for(let index=0;index<this.snakeBodyArr.length;index++){
                 let body = this.snakeBodyArr[index];
-                //当前身体需要获取的路径下标(第几个this.frame帧时,蛇走了index+1*body.width个像素)
-                let curIndex = Math.ceil((index+1)*((this.bodySpace*this.frame)/this.step));
+                let bodyScript = body.getComponent(Laya.Script)
+                // console.log(this.playerName+"当前蛇身下标"+bodyScript.index);
+                //当前身体需要获取的路径下标(第几个帧时,蛇走了index+1*body.width个像素)
+                let curIndex = Math.ceil((index+1)*((this.bodySpace)/this.step));
                 // console.log(curIndex)
                 if(this.pathArr[curIndex]){
                     let path = this.pathArr[curIndex]
-                    
                     let p = new Laya.Point(path.x,path.y)
-                    body.x = p.x;
-                    body.y = p.y;
+                    if(index<this.currentConcatIndex || this.currentConcatIndex==-1){
+                        
+                        body.x = p.x;
+                        body.y = p.y;
+
+                    } else {
+                        Laya.Tween.to(body,{x:p.x,y:p.y},100,null,Laya.Handler.create(this,()=>{
+                            this.currentConcatIndex=-1;
+                        }))
+                    }
 
                 }
                 if(this.pathArr.length > (this.snakeBodyArr.length+1) * (this.bodySpace/this.step)){
@@ -346,18 +460,25 @@ export default class Snake extends BaseScript {
         }
     }
 
-    addBody(){
+    addBody(foods){
         //长度增加
         let snakeBody = Laya.Pool.getItemByCreateFun('snakebody',this.bodyRes.create,this.bodyRes)
         snakeBody.loadImage("images/body" + this.colorNum + ".png", 0, 0, 0, 0, Laya.Handler.create(this,()=>{
             console.log('loaded');
         }))
+        let bodyScript = snakeBody.getComponent(Laya.Script)
+        if(this.index==1){
+            console.log(this.index + '号玩家新增身体',snakeBody);
+        }
+        bodyScript.snake = this.owner;
+        bodyScript.foods = foods;
+        bodyScript.index = this.snakeBodyArr.length;
+
         
         Laya.Tween.from(snakeBody,{scaleX:0,scaleY:0},200,Laya.Ease.strongIn)
         //添加身体
         let lastBody = this.snakeBodyArr[this.snakeBodyArr.length-1]
         this.wall.addChild(snakeBody)
-        snakeBody.zOrder = lastBody?--lastBody.zOrder:0;
         this.snakeBodyArr.push(snakeBody)
 
         
@@ -365,16 +486,18 @@ export default class Snake extends BaseScript {
     }
 
     //食物被吃
-    foodEat(){
+    foodEat(food){
         //加分
-        this.score++;
-        this.curScore++;
+        GameSceneRuntime.instance.plusScore()
+        GameSceneRuntime.instance.plusFoodNum()
+        this._tmpFoods.push(food)
         this.wallScript.foodNum--;
-        if(this.curScore>=this.scoreForBody){
-            this.curScore = 0;
-            this.addBody()
+        if(this._tmpFoods.length>=this.foodNumPerBody){
+            this.addBody(this._tmpFoods)
+            this.foods.concat(this._tmpFoods)
+            this._tmpFoods.length = 0;
             if(this.curBodySize<this.maxBodySize){
-                this.curBodySize += 0.1;
+                this.curBodySize += 0.02;
             }
         }
 

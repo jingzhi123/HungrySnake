@@ -10,6 +10,10 @@ export default class GameScene extends BaseScript {
         let scoreView;
         /** @prop {name:wall, tips:"墙", type:Node, default:null}*/
         let wall;
+
+        this.score = 0;//当前分数
+
+        this.foodNum = 0;//当前食物数
         
     }
 
@@ -19,7 +23,6 @@ export default class GameScene extends BaseScript {
             wx.showToast({title:'hiGameScene'})
         }
     }
-
     onStart() {
         console.log('start')
         this.onLoadComplete();
