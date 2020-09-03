@@ -1,1 +1,44 @@
-{"type":"Sprite","props":{"width":10,"height":10,"x":0,"y":0,"zOrder":1,"texture":"images/bean1.png","scaleX":0.5,"scaleY":0.5,"pivotX":5,"pivotY":5,"name":"sprite_food","preset":"laya/assets/res/sprite_food.prefab","presetID":1,"isPresetRoot":true},"compId":208,"child":[{"type":"Script","switchAble":true,"source":"src/script/GameScene/Food.js","searchKey":"Script,Food","removeAble":true,"props":{"snake":"@node:6","scoreText":"@node:39","x":-7,"y":-17,"snakeScript":"@node:48","preset":"laya/assets/res/sprite_food.prefab","presetID":2},"nodeParent":208,"label":"Food","isDirectory":false,"isClose":true,"isAniNode":true,"hasChild":false,"compId":49,"child":[],"x":60}],"isAniNode":true,"nodeParent":13,"searchKey":"Sprite,sprite_food","label":"sprite_food","isDirectory":true,"hasChild":true,"isOpen":true,"$HIDDEN":true,"x":45}
+{
+    "x":0,
+    "type":"Sprite",
+    "selectedBox":208,
+    "searchKey":"Sprite,sprite_food",
+    "props":{"zOrder":1,"y":0,"x":0,"width":10,"texture":"images/bean1.png","scaleY":0.5,"scaleX":0.5,"presetID":1,"preset":"laya/assets/res/sprite_food1.prefab","pivotY":5,"pivotX":5,"name":"sprite_food","isPresetRoot":true,"height":10},
+    "nodeParent":-1,
+    "maxID":209,
+    "label":"sprite_food",
+    "isOpen":true,
+    "isDirectory":true,
+    "isAniNode":true,
+    "hasChild":true,
+    "compId":208,
+    "child":[
+        {
+            "x":15,
+            "type":"Script",
+            "switchAble":true,
+            "source":"src/script/GameScene/Food.js",
+            "searchKey":"Script,Food",
+            "removeAble":true,
+            "props":{"y":-17,"x":-7,"snakeScript":"@node:48","snake":"@node:6","scoreText":"@node:39","presetID":2,"preset":"laya/assets/res/sprite_food1.prefab"},
+            "nodeParent":208,
+            "label":"Food",
+            "isDirectory":false,
+            "isClose":true,
+            "isAniNode":true,
+            "hasChild":false,
+            "compId":49,
+            "child":[
+                ]
+        }],
+    "animations":[
+        {
+            "nodes":[
+                ],
+            "name":"ani1",
+            "id":1,
+            "frameRate":24,
+            "action":0
+        }],
+    "$HIDDEN":true
+}

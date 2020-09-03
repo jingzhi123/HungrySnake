@@ -1040,7 +1040,7 @@
         constructor() { 
             super(); 
             /** @prop {name:velocity, tips:"子弹速度", type:Number, default:10}*/
-            this.velocity = 10;
+            this.velocity = 5;
             this.rotation;
             /**
              * 蛇对象
@@ -1090,6 +1090,11 @@
             let y = this.velocity*Math.sin(this.rotation * Math.PI / 180);
             this.owner.x +=x;
             this.owner.y +=y;
+            this.scaleCheck();
+        }
+
+        scaleCheck(){
+            this.owner.scale(this.snakeScript.curBodySize,this.snakeScript.curBodySize);
         }
         
         onEnable() {
@@ -1537,11 +1542,14 @@
                     this.speedMode = true;
                 } else {
                     if(GameUtils.distance(playerScript.owner.x,playerScript.owner.y,this.owner.x,this.owner.y) < this.cameraWidth/2-100){
-                        // console.log('远离');
                         this.owner.rotation = Math.atan2(this.owner.y - playerScript.owner.y, this.owner.x - playerScript.owner.x) * 180 / Math.PI;
+
                         // this.owner.rotation = Math.atan2(playerScript.owner.y - this.owner.y, playerScript.owner.x - this.owner.x) * 180 / Math.PI
                         
                         this.speedMode = false;
+                    } else {
+                        //this.owner.rotation = Math.atan2(this.owner.y - playerScript.owner.y, this.owner.x - playerScript.owner.x) * 180 / Math.PI
+                        // this.owner.rotation += Math.random() * GameUtils.randomSimbol();
                     }
                 }
             }
@@ -1624,6 +1632,10 @@
                         } else {
                             Laya.Tween.to(body,{x:p.x,y:p.y},100,null,Laya.Handler.create(this,()=>{
                                 this.currentConcatIndex=-1;
+                                for(let i = 0; i<this.snakeBodyArr.length;i++){
+                                    let body = this.snakeBodyArr[i];
+                                    body.script.index = i;
+                                }
                             }));
                         }
 
@@ -1662,7 +1674,10 @@
             
         }
 
-        //食物被吃
+        /**
+         * 吃食物,加分,加体型
+         * @param {食物节点} food 
+         */
         foodEat(food){
             //加分
             GameSceneRuntime.instance.plusScore();
@@ -1673,6 +1688,7 @@
                 this.addBody(this._tmpFoods);
                 this.foods.concat(this._tmpFoods);
                 this._tmpFoods.length = 0;
+                //体型变大
                 if(this.curBodySize<this.maxBodySize){
                     this.curBodySize += 0.02;
                 }
@@ -1737,9 +1753,9 @@
                 this.x = this.owner.x;
                 if(this.lastX == this.x && this.x!=0){
                     this.equalNum++;
-                    if(this.equalNum>10){
-
-                        console.log(this.index);
+                    if(this.equalNum>50){
+                        // this.owner.destroy()
+                        console.log(this.index + "蛇身出现BUG");
                     }
                     //if(this.owner.destroyed=='undefined'){
                     //}
@@ -1754,7 +1770,6 @@
         }
 
         onTriggerEnter(other,self){
-            console.log(other.name);
             if(other.name == 'bullet_collider'){
                 let otherScript = other.owner.snake.script;
                 let bullet = other.owner;
@@ -1768,16 +1783,29 @@
                 // console.log(otherScript.playerName);
                 // console.log(this.snakeScript.playerName);
             }
-            console.log(other);
         }
 
-        // onTriggerExit(other,self){
-        //     console.log(other.name);
-        // }
+        onTriggerExit(other,self){
+            if(other.name == 'bullet_collider'){
+                let otherScript = other.owner.snake.script;
+                let bullet = other.owner;
+                if(otherScript.playerName!=this.snakeScript.playerName){
+                    console.log(other.name);
 
-        // onTriggerStay(other,self){
-        //     console.log(other.name);
-        // }
+                }
+            }
+        }
+
+        onTriggerStay(other,self){
+            if(other.name == 'bullet_collider'){
+                let otherScript = other.owner.snake.script;
+                let bullet = other.owner;
+                if(otherScript.playerName!=this.snakeScript.playerName){
+                    console.log(other.name);
+
+                }
+            }
+        }
         onEnable() {
         }
 
@@ -1791,7 +1819,7 @@
         }
 
         /**
-         * 掉落食物
+         * 掉落食物,体型随食物的掉落减小
          */
         dropFood(){
             for(let i = 0;i<this.foods.length;i++){
@@ -1800,6 +1828,11 @@
                 food.x = this.owner.x + offset*GameUtils.randomSimbol();
                 food.y = this.owner.y + offset*GameUtils.randomSimbol();
                 this.gameScene.wall.addChild(food);
+
+                //体型减小
+                if(this.snakeScript.curBodySize>=this.snakeScript.maxBodySize){
+                    this.snakeScript.curBodySize -= 0.02;
+                }
             }
         }
     }

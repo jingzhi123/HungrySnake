@@ -2,7 +2,7 @@
     "x":0,
     "type":"Image",
     "selectedBox":253,
-    "selecteID":257,
+    "selecteID":256,
     "searchKey":"Image,bullet",
     "props":{"y":0,"x":0,"width":5,"presetID":1,"preset":"laya/assets/res/bullet.prefab","name":"bullet","isPresetRoot":true,"height":5},
     "nodeParent":-1,

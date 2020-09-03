@@ -360,11 +360,14 @@ export default class Snake extends BaseScript {
                 this.speedMode = true;
             } else {
                 if(GameUtils.distance(playerScript.owner.x,playerScript.owner.y,this.owner.x,this.owner.y) < this.cameraWidth/2-100){
-                    // console.log('远离');
                     this.owner.rotation = Math.atan2(this.owner.y - playerScript.owner.y, this.owner.x - playerScript.owner.x) * 180 / Math.PI
+
                     // this.owner.rotation = Math.atan2(playerScript.owner.y - this.owner.y, playerScript.owner.x - this.owner.x) * 180 / Math.PI
                     
                     this.speedMode = false;
+                } else {
+                    //this.owner.rotation = Math.atan2(this.owner.y - playerScript.owner.y, this.owner.x - playerScript.owner.x) * 180 / Math.PI
+                    // this.owner.rotation += Math.random() * GameUtils.randomSimbol();
                 }
             }
         }
@@ -447,6 +450,10 @@ export default class Snake extends BaseScript {
                     } else {
                         Laya.Tween.to(body,{x:p.x,y:p.y},100,null,Laya.Handler.create(this,()=>{
                             this.currentConcatIndex=-1;
+                            for(let i = 0; i<this.snakeBodyArr.length;i++){
+                                let body = this.snakeBodyArr[i]
+                                body.script.index = i;
+                            }
                         }))
                     }
 
@@ -485,7 +492,10 @@ export default class Snake extends BaseScript {
         
     }
 
-    //食物被吃
+    /**
+     * 吃食物,加分,加体型
+     * @param {食物节点} food 
+     */
     foodEat(food){
         //加分
         GameSceneRuntime.instance.plusScore()
@@ -496,6 +506,7 @@ export default class Snake extends BaseScript {
             this.addBody(this._tmpFoods)
             this.foods.concat(this._tmpFoods)
             this._tmpFoods.length = 0;
+            //体型变大
             if(this.curBodySize<this.maxBodySize){
                 this.curBodySize += 0.02;
             }

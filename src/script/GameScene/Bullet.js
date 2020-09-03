@@ -5,7 +5,7 @@ export default class Bullet extends BaseScript {
     constructor() { 
         super(); 
         /** @prop {name:velocity, tips:"子弹速度", type:Number, default:10}*/
-        this.velocity = 10;
+        this.velocity = 5;
         this.rotation;
         /**
          * 蛇对象
@@ -55,6 +55,11 @@ export default class Bullet extends BaseScript {
         let y = this.velocity*Math.sin(this.rotation * Math.PI / 180)
         this.owner.x +=x;
         this.owner.y +=y;
+        this.scaleCheck()
+    }
+
+    scaleCheck(){
+        this.owner.scale(this.snakeScript.curBodySize,this.snakeScript.curBodySize)
     }
     
     onEnable() {

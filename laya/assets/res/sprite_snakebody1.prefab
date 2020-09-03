@@ -53,7 +53,7 @@
             "switchAble":true,
             "searchKey":"RigidBody",
             "removeAble":true,
-            "props":{"type":"static","presetID":4,"preset":"laya/assets/res/sprite_snakebody1.prefab","group":1},
+            "props":{"type":"static","presetID":4,"preset":"laya/assets/res/sprite_snakebody1.prefab","group":1,"bullet":true,"allowSleep":false,"allowRotation":false},
             "nodeParent":210,
             "label":"RigidBody(sprite_snakebody1)",
             "isDirectory":false,

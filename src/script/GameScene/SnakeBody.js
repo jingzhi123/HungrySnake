@@ -54,9 +54,9 @@ export default class SnakeBody extends BaseScript {
             this.x = this.owner.x;
             if(this.lastX == this.x && this.x!=0){
                 this.equalNum++;
-                if(this.equalNum>10){
-
-                    console.log(this.index);
+                if(this.equalNum>50){
+                    // this.owner.destroy()
+                    console.log(this.index + "蛇身出现BUG");
                 }
                 //if(this.owner.destroyed=='undefined'){
                 //}
@@ -71,7 +71,6 @@ export default class SnakeBody extends BaseScript {
     }
 
     onTriggerEnter(other,self){
-        console.log(other.name);
         if(other.name == 'bullet_collider'){
             let otherScript = other.owner.snake.script;
             let bullet = other.owner
@@ -85,16 +84,29 @@ export default class SnakeBody extends BaseScript {
             // console.log(otherScript.playerName);
             // console.log(this.snakeScript.playerName);
         }
-        console.log(other);
     }
 
-    // onTriggerExit(other,self){
-    //     console.log(other.name);
-    // }
+    onTriggerExit(other,self){
+        if(other.name == 'bullet_collider'){
+            let otherScript = other.owner.snake.script;
+            let bullet = other.owner
+            if(otherScript.playerName!=this.snakeScript.playerName){
+                console.log(other.name);
 
-    // onTriggerStay(other,self){
-    //     console.log(other.name);
-    // }
+            }
+        }
+    }
+
+    onTriggerStay(other,self){
+        if(other.name == 'bullet_collider'){
+            let otherScript = other.owner.snake.script;
+            let bullet = other.owner
+            if(otherScript.playerName!=this.snakeScript.playerName){
+                console.log(other.name);
+
+            }
+        }
+    }
     onEnable() {
     }
 
@@ -108,7 +120,7 @@ export default class SnakeBody extends BaseScript {
     }
 
     /**
-     * 掉落食物
+     * 掉落食物,体型随食物的掉落减小
      */
     dropFood(){
         for(let i = 0;i<this.foods.length;i++){
@@ -117,6 +129,11 @@ export default class SnakeBody extends BaseScript {
             food.x = this.owner.x + offset*GameUtils.randomSimbol();
             food.y = this.owner.y + offset*GameUtils.randomSimbol();
             this.gameScene.wall.addChild(food)
+
+            //体型减小
+            if(this.snakeScript.curBodySize>=this.snakeScript.maxBodySize){
+                this.snakeScript.curBodySize -= 0.02;
+            }
         }
     }
 }
