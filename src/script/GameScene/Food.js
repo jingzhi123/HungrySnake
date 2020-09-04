@@ -4,7 +4,7 @@ export default class Food extends BaseScript {
 
     constructor() { 
         super(); 
-        
+
         this.eating = false;
 
         this.animTime = 0;
@@ -33,8 +33,11 @@ export default class Food extends BaseScript {
                     let other = snake.getComponent(Laya.CircleCollider)
                     let self = this.owner.getComponent(Laya.CircleCollider)
                     let snakeScript = snake.getComponent(Laya.Script)
-                    if(!this.eating && Math.abs(snake.x-this.owner.x)<snakeScript.attackScale && Math.abs(snake.y-this.owner.y)<snakeScript.attackScale){
-                        this.onEaten(snake)
+                    if(snakeScript){
+                        if(!this.eating && Math.abs(snake.x-this.owner.x)<snakeScript.attackScale && Math.abs(snake.y-this.owner.y)<snakeScript.attackScale){
+                            this.onEaten(snake)
+                        }
+
                     }
                 }
             })

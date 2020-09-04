@@ -76,6 +76,7 @@ export default class GameControl extends BaseScript {
                     }
                 })
                 _this.loadAvatar(res.userInfo.avatarUrl)
+                this.nicknameLabel.text = res.userInfo.nickName
                 wx.showToast({
                     title: res.userInfo.nickName,
                     icon: 'success'
@@ -166,6 +167,7 @@ export default class GameControl extends BaseScript {
      */
     loadDefaultAvatar(){
         if (Global.userInfo) {
+            this.nicknameLabel.text = Global.userInfo.nickName;
             this.loadAvatar(Global.userInfo.avatarUrl)
         } else {
             this.avatarImg.loadImage('images/avatar.jpg', 0, 0, 0, 0, () => {

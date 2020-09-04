@@ -54,7 +54,7 @@
             */
            this.foodNum = 0;
 
-           this.gameTime = new Date('2000/1/1 00:00:10').getTime();
+           this.gameTime = new Date('2000/1/1 00:00:5').getTime();
 
            this.gameStart = false;
            /**
@@ -90,7 +90,6 @@
        }
 
        onStageMouseDown(e){
-           console.log(e);
            if(e.stageX+this.btn_ctrl.width/2<=this.gameScene.width/2 && e.stageX>this.btn_ctrl.width/2){
                this.btn_ctrl.x = e.stageX;
                this.btn_ctrl.y = e.stageY;
@@ -135,7 +134,8 @@
         */
        startGame(){
            this.gameStart = true;
-           this.timeLabel.text = GameUtils.dateFormat('mm:ss',new Date(this.gameTime));
+           // this.timeLabel.text = GameUtils.dateFormat('mm:ss',new Date(this.gameTime))
+           this.timeMinus();
            Laya.timer.loop(1000,this,this.timeMinus);
        }
 
@@ -153,15 +153,18 @@
         */
        showGameOver(){
            this.scoreView.visible = true;
-           let scoreLabel = this.scoreView.getChildByName('label_score');
-           scoreLabel.text = this.score;
+           this.refreshScore();
            this.controlPad.destroy();
        }
 
+       refreshScore(){
+           this.scoreLabel.text = this.score;
+       }
+
        timeMinus(){
-           if(this.timeLabel.text!='00:01'){
+           this.timeLabel.text = GameUtils.dateFormat('mm:ss',new Date(this.gameTime));
+           if(this.timeLabel.text!='00:00'){
                this.gameTime -= 1000;
-               this.timeLabel.text = GameUtils.dateFormat('mm:ss',new Date(this.gameTime));
            } else {
                this.stopGame();
            }
@@ -169,12 +172,13 @@
 
        onAwake(){
            this.gameScene = this;
-           
+           this.scoreLabel = this.scoreView.getChildByName('label_score');
            this.on('playerComplete',this,(playerSnake)=>{
                this.playerSnake = playerSnake;
                this.playerScript = playerSnake.getComponent(Laya.Script);
                this.btn_speedup.on('mousedown',this,this.speedUp);
                this.btn_speedup.on('mouseup',this,this.speedDown);
+               this.on('mousedown',this,this.onStageMouseDown);
                this.gameScene.on("mouseup", this, this.ctrlRockerUp);
                this.gameScene.on("mousemove",this, this.ctrlRockerDown);
 
@@ -664,6 +668,10 @@
        onAwake(){
            console.log('gameover');
        }
+
+       onUpdate(){
+           GameSceneRuntime.instance.refreshScore();
+       }
        
        onStart() {
            this.returnBtn.clickHandler = Laya.Handler.create(this,(e)=>{
@@ -816,6 +824,7 @@
                        }
                    });
                    _this.loadAvatar(res.userInfo.avatarUrl);
+                   this.nicknameLabel.text = res.userInfo.nickName;
                    wx.showToast({
                        title: res.userInfo.nickName,
                        icon: 'success'
@@ -906,6 +915,7 @@
         */
        loadDefaultAvatar(){
            if (Global.userInfo) {
+               this.nicknameLabel.text = Global.userInfo.nickName;
                this.loadAvatar(Global.userInfo.avatarUrl);
            } else {
                this.avatarImg.loadImage('images/avatar.jpg', 0, 0, 0, 0, () => {
@@ -1062,7 +1072,7 @@
 
        onAwake(){
            super.onAwake();
-           this.gameScene.startGame();
+           GameSceneRuntime.instance.startGame();
            if(Laya.Browser.onMiniGame){
                wx.showToast({title:'hiGameScene'});
            }
@@ -1194,8 +1204,6 @@
            this.rigid = this.owner.getComponent(Laya.RigidBody);
            
            this.snakeScript = this.snake.script;
-
-           
            this.initSkin();
            this.initDamage();
 
@@ -1226,7 +1234,7 @@
 
        constructor() { 
            super(); 
-           
+
            this.eating = false;
 
            this.animTime = 0;
@@ -1255,8 +1263,11 @@
                        let other = snake.getComponent(Laya.CircleCollider);
                        let self = this.owner.getComponent(Laya.CircleCollider);
                        let snakeScript = snake.getComponent(Laya.Script);
-                       if(!this.eating && Math.abs(snake.x-this.owner.x)<snakeScript.attackScale && Math.abs(snake.y-this.owner.y)<snakeScript.attackScale){
-                           this.onEaten(snake);
+                       if(snakeScript){
+                           if(!this.eating && Math.abs(snake.x-this.owner.x)<snakeScript.attackScale && Math.abs(snake.y-this.owner.y)<snakeScript.attackScale){
+                               this.onEaten(snake);
+                           }
+
                        }
                    }
                });

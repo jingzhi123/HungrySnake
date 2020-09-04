@@ -20,7 +20,7 @@ export default class GameScene extends BaseScript {
 
     onAwake(){
         super.onAwake()
-        this.gameScene.startGame()
+        GameSceneRuntime.instance.startGame()
         if(Laya.Browser.onMiniGame){
             wx.showToast({title:'hiGameScene'})
         }

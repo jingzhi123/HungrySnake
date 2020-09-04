@@ -1,3 +1,5 @@
+import GameSceneRuntime from "../runtime/GameSceneRuntime";
+
 export default class GameOver extends Laya.Script {
 
     constructor() { 
@@ -9,6 +11,10 @@ export default class GameOver extends Laya.Script {
     }
     onAwake(){
         console.log('gameover')
+    }
+
+    onUpdate(){
+        GameSceneRuntime.instance.refreshScore()
     }
     
     onStart() {

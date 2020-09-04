@@ -16,7 +16,7 @@ export default class GameSceneRuntime extends Laya.Scene {
          */
         this.foodNum = 0;
 
-        this.gameTime = new Date('2000/1/1 00:01:10').getTime()
+        this.gameTime = new Date('2000/1/1 00:00:5').getTime()
 
         this.gameStart = false;
         /**
@@ -52,7 +52,6 @@ export default class GameSceneRuntime extends Laya.Scene {
     }
 
     onStageMouseDown(e){
-        console.log(e);
         if(e.stageX+this.btn_ctrl.width/2<=this.gameScene.width/2 && e.stageX>this.btn_ctrl.width/2){
             this.btn_ctrl.x = e.stageX;
             this.btn_ctrl.y = e.stageY;
@@ -97,7 +96,8 @@ export default class GameSceneRuntime extends Laya.Scene {
      */
     startGame(){
         this.gameStart = true;
-        this.timeLabel.text = GameUtils.dateFormat('mm:ss',new Date(this.gameTime))
+        // this.timeLabel.text = GameUtils.dateFormat('mm:ss',new Date(this.gameTime))
+        this.timeMinus()
         Laya.timer.loop(1000,this,this.timeMinus)
     }
 
@@ -115,15 +115,18 @@ export default class GameSceneRuntime extends Laya.Scene {
      */
     showGameOver(){
         this.scoreView.visible = true;
-        let scoreLabel = this.scoreView.getChildByName('label_score')
-        scoreLabel.text = this.score;
+        this.refreshScore();
         this.controlPad.destroy()
     }
 
+    refreshScore(){
+        this.scoreLabel.text = this.score;
+    }
+
     timeMinus(){
-        if(this.timeLabel.text!='00:01'){
+        this.timeLabel.text = GameUtils.dateFormat('mm:ss',new Date(this.gameTime))
+        if(this.timeLabel.text!='00:00'){
             this.gameTime -= 1000;
-            this.timeLabel.text = GameUtils.dateFormat('mm:ss',new Date(this.gameTime))
         } else {
             this.stopGame()
         }
@@ -131,12 +134,13 @@ export default class GameSceneRuntime extends Laya.Scene {
 
     onAwake(){
         this.gameScene = this;
-        
+        this.scoreLabel = this.scoreView.getChildByName('label_score')
         this.on('playerComplete',this,(playerSnake)=>{
             this.playerSnake = playerSnake;
             this.playerScript = playerSnake.getComponent(Laya.Script);
             this.btn_speedup.on('mousedown',this,this.speedUp)
             this.btn_speedup.on('mouseup',this,this.speedDown)
+            this.on('mousedown',this,this.onStageMouseDown)
             this.gameScene.on("mouseup", this, this.ctrlRockerUp)
             this.gameScene.on("mousemove",this, this.ctrlRockerDown)
 

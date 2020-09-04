@@ -64,8 +64,6 @@ export default class Bullet extends BaseScript {
         this.rigid = this.owner.getComponent(Laya.RigidBody)
         
         this.snakeScript = this.snake.script;
-
-        
         this.initSkin();
         this.initDamage();
 
