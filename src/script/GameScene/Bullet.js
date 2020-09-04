@@ -12,6 +12,11 @@ export default class Bullet extends BaseScript {
          */
         this.snakeScript;
 
+        /**
+         * 蛇节点
+         */
+        this.snake;
+
         this.damage = 1;
 
         this.type = 'normal'
@@ -39,13 +44,30 @@ export default class Bullet extends BaseScript {
         }))
     }
 
+    onTriggerEnter(other,self){
+        if(other.name == 'body_collider'){
+            let otherScript = other.owner.script;
+            let otherSnakeScript = other.owner.script.snake.script;
+            let body = other.owner
+            if(otherSnakeScript.index!=this.snakeScript.index){
+                self.owner.removeSelf()
+                otherScript.ifDestory(self.owner)
+                this.gameScene.plusScore(this.damage*10)
+                // this.owner.destroy()
+            }
+        }
+    }
+
     onAwake(){
         super.onAwake()
-        this.initSkin();
-        this.initDamage();
         this.collider = this.owner.getComponent(Laya.CircleCollider)
         this.rigid = this.owner.getComponent(Laya.RigidBody)
-        this.snake = this.owner.parent.getChildByName('sprite_snake');
+        
+        this.snakeScript = this.snake.script;
+
+        
+        this.initSkin();
+        this.initDamage();
 
         this.rotation = this.snake.rotation;
     }

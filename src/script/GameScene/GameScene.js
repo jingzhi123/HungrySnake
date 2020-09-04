@@ -1,5 +1,6 @@
 import BaseScript from '../BaseScript'
 import GameControl from '../GameControl';
+import GameSceneRuntime from '../runtime/GameSceneRuntime';
 export default class GameScene extends BaseScript {
 
     constructor() { 
@@ -19,6 +20,7 @@ export default class GameScene extends BaseScript {
 
     onAwake(){
         super.onAwake()
+        this.gameScene.startGame()
         if(Laya.Browser.onMiniGame){
             wx.showToast({title:'hiGameScene'})
         }

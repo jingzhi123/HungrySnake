@@ -1,12 +1,12 @@
 {
     "x":0,
     "type":"Scene",
-    "selectedBox":51,
-    "selecteID":13,
-    "searchKey":"Scene,game_scene",
-    "props":{"width":960,"texture":"images/s1-option-background.png","sceneColor":"#ffffff","sceneBg":"laya/views/scene/gameMain.png","runtime":"script/runtime/GameSceneRuntime.js","name":"game_scene","height":540,"autoDestroyAtClosed":true},
+    "selectedBox":94,
+    "selecteID":96,
+    "searchKey":"Scene,game_scene,gameScene",
+    "props":{"width":960,"var":"gameScene","texture":"images/s1-option-background.png","sceneColor":"#ffffff","sceneBg":"laya/views/scene/gameMain.png","runtime":"script/runtime/GameSceneRuntime.js","name":"game_scene","height":540,"autoDestroyAtClosed":true},
     "nodeParent":-1,
-    "maxID":264,
+    "maxID":265,
     "label":"game_scene",
     "isOpen":true,
     "isDirectory":true,
@@ -52,13 +52,14 @@
                     "props":{"y":-154,"x":-103,"width":206,"visible":false,"name":"sprite_scorelist","height":151},
                     "nodeParent":51,
                     "label":"sprite_scorelist",
-                    "isOpen":false,
+                    "isOpen":true,
                     "isDirectory":true,
                     "isAniNode":true,
                     "hasChild":true,
                     "compId":103,
                     "child":[
                         {
+                            "x":45,
                             "type":"Panel",
                             "searchKey":"Panel,panel_score",
                             "props":{"y":-7,"x":-12,"width":230,"name":"panel_score","height":168},
@@ -135,13 +136,13 @@
                             "child":[
                                 ]
                         }],
-                    "$HIDDEN":false
+                    "$HIDDEN":true
                 },
                 {
                     "x":30,
                     "type":"Dialog",
-                    "searchKey":"Dialog,view_score",
-                    "props":{"y":-270,"x":-480,"width":960,"visible":false,"styleSkin":"comp/img_blank.png","sceneColor":"#894f4e","name":"view_score","height":540,"autoDestroyAtClosed":true},
+                    "searchKey":"Dialog,view_score,scoreView",
+                    "props":{"y":-270,"x":-480,"width":960,"visible":false,"var":"scoreView","texture":"images/s1-option-background.png","styleSkin":"comp/img_blank.png","sceneColor":"#894f4e","name":"view_score","height":540,"autoDestroyAtClosed":true},
                     "nodeParent":51,
                     "label":"view_score",
                     "isOpen":true,
@@ -168,7 +169,7 @@
                             "x":45,
                             "type":"Label",
                             "searchKey":"Label,label_score",
-                            "props":{"y":270,"x":444,"width":73,"text":"0","name":"label_score","height":27,"fontSize":20,"color":"#ffffff","align":"center"},
+                            "props":{"y":270,"x":444,"width":73,"text":"0","name":"label_score","height":27,"fontSize":20,"color":"#000000","align":"center"},
                             "nodeParent":94,
                             "label":"label_score",
                             "isDirectory":false,
@@ -250,27 +251,25 @@
             "props":{"y":0,"x":479,"width":1,"name":"center_top","height":1},
             "nodeParent":2,
             "label":"center_top",
-            "isOpen":true,
+            "isOpen":false,
             "isDirectory":true,
             "isAniNode":true,
             "hasChild":true,
             "compId":226,
             "child":[
                 {
-                    "x":30,
                     "type":"Text",
                     "searchKey":"Text,text_score_tip",
                     "props":{"zOrder":2,"y":0,"x":-276,"width":81,"text":"SCORE：","name":"text_score_tip","height":18,"color":"#000000"},
                     "nodeParent":226,
                     "label":"text_score_tip",
-                    "isOpen":true,
+                    "isOpen":false,
                     "isDirectory":true,
                     "isAniNode":true,
                     "hasChild":true,
                     "compId":36,
                     "child":[
                         {
-                            "x":45,
                             "type":"Text",
                             "searchKey":"Text,text_score,scoreText",
                             "props":{"zOrder":2,"y":0,"x":53,"width":53,"var":"scoreText","name":"text_score","height":18,"color":"#000000"},
@@ -286,7 +285,6 @@
                         }]
                 },
                 {
-                    "x":30,
                     "type":"Widget",
                     "switchAble":true,
                     "searchKey":"Widget",
@@ -302,20 +300,18 @@
                         ]
                 },
                 {
-                    "x":30,
                     "type":"Text",
                     "searchKey":"Text,food_tip",
                     "props":{"y":2,"x":154,"text":"FOOD:","name":"food_tip"},
                     "nodeParent":226,
                     "label":"food_tip",
-                    "isOpen":true,
+                    "isOpen":false,
                     "isDirectory":true,
                     "isAniNode":true,
                     "hasChild":true,
                     "compId":262,
                     "child":[
                         {
-                            "x":45,
                             "type":"Text",
                             "searchKey":"Text,food_num,foodNumText",
                             "props":{"y":0,"x":39,"width":86,"var":"foodNumText","text":"123","name":"food_num","height":12},
@@ -328,26 +324,38 @@
                             "child":[
                                 ]
                         }]
+                },
+                {
+                    "type":"Label",
+                    "searchKey":"Label,label_time,timeLabel",
+                    "props":{"var":"timeLabel","valign":"middle","name":"label_time","centerX":0,"align":"center"},
+                    "nodeParent":226,
+                    "label":"label_time",
+                    "isDirectory":false,
+                    "isAniNode":true,
+                    "hasChild":false,
+                    "compId":264,
+                    "child":[
+                        ]
                 }]
         },
         {
             "x":15,
             "type":"View",
-            "searchKey":"View,controlpad",
-            "props":{"top":0,"right":0,"name":"controlpad","left":0,"bottom":0},
+            "searchKey":"View,controlpad,controlPad",
+            "props":{"var":"controlPad","top":0,"right":0,"name":"controlpad","left":0,"bottom":0},
             "nodeParent":2,
             "label":"controlpad",
-            "isOpen":true,
+            "isOpen":false,
             "isDirectory":true,
             "isAniNode":true,
             "hasChild":true,
             "compId":258,
             "child":[
                 {
-                    "x":30,
                     "type":"Sprite",
-                    "searchKey":"Sprite,sprite_ctrl_rocker_move",
-                    "props":{"y":440,"x":68,"width":35,"visible":false,"texture":"images/control-rocker.png","pivotY":18,"pivotX":18,"name":"sprite_ctrl_rocker_move","height":35},
+                    "searchKey":"Sprite,sprite_ctrl_rocker_move,btn_ctrl_rocker_move",
+                    "props":{"y":440,"x":68,"width":35,"visible":false,"var":"btn_ctrl_rocker_move","texture":"images/control-rocker.png","pivotY":18,"pivotX":18,"name":"sprite_ctrl_rocker_move","height":35},
                     "nodeParent":258,
                     "label":"sprite_ctrl_rocker_move",
                     "isDirectory":false,
@@ -358,10 +366,9 @@
                         ]
                 },
                 {
-                    "x":30,
                     "type":"Image",
-                    "searchKey":"Image,sprite_ctrl",
-                    "props":{"y":427,"x":150,"width":100,"skin":"images/control-back.png","pivotY":50,"pivotX":50,"name":"sprite_ctrl","left":100,"height":100},
+                    "searchKey":"Image,sprite_ctrl,btn_ctrl",
+                    "props":{"y":427,"x":150,"width":100,"var":"btn_ctrl","skin":"images/control-back.png","pivotY":50,"pivotX":50,"name":"sprite_ctrl","left":100,"height":100},
                     "nodeParent":258,
                     "label":"sprite_ctrl",
                     "isOpen":false,
@@ -372,8 +379,8 @@
                     "child":[
                         {
                             "type":"Image",
-                            "searchKey":"Image,sprite_ctrl_rocker",
-                            "props":{"skin":"images/control-rocker.png","pivotY":18,"pivotX":18,"name":"sprite_ctrl_rocker","centerY":0,"centerX":0},
+                            "searchKey":"Image,sprite_ctrl_rocker,btn_ctrl_rocker",
+                            "props":{"var":"btn_ctrl_rocker","skin":"images/control-rocker.png","pivotY":18,"pivotX":18,"name":"sprite_ctrl_rocker","centerY":0,"centerX":0},
                             "nodeParent":130,
                             "label":"sprite_ctrl_rocker",
                             "isDirectory":false,
@@ -385,7 +392,6 @@
                         }]
                 },
                 {
-                    "x":30,
                     "type":"Button",
                     "searchKey":"Button,btn_return",
                     "props":{"zOrder":2,"y":0,"x":40,"width":50,"top":0,"stateNum":"1","skin":"images/btn-back.png","name":"btn_return","left":40,"height":50},
@@ -399,13 +405,12 @@
                         ]
                 },
                 {
-                    "x":30,
                     "type":"View",
-                    "searchKey":"View,view_right",
-                    "props":{"top":0,"right":0,"name":"view_right","left":0,"bottom":0},
+                    "searchKey":"View,view_right,rightView",
+                    "props":{"width":480,"var":"rightView","top":0,"right":0,"name":"view_right","height":540,"bottom":0},
                     "nodeParent":258,
                     "label":"view_right",
-                    "isOpen":false,
+                    "isOpen":true,
                     "isDirectory":true,
                     "isAniNode":true,
                     "hasChild":true,
@@ -413,27 +418,28 @@
                     "child":[
                         {
                             "type":"Button",
+                            "searchKey":"Button,btn_speedup,btn_speedup",
+                            "props":{"y":378,"width":100,"var":"btn_speedup","stateNum":"2","skin":"images/control-flash.png","sizeGrid":"0,0,0,0","right":100,"name":"btn_speedup","height":100},
+                            "nodeParent":261,
+                            "label":"btn_speedup",
+                            "isOpen":true,
+                            "isDirectory":false,
+                            "isAniNode":true,
+                            "hasChild":false,
+                            "compId":133,
+                            "child":[
+                                ]
+                        },
+                        {
+                            "type":"Button",
                             "searchKey":"Button,btn_shoot,shootBtn",
-                            "props":{"y":392,"x":656,"var":"shootBtn","stateNum":"1","skin":"images/control-back.png","name":"btn_shoot"},
+                            "props":{"y":388,"var":"shootBtn","stateNum":"1","skin":"images/control-back.png","right":220,"name":"btn_shoot"},
                             "nodeParent":261,
                             "label":"btn_shoot",
                             "isDirectory":false,
                             "isAniNode":true,
                             "hasChild":false,
                             "compId":259,
-                            "child":[
-                                ]
-                        },
-                        {
-                            "type":"Button",
-                            "searchKey":"Button,btn_speedup",
-                            "props":{"y":378,"x":760,"width":100,"stateNum":"2","skin":"images/control-flash.png","sizeGrid":"0,0,0,0","right":100,"name":"btn_speedup","height":100},
-                            "nodeParent":261,
-                            "label":"btn_speedup",
-                            "isDirectory":false,
-                            "isAniNode":true,
-                            "hasChild":false,
-                            "compId":133,
                             "child":[
                                 ]
                         }]

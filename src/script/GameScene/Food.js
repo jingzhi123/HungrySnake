@@ -4,8 +4,7 @@ export default class Food extends BaseScript {
 
     constructor() { 
         super(); 
-        this.triggerDistance = 20;
-
+        
         this.eating = false;
 
         this.animTime = 0;

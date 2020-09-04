@@ -25,9 +25,6 @@ export default class Wall extends BaseScript {
         let controlPad;
 
 
-
-        this.ctrlDefaultPos = {}
-
         this.foodNum = 0;//当前食物数量
 
         this.foods = []
@@ -52,93 +49,14 @@ export default class Wall extends BaseScript {
 
     //玩家操控的蛇准备完毕
     playerComplete(playerSnake){
-        console.log('playercom')
         this.playerScript = playerSnake.getComponent(Laya.Script)
-        this.btn_speedup.on('mousedown',this,this.speedUp)
-        this.btn_speedup.on('mouseup',this,this.speedDown)
-        this.gameScene.on("mouseup", this, this.ctrlRockerUp)
-        this.gameScene.on("mousemove",this, this.ctrlRockerDown)
-        console.log(this.gameScene);
-    }
-
-    onStageMouseDown(e){
-        console.log(e);
-        if(e.stageX+this.btn_ctrl.width/2<=this.gameScene.width/2 && e.stageX>this.btn_ctrl.width/2){
-            this.btn_ctrl.x = e.stageX;
-            this.btn_ctrl.y = e.stageY;
-        }
-    }
-
-    onKeyDown(e){
-        if(e.keyCode == 32){
-            this.btn_speedup.selected = true
-            this.speedUp()
-        }
-    }
-    
-    onKeyUp(e){
-        if(e.keyCode == 32){
-            this.btn_speedup.selected = false
-            this.speedDown()
-        }
-    }
-
-    ctrlRockerUp(){
-        if (this.gameScene.mouseX <= this.gameScene.width / 2 + this.btn_ctrl.width/2) {
-            this.btn_ctrl_rocker.visible = true
-            this.btn_ctrl_rocker_move.visible = false
-            this.btn_ctrl.x = this.ctrlDefaultPos.x;
-            this.btn_ctrl.y = this.ctrlDefaultPos.y;
-
-        }
-    }
-    ctrlRockerDown(){
-        
-        if (this.gameScene.mouseX <= this.gameScene.width / 2 + this.btn_ctrl.width/2) {
-            this.btn_ctrl_rocker.visible = false
-            this.btn_ctrl_rocker_move.visible = true
-            if (GameUtils.distance(this.gameScene.mouseX, this.gameScene.mouseY, this.btn_ctrl.x, this.btn_ctrl.y) <= (this.gameScene.height)) {
-                this.btn_ctrl_rocker_move.pos(this.gameScene.mouseX, this.gameScene.mouseY)
-                this.playerSnake.rotation = Math.atan2(this.gameScene.mouseY - this.btn_ctrl.y, this.gameScene.mouseX - this.btn_ctrl.x) * 180 / Math.PI
-            } else {
-                this.btn_ctrl_rocker_move.pos(
-                    this.btn_ctrl.x + (this.btn_ctrl.width / 2 - this.btn_ctrl.width / 2) * Math.cos(Math.atan2(this.gameScene.mouseY - this.btn_ctrl.y, this.gameScene.mouseX - this.btn_ctrl.x))
-                    ,
-                    this.btn_ctrl.y + (this.btn_ctrl.width / 2 - this.btn_ctrl.width / 2) * Math.sin(Math.atan2(this.gameScene.mouseY - this.btn_ctrl.y, this.gameScene.mouseX - this.btn_ctrl.x))
-                )
-            }
-        }
-    }
-
-    speedUp(e){
-        this.playerScript.speedMode = true;
-        this.playerScript.speedChange(this.playerScript.velocity+this.playerScript.acceleratedVelocity)
-    }
-    
-    speedDown(e){
-        this.playerScript.speedMode = false
-        this.playerScript.speedChange(this.playerScript.velocity)
+        this.gameScene.event('playerComplete',playerSnake)
     }
 
     onAwake(){
         super.onAwake()
 
-        this.controlPad.getChildByName('view_right').getChildByName('btn_shoot').clickHandler = Laya.Handler.create(this,()=>{
-            this.playerScript.shoot()
-        },null,false)
-        this.controlPad.onDestroy = ()=>{
-            this.btn_speedup.off('mousedown',this,this.speedUp)
-            this.btn_speedup.off('mouseup',this,this.speedDown)
-            this.gameScene.off("mouseup", this, this.ctrlRockerUp)
-            this.gameScene.off("mousemove",this, this.ctrlRockerDown)
-        }
-        this.btn_speedup.right = this.owner.width*0.05;
-        // this.btn_speedup.width = this.btn_speedup.width*this.owner.width/Laya.stage.width*.3;
-        // this.btn_speedup.height = this.btn_speedup.width*this.owner.width/Laya.stage.width*.3;
-        this.btn_ctrl.left = this.owner.width*0.05;
-        // this.btn_ctrl.scale();
-
-        this.ctrlDefaultPos = {x:this.btn_ctrl.x,y:this.btn_ctrl.y}
+        
 
         this.owner.on('init',this,this.init)
         this.wallScript = this.owner.getComponent(Laya.Script)
@@ -214,11 +132,15 @@ export default class Wall extends BaseScript {
      * 主循环
      */
     mainLoop(){
-        this.loadFood()
-        this.stateCheck();
-        this.snakesLoop();
-        if(this.playerSnake){
-            this.mapMove(this.playerScript)
+        if(this.gameScene.gameStart){
+            this.loadFood()
+            this.stateCheck();
+            this.snakesLoop();
+            if(this.playerSnake){
+                this.mapMove(this.playerScript)
+            }
+        } else {
+            // Laya.timer.clear(this.mainLoop)
         }
         
         

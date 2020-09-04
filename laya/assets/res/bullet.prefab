@@ -20,7 +20,7 @@
             "switchAble":true,
             "searchKey":"RigidBody",
             "removeAble":true,
-            "props":{"y":1,"x":12,"width":1,"type":"kinematic","presetID":2,"preset":"laya/assets/res/bullet.prefab","pivotY":1,"pivotX":12,"height":1,"bullet":true},
+            "props":{"y":1,"x":1,"width":1,"type":"kinematic","presetID":2,"preset":"laya/assets/res/bullet.prefab","pivotY":1,"pivotX":1,"height":1,"bullet":true},
             "nodeParent":253,
             "label":"RigidBody(bullet)",
             "isDirectory":false,

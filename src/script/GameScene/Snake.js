@@ -166,7 +166,7 @@ export default class Snake extends BaseScript {
     }
 
     onKeyUp(e){
-        if(e.keyCode == Laya.Keyboard.SPACE){
+        if(this.gameScene.gameStart && e.keyCode == Laya.Keyboard.SPACE){
             if(this.currentPlayer){
                 this.shoot();
             }
@@ -179,6 +179,7 @@ export default class Snake extends BaseScript {
         bullet.x = this.owner.x;
         bullet.y = this.owner.y;
 
+        bullet.getComponent(Laya.Script).snake = this.owner;
         bullet.getComponent(Laya.Script).snakeScript = this;
 
 
@@ -242,10 +243,7 @@ export default class Snake extends BaseScript {
             this.dead = true;
             console.log(msg)
             if(this.currentPlayer){//显示得分
-                this.scoreView.visible = true;
-                let scoreLabel = this.scoreView.getChildByName('label_score')
-                scoreLabel.text = this.score;
-                this.wallScript.controlPad.destroy()
+                this.gameScene.stopGame()
 
             }
             
@@ -475,18 +473,17 @@ export default class Snake extends BaseScript {
         }))
         let bodyScript = snakeBody.getComponent(Laya.Script)
         if(this.index==1){
-            console.log(this.index + '号玩家新增身体',snakeBody);
+            console.log(this.index + '号玩家新增身体' + foods.length);
         }
         bodyScript.snake = this.owner;
         bodyScript.foods = foods;
         bodyScript.index = this.snakeBodyArr.length;
+        //添加身体
+        this.snakeBodyArr.push(snakeBody)
+        this.wall.addChild(snakeBody)
+        Laya.Tween.from(snakeBody,{scaleX:0,scaleY:0},200,Laya.Ease.strongIn)
 
         
-        Laya.Tween.from(snakeBody,{scaleX:0,scaleY:0},200,Laya.Ease.strongIn)
-        //添加身体
-        let lastBody = this.snakeBodyArr[this.snakeBodyArr.length-1]
-        this.wall.addChild(snakeBody)
-        this.snakeBodyArr.push(snakeBody)
 
         
         
@@ -503,8 +500,8 @@ export default class Snake extends BaseScript {
         this._tmpFoods.push(food)
         this.wallScript.foodNum--;
         if(this._tmpFoods.length>=this.foodNumPerBody){
-            this.addBody(this._tmpFoods)
-            this.foods.concat(this._tmpFoods)
+            this.addBody([].concat(this._tmpFoods))
+            // this.foods.concat(this._tmpFoods)
             this._tmpFoods.length = 0;
             //体型变大
             if(this.curBodySize<this.maxBodySize){
