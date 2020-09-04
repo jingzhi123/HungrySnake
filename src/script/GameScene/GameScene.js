@@ -11,6 +11,8 @@ export default class GameScene extends BaseScript {
         let scoreView;
         /** @prop {name:wall, tips:"墙", type:Node, default:null}*/
         let wall;
+        /** @prop {name:bodyBurst, tips:"身体爆炸动画", type:Prefab, default:null}*/
+        let bodyBurst;
 
         this.score = 0;//当前分数
 

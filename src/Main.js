@@ -53,6 +53,6 @@ function getToken(){
 		new Main()
 	})
 }
-// new Main()
-getToken()
+new Main()
+// getToken()
 

@@ -17,9 +17,20 @@ export default class Bullet extends BaseScript {
          */
         this.snake;
 
+        /**
+         * 子弹伤害
+         */
         this.damage = 1;
 
+        /**
+         * 子弹类型
+         */
         this.type = 'normal'
+
+        /**
+         * 子弹级别
+         */
+        this.level;
     }
 
     /**
@@ -28,32 +39,35 @@ export default class Bullet extends BaseScript {
     initDamage(){
         switch (this.type) {
             case 'normal':
-                this.damage = 5;
+                this.damage = 1;
                 break;
             default:
                 break;
         }
+        this.damage = Math.ceil(this.level * this.damage);
     }
 
     /**
      * 初始化皮肤
      */
     initSkin(){
-        this.owner.loadImage("images/head" + this.snakeScript.colorNum + ".png", 0, 0, 0, 0, Laya.Handler.create(this,()=>{
+        this.owner.loadImage("images/body" + this.snakeScript.colorNum + ".png", 0, 0, 0, 0, Laya.Handler.create(this,()=>{
             console.log('loaded');
         }))
     }
 
     onTriggerEnter(other,self){
         if(other.name == 'body_collider'){
-            let otherScript = other.owner.script;
-            let otherSnakeScript = other.owner.script.snake.script;
+            let bodyScript = other.owner.script;
+            let bodySnakeScript = other.owner.script.snake.script;
             let body = other.owner
-            if(otherSnakeScript.index!=this.snakeScript.index){
+            if(bodySnakeScript.index!=this.snakeScript.index){
                 self.owner.removeSelf()
-                otherScript.ifDestory(self.owner)
-                this.gameScene.plusScore(this.damage*10)
+                bodyScript.ifDestory(self.owner)
                 // this.owner.destroy()
+            }
+            if(this.snakeScript.currentPlayer){
+                this.gameScene.plusScore(this.damage*10)
             }
         }
     }
@@ -63,7 +77,6 @@ export default class Bullet extends BaseScript {
         this.collider = this.owner.getComponent(Laya.CircleCollider)
         this.rigid = this.owner.getComponent(Laya.RigidBody)
         
-        this.snakeScript = this.snake.script;
         this.initSkin();
         this.initDamage();
 
@@ -71,11 +84,11 @@ export default class Bullet extends BaseScript {
     }
 
     onUpdate(){
+        this.scaleCheck()
         let x = this.velocity*Math.cos(this.rotation * Math.PI / 180)
         let y = this.velocity*Math.sin(this.rotation * Math.PI / 180)
         this.owner.x +=x;
         this.owner.y +=y;
-        this.scaleCheck()
     }
 
     scaleCheck(){

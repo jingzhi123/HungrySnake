@@ -62,7 +62,7 @@ export default class SnakeBody extends BaseScript {
         super.onAwake()
         this.initSkin();
         this.initHP();
-        this.snakeScript = this.snake.script
+        this.snakeScript = this.snake.getComponent(Laya.Script)
         this.collider = this.owner.getComponent(Laya.CircleCollider)
     }
 
@@ -76,8 +76,15 @@ export default class SnakeBody extends BaseScript {
         let bulletScript = bullet.getComponent(Laya.Script)
         this.hp-=bulletScript.damage;
         if(this.hp<=0){
-            // this.owner.removeSelf()
-            this.owner.destroy()
+            let burstAni = Laya.Pool.getItemByCreateFun('bodyBurst',this.gameScene.script.bodyBurst.create,this.gameScene.script.bodyBurst)
+            burstAni.pos(this.owner.x,this.owner.y)
+            this.owner.parent.addChild(burstAni)
+            burstAni.play()
+            burstAni.on(Laya.Event.COMPLETE,this,()=>{
+                burstAni.removeSelf()
+            })
+            this.owner.removeSelf()
+            // this.owner.destroy()
         }
     }
 
@@ -124,8 +131,7 @@ export default class SnakeBody extends BaseScript {
     onEnable() {
     }
 
-    onDestroy() {
-        this.destroyedIndex = this.index;
+    onDisable() {
         this.dropFood()
         this.snakeScript.snakeBodyArr.splice(this.index,1)
         this.snake.event('concat',this.index)
@@ -144,14 +150,15 @@ export default class SnakeBody extends BaseScript {
             food.y = this.owner.y + offset*GameUtils.randomSimbol();
             this.gameScene.wall.addChild(food)
 
-            //体型减小
-            if(this.snakeScript.curBodySize>=this.snakeScript.maxBodySize){
-                this.snakeScript.curBodySize -= 0.02;
-            }
             //减少食物数量
             if(this.snakeScript.currentPlayer){
                 this.gameScene.minusFoodNum()
             }
+        }
+        //体型减小
+        if(this.snakeScript.curBodySize>=this.snakeScript.maxBodySize){
+            this.snakeScript.curBodySize -= this.snakeScript.bodyStep;
+            this.snakeScript.scaleChange()
         }
     }
 }

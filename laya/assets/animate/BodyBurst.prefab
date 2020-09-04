@@ -1,0 +1,1 @@
+{"type":"Animation","props":{"source":"BodyBurst.ani","presetPre":"laya/assets/res/bullet.prefab","presetIDPre":5,"preset":"laya/assets/animate/BodyBurst.prefab","presetID":1,"isPresetRoot":true,"x":0,"y":0},"compId":259,"child":[],"isAniNode":true,"nodeParent":253,"searchKey":"Animation","label":"Animation(bullet)","isDirectory":false,"hasChild":false,"x":15}

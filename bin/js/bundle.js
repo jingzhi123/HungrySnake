@@ -54,7 +54,7 @@
             */
            this.foodNum = 0;
 
-           this.gameTime = new Date('2000/1/1 00:00:5').getTime();
+           this.gameTime = new Date('2000/1/1 00:01:05').getTime();
 
            this.gameStart = false;
            /**
@@ -1063,6 +1063,8 @@
            let scoreView;
            /** @prop {name:wall, tips:"墙", type:Node, default:null}*/
            let wall;
+           /** @prop {name:bodyBurst, tips:"身体爆炸动画", type:Prefab, default:null}*/
+           let bodyBurst;
 
            this.score = 0;//当前分数
 
@@ -1157,9 +1159,20 @@
             */
            this.snake;
 
+           /**
+            * 子弹伤害
+            */
            this.damage = 1;
 
+           /**
+            * 子弹类型
+            */
            this.type = 'normal';
+
+           /**
+            * 子弹级别
+            */
+           this.level;
        }
 
        /**
@@ -1168,32 +1181,35 @@
        initDamage(){
            switch (this.type) {
                case 'normal':
-                   this.damage = 5;
+                   this.damage = 1;
                    break;
                default:
                    break;
            }
+           this.damage = Math.ceil(this.level * this.damage);
        }
 
        /**
         * 初始化皮肤
         */
        initSkin(){
-           this.owner.loadImage("images/head" + this.snakeScript.colorNum + ".png", 0, 0, 0, 0, Laya.Handler.create(this,()=>{
+           this.owner.loadImage("images/body" + this.snakeScript.colorNum + ".png", 0, 0, 0, 0, Laya.Handler.create(this,()=>{
                console.log('loaded');
            }));
        }
 
        onTriggerEnter(other,self){
            if(other.name == 'body_collider'){
-               let otherScript = other.owner.script;
-               let otherSnakeScript = other.owner.script.snake.script;
+               let bodyScript = other.owner.script;
+               let bodySnakeScript = other.owner.script.snake.script;
                let body = other.owner;
-               if(otherSnakeScript.index!=this.snakeScript.index){
+               if(bodySnakeScript.index!=this.snakeScript.index){
                    self.owner.removeSelf();
-                   otherScript.ifDestory(self.owner);
-                   this.gameScene.plusScore(this.damage*10);
+                   bodyScript.ifDestory(self.owner);
                    // this.owner.destroy()
+               }
+               if(this.snakeScript.currentPlayer){
+                   this.gameScene.plusScore(this.damage*10);
                }
            }
        }
@@ -1203,7 +1219,6 @@
            this.collider = this.owner.getComponent(Laya.CircleCollider);
            this.rigid = this.owner.getComponent(Laya.RigidBody);
            
-           this.snakeScript = this.snake.script;
            this.initSkin();
            this.initDamage();
 
@@ -1211,11 +1226,11 @@
        }
 
        onUpdate(){
+           this.scaleCheck();
            let x = this.velocity*Math.cos(this.rotation * Math.PI / 180);
            let y = this.velocity*Math.sin(this.rotation * Math.PI / 180);
            this.owner.x +=x;
            this.owner.y +=y;
-           this.scaleCheck();
        }
 
        scaleCheck(){
@@ -1370,11 +1385,16 @@
            this.attackScale = 50;
 
            //当前身体大小
-           this.curBodySize = 0.5;
+           this.curBodySize = 0.7;
            //当前身体个数
            this.curBodyNum = 10;
            //最大身体大小
            this.maxBodySize = 2;
+
+           /**
+            * 体型变化程度
+            */
+           this.bodyStep = 0.05;
 
            this.foodNumPerBody = 5;//几分一个身体
 
@@ -1421,6 +1441,13 @@
        onAwake(){
            super.onAwake();
            
+           //初始化位置
+           this.positionChange();
+           //初始化速度
+           this.currentVelocity = this.velocity;
+           //初始化方向
+           this.snake.rotation = 0;
+
            this.owner.on('concat',this,(index)=>{
                console.log('concatafter:' + index);
                this.currentConcatIndex = index;
@@ -1444,12 +1471,7 @@
                this.speedChange(velocity);
            });
 
-           //初始化位置
-           this.positionChange();
-           //初始化速度
-           this.currentVelocity = this.velocity;
-           //初始化方向
-           this.snake.rotation = 0;
+           
            // this.directionChange(this.direction)
 
            
@@ -1488,8 +1510,10 @@
            bullet.x = this.owner.x;
            bullet.y = this.owner.y;
 
-           bullet.getComponent(Laya.Script).snake = this.owner;
-           bullet.getComponent(Laya.Script).snakeScript = this;
+           let bulletScript = bullet.getComponent(Laya.Script);
+           bulletScript.snake = this.owner;
+           bulletScript.snakeScript = this;
+           bulletScript.level = this.curBodySize;
 
 
            this.owner.parent.addChild(bullet);
@@ -1511,6 +1535,7 @@
                let lastBody = this.snakeBodyArr[this.snakeBodyArr.length-1];
                this.wall.addChild(snakeBody);
                this.snakeBodyArr.push(snakeBody);
+               this.scaleChange();
            }
        }
 
@@ -1520,8 +1545,10 @@
        }
 
        positionChange(){
-           let x = this.owner.parent.width/2;
-           let y = this.owner.parent.height/2;
+           let randX = Math.random();
+           let randY = Math.random();
+           let x = (randX>0.5?-100:100) + randX*this.owner.parent.width;
+           let y = (randY>0.5?-100:100) + randY*this.owner.parent.height;
            this.owner.pos(x,y);
        }
 
@@ -1585,9 +1612,13 @@
                return;
            }
            if(this.speedMode){
-               this.speedChange(this.velocity+this.acceleratedVelocity);
+               if(this.currentVelocity != this.velocity+this.acceleratedVelocity){
+                   this.speedChange(this.velocity+this.acceleratedVelocity);
+               }
            } else {
-               this.speedChange(this.velocity);
+               if(this.currentVelocity != this.velocity){
+                   this.speedChange(this.velocity);
+               }
            }
            let x = this.currentVelocity * Math.cos(this.snake.rotation * Math.PI / 180);
            let y = this.currentVelocity * Math.sin(this.snake.rotation * Math.PI / 180);
@@ -1622,6 +1653,10 @@
                // })
            }
 
+       }
+
+       shootLoop(){
+           this.shoot();
        }
 
        AIMove(){
@@ -1660,19 +1695,25 @@
                    }
                });
 
-               if(GameUtils.distance(playerScript.owner.x,playerScript.owner.y,this.owner.x,this.owner.y) >= this.cameraWidth){
+               
+
+               if(GameUtils.distance(playerScript.owner.x,playerScript.owner.y,this.owner.x,this.owner.y) >= this.cameraWidth-100){
                    // console.log('接近',this.cameraWidth);
                    // this.owner.rotation = Math.atan2(this.owner.y - playerScript.owner.y, this.owner.x - playerScript.owner.x) * 180 / Math.PI
                    this.owner.rotation = Math.atan2(playerScript.owner.y - this.owner.y, playerScript.owner.x - this.owner.x) * 180 / Math.PI;
+
+                   
+                   Laya.timer.once(10,this,this.shootLoop);
+                   
                    this.speedMode = true;
                } else {
-                   if(GameUtils.distance(playerScript.owner.x,playerScript.owner.y,this.owner.x,this.owner.y) < this.cameraWidth/2-100){
-                       this.owner.rotation = Math.atan2(this.owner.y - playerScript.owner.y, this.owner.x - playerScript.owner.x) * 180 / Math.PI;
-
+                   if(GameUtils.distance(playerScript.owner.x,playerScript.owner.y,this.owner.x,this.owner.y) < this.cameraWidth/2){
                        // this.owner.rotation = Math.atan2(playerScript.owner.y - this.owner.y, playerScript.owner.x - this.owner.x) * 180 / Math.PI
+                       this.owner.rotation = Math.atan2(this.owner.y - playerScript.owner.y, this.owner.x - playerScript.owner.x) * 180 / Math.PI;
                        
                        this.speedMode = false;
                    } else {
+                       // this.owner.rotation = Math.atan2(playerScript.owner.y - this.owner.y, playerScript.owner.x - this.owner.x) * 180 / Math.PI
                        //this.owner.rotation = Math.atan2(this.owner.y - playerScript.owner.y, this.owner.x - playerScript.owner.x) * 180 / Math.PI
                        // this.owner.rotation += Math.random() * GameUtils.randomSimbol();
                    }
@@ -1691,11 +1732,27 @@
         * 蛇的循环
         */
        snakeLoop(){
-           this.scaleCheck();
+           // this.scaleCheck();
            this.stateCheck();
            this.headMove();
            this.bodyMove();
            this.AIMove();
+       }
+
+       /**
+        * 身体大小变化
+        */
+       scaleChange(){
+           // this.owner.scale(this.curBodySize,this.curBodySize)
+           Laya.Tween.to(this.owner,{scaleX:this.curBodySize,scaleY:this.curBodySize},1000);
+           for(let i = 0;i<this.snakeBodyArr.length;i++){
+               let body = this.snakeBodyArr[i];
+               if(body.parent){
+                   // console.log(body);
+                   Laya.Tween.to(body,{scaleX:this.curBodySize,scaleY:this.curBodySize},1000);
+                   // body.scale(this.curBodySize,this.curBodySize)
+               }
+           }
        }
 
        //大小检查
@@ -1814,7 +1871,8 @@
                this._tmpFoods.length = 0;
                //体型变大
                if(this.curBodySize<this.maxBodySize){
-                   this.curBodySize += 0.02;
+                   this.curBodySize += this.bodyStep;
+                   this.scaleChange();
                }
            }
 
@@ -1885,7 +1943,7 @@
            super.onAwake();
            this.initSkin();
            this.initHP();
-           this.snakeScript = this.snake.script;
+           this.snakeScript = this.snake.getComponent(Laya.Script);
            this.collider = this.owner.getComponent(Laya.CircleCollider);
        }
 
@@ -1899,8 +1957,15 @@
            let bulletScript = bullet.getComponent(Laya.Script);
            this.hp-=bulletScript.damage;
            if(this.hp<=0){
-               // this.owner.removeSelf()
-               this.owner.destroy();
+               let burstAni = Laya.Pool.getItemByCreateFun('bodyBurst',this.gameScene.script.bodyBurst.create,this.gameScene.script.bodyBurst);
+               burstAni.pos(this.owner.x,this.owner.y);
+               this.owner.parent.addChild(burstAni);
+               burstAni.play();
+               burstAni.on(Laya.Event.COMPLETE,this,()=>{
+                   burstAni.removeSelf();
+               });
+               this.owner.removeSelf();
+               // this.owner.destroy()
            }
        }
 
@@ -1947,8 +2012,7 @@
        onEnable() {
        }
 
-       onDestroy() {
-           this.destroyedIndex = this.index;
+       onDisable() {
            this.dropFood();
            this.snakeScript.snakeBodyArr.splice(this.index,1);
            this.snake.event('concat',this.index);
@@ -1967,14 +2031,15 @@
                food.y = this.owner.y + offset*GameUtils.randomSimbol();
                this.gameScene.wall.addChild(food);
 
-               //体型减小
-               if(this.snakeScript.curBodySize>=this.snakeScript.maxBodySize){
-                   this.snakeScript.curBodySize -= 0.02;
-               }
                //减少食物数量
                if(this.snakeScript.currentPlayer){
                    this.gameScene.minusFoodNum();
                }
+           }
+           //体型减小
+           if(this.snakeScript.curBodySize>=this.snakeScript.maxBodySize){
+               this.snakeScript.curBodySize -= this.snakeScript.bodyStep;
+               this.snakeScript.scaleChange();
            }
        }
    }
@@ -2004,11 +2069,11 @@
    GameConfig.screenMode = "horizontal";
    GameConfig.alignV = "middle";
    GameConfig.alignH = "center";
-   GameConfig.startScene = "gameScene.scene";
+   GameConfig.startScene = "init.scene";
    GameConfig.sceneRoot = "";
    GameConfig.debug = false;
    GameConfig.stat = false;
-   GameConfig.physicsDebug = true;
+   GameConfig.physicsDebug = false;
    GameConfig.exportSceneToJson = true;
 
    GameConfig.init();
@@ -2065,7 +2130,7 @@
    		new Main();
    	});
    }
-   // new Main()
-   getToken();
+   new Main();
+   // getToken()
 
 }());

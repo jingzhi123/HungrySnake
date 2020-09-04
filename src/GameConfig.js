@@ -34,11 +34,11 @@ GameConfig.scaleMode ="fixedheight";
 GameConfig.screenMode = "horizontal";
 GameConfig.alignV = "middle";
 GameConfig.alignH = "center";
-GameConfig.startScene = "gameScene.scene";
+GameConfig.startScene = "init.scene";
 GameConfig.sceneRoot = "";
 GameConfig.debug = false;
 GameConfig.stat = false;
-GameConfig.physicsDebug = true;
+GameConfig.physicsDebug = false;
 GameConfig.exportSceneToJson = true;
 
 GameConfig.init();

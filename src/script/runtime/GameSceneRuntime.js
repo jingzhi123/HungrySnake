@@ -16,7 +16,7 @@ export default class GameSceneRuntime extends Laya.Scene {
          */
         this.foodNum = 0;
 
-        this.gameTime = new Date('2000/1/1 00:00:5').getTime()
+        this.gameTime = new Date('2000/1/1 00:01:05').getTime()
 
         this.gameStart = false;
         /**
