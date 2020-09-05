@@ -6,15 +6,7 @@ export default class GameSceneRuntime extends Laya.Scene {
         super(); 
         GameSceneRuntime.instance = this;
 
-        /**
-         * 分数
-         */
-        this.score = 0
-
-        /**
-         * 食物数
-         */
-        this.foodNum = 0;
+        
 
         this.gameTime = new Date('2000/1/1 00:01:05').getTime()
 
@@ -80,7 +72,8 @@ export default class GameSceneRuntime extends Laya.Scene {
             this.btn_ctrl_rocker_move.visible = true
             if (GameUtils.distance(this.gameScene.mouseX, this.gameScene.mouseY, this.btn_ctrl.x, this.btn_ctrl.y) <= (this.gameScene.height)) {
                 this.btn_ctrl_rocker_move.pos(this.gameScene.mouseX, this.gameScene.mouseY)
-                this.playerSnake.rotation = Math.atan2(this.gameScene.mouseY - this.btn_ctrl.y, this.gameScene.mouseX - this.btn_ctrl.x) * 180 / Math.PI
+                this.playerSnake.event('rotationChange',Math.atan2(this.gameScene.mouseY - this.btn_ctrl.y, this.gameScene.mouseX - this.btn_ctrl.x) * 180 / Math.PI)
+                // this.playerSnake.rotation = Math.atan2(this.gameScene.mouseY - this.btn_ctrl.y, this.gameScene.mouseX - this.btn_ctrl.x) * 180 / Math.PI
             } else {
                 this.btn_ctrl_rocker_move.pos(
                     this.btn_ctrl.x + (this.btn_ctrl.width / 2 - this.btn_ctrl.width / 2) * Math.cos(Math.atan2(this.gameScene.mouseY - this.btn_ctrl.y, this.gameScene.mouseX - this.btn_ctrl.x))
@@ -120,7 +113,7 @@ export default class GameSceneRuntime extends Laya.Scene {
     }
 
     refreshScore(){
-        this.scoreLabel.text = this.score;
+        this.scoreLabel.text = this.playerScript.score;
     }
 
     timeMinus(){
@@ -136,8 +129,12 @@ export default class GameSceneRuntime extends Laya.Scene {
         this.gameScene = this;
         this.scoreLabel = this.scoreView.getChildByName('label_score')
         this.on('playerComplete',this,(playerSnake)=>{
+            console.log(playerSnake);
             this.playerSnake = playerSnake;
             this.playerScript = playerSnake.getComponent(Laya.Script);
+
+
+            console.log(this.playerScript.currentPlayer);
             this.btn_speedup.on('mousedown',this,this.speedUp)
             this.btn_speedup.on('mouseup',this,this.speedDown)
             this.on('mousedown',this,this.onStageMouseDown)
@@ -176,37 +173,12 @@ export default class GameSceneRuntime extends Laya.Scene {
         this.foodNumText.text = 0;
     }
 
-    changeScore(score){
-        this.score = score;
-        this.scoreText.text = this.score;
-    }
-
-    plusScore(score){
-        score?this.score+=score:this.score++;
-        this.scoreText.text = this.score;
-    }
-
-    minusScore(score){
-        score?this.score-=score:this.score--;
-        this.scoreText.text = this.score;
-    }
-
-    changeFoodNum(foodNum){
-        this.foodNum = foodNum;
-        this.foodNumText.text = this.foodNum;
-    }
-
-    plusFoodNum(foodNum){
-        foodNum?this.foodNum+=foodNum:this.foodNum++;
-        this.foodNumText.text = this.foodNum;
-    }
-
     /**
-     * 减少食物数量数值
-     * @param {食物数量} foodNum 
+     * 更新数值显示
+     * @param {蛇脚本对象} snakeScript 
      */
-    minusFoodNum(foodNum){
-        foodNum?this.foodNum-=foodNum:this.foodNum--;
-        this.foodNumText.text = this.foodNum;
+    updateNums(snakeScript){
+        this.scoreText.text = snakeScript.score;
+        this.foodNumText.text = snakeScript.foodNum;
     }
 }

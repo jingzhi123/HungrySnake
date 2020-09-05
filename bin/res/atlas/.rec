@@ -77,6 +77,6 @@ P 66D3FD49 s1-radio.png
 D res
 R 01CFEDD5 bullet.prefab
 R BFF8857E sprite_food1.prefab
-R 2C6933A0 sprite_snake1.prefab
-R A6911CEF sprite_snakebody1.prefab
+R 15D0802A sprite_snake1.prefab
+R 5E132CEC sprite_snakebody1.prefab
 D sound

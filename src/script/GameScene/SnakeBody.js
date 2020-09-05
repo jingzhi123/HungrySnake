@@ -53,17 +53,23 @@ export default class SnakeBody extends BaseScript {
      * 初始化皮肤
      */
     initSkin(){
-        // this.owner.loadImage("images/head" + this.snakeScript.colorNum + ".png", 0, 0, 0, 0, Laya.Handler.create(this,()=>{
-        //     console.log('loaded');
-        // }))
+        this.owner.loadImage("images/body" + this.snakeScript.colorNum + ".png", 0, 0, 0, 0, Laya.Handler.create(this,()=>{
+            console.log('loaded');
+        }))
     }
 
     onAwake(){
         super.onAwake()
-        this.initSkin();
-        this.initHP();
+        
+        
         this.snakeScript = this.snake.getComponent(Laya.Script)
         this.collider = this.owner.getComponent(Laya.CircleCollider)
+    }
+
+    onEnable() {
+        this.initHP();
+        this.initSkin();
+        this.owner.visible = true;
     }
 
 
@@ -82,9 +88,10 @@ export default class SnakeBody extends BaseScript {
             burstAni.play()
             burstAni.on(Laya.Event.COMPLETE,this,()=>{
                 burstAni.removeSelf()
+                Laya.Pool.recover('bodyBurst',burstAni)
             })
-            this.owner.removeSelf()
-            // this.owner.destroy()
+            // this.owner.removeSelf()
+            this.owner.destroy()
         }
     }
 
@@ -108,33 +115,11 @@ export default class SnakeBody extends BaseScript {
     //     })
     // }
 
-    move(){
-        // this.rigid.linearVelocity = this.snakeScript.rigid.linearVelocity;
-    }
 
-    // onTriggerEnter(other,self){
-    //     if(other.name == 'bullet_collider'){
-    //         let otherScript = other.owner.snake.script;
-    //         let bullet = other.owner
-    //         if(otherScript.playerName!=this.snakeScript.playerName){
-    //             console.log(this.index);
-    //             bullet.removeSelf()
-
-    //             this.ifDestory(bullet)
-    //             // this.owner.destroy()
-    //         }
-    //         // console.log(otherScript.playerName);
-    //         // console.log(this.snakeScript.playerName);
-    //     }
-    // }
-
-    onEnable() {
-    }
-
-    onDisable() {
-        this.dropFood()
+    onDestroy() {
         this.snakeScript.snakeBodyArr.splice(this.index,1)
         this.snake.event('concat',this.index)
+        this.dropFood()
     }
 
     /**
@@ -151,9 +136,7 @@ export default class SnakeBody extends BaseScript {
             this.gameScene.wall.addChild(food)
 
             //减少食物数量
-            if(this.snakeScript.currentPlayer){
-                this.gameScene.minusFoodNum()
-            }
+            this.snakeScript.minusFoodNum()
         }
         //体型减小
         if(this.snakeScript.curBodySize>=this.snakeScript.maxBodySize){

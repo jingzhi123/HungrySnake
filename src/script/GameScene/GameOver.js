@@ -14,7 +14,9 @@ export default class GameOver extends Laya.Script {
     }
 
     onUpdate(){
-        GameSceneRuntime.instance.refreshScore()
+        if(!GameSceneRuntime.instance.gameStart){
+            GameSceneRuntime.instance.refreshScore()
+        }
     }
     
     onStart() {

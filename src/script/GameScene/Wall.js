@@ -35,21 +35,20 @@ export default class Wall extends BaseScript {
 
         this.snakeMap = {}
 
-        this.snakeNum = 2;//蛇的个数
+        this.AISnakeNum = 2;//蛇的个数
 
         this.cursnakeNum = 0;//当前蛇的数量
 
         this.maxFood = 500;//最大食物数量
 
-        //当前玩家蛇
-        this.playerSnake;
     }
 
 
 
     //玩家操控的蛇准备完毕
     playerComplete(playerSnake){
-        this.playerScript = playerSnake.getComponent(Laya.Script)
+        this.gameScene.playerSnake = playerSnake;
+        this.gameScene.playerScript = playerSnake.getComponent(Laya.Script)
         this.gameScene.event('playerComplete',playerSnake)
     }
 
@@ -97,7 +96,7 @@ export default class Wall extends BaseScript {
 
     init(){
         Laya.timer.clear(this,this.initFood)
-        this.playerComplete(this.playerSnake)
+        this.playerComplete(this.gameScene.playerSnake)
         Laya.timer.frameLoop(1,this,this.mainLoop)
     }
     /**
@@ -121,12 +120,6 @@ export default class Wall extends BaseScript {
         // }
     }
 
-    snakesLoop(){
-        this.snakes.forEach(snake=>{
-            let snakeScript = snake.getComponent(Laya.Script)
-            snakeScript.snakeLoop();
-        })
-    }
 
     /**
      * 主循环
@@ -135,9 +128,9 @@ export default class Wall extends BaseScript {
         if(this.gameScene.gameStart){
             this.loadFood()
             this.stateCheck();
-            this.snakesLoop();
-            if(this.playerSnake){
-                this.mapMove(this.playerScript)
+
+            if(this.gameScene.playerSnake){
+                this.mapMove(this.gameScene.playerScript)
             }
         } else {
             // Laya.timer.clear(this.mainLoop)
@@ -154,12 +147,12 @@ export default class Wall extends BaseScript {
         let mapScale = 0.5 / snakeScript.curBodySize < 0.7 ? 0.7 : 0.5 / snakeScript.curBodySize
 
 
-        // this.owner.x = -1 * (this.playerSnake.x + this.playerSnake.width / 2 - this.owner.width / 2) * mapScale + this.owner.width / 2
-        // this.owner.y = -1 * (this.playerSnake.y + this.playerSnake.height / 2 - this.owner.height / 2) * mapScale + this.owner.height / 2
+        // this.owner.x = -1 * (this.gameScene.playerSnake.x + this.gameScene.playerSnake.width / 2 - this.owner.width / 2) * mapScale + this.owner.width / 2
+        // this.owner.y = -1 * (this.gameScene.playerSnake.y + this.gameScene.playerSnake.height / 2 - this.owner.height / 2) * mapScale + this.owner.height / 2
 
         //固定视角
-        this.owner.x = -(this.playerSnake.x-this.owner.width / 2) 
-        this.owner.y = -(this.playerSnake.y-this.owner.height / 2) 
+        this.owner.x = -(this.gameScene.playerSnake.x-this.owner.width / 2) 
+        this.owner.y = -(this.gameScene.playerSnake.y-this.owner.height / 2) 
 
         // this.owner.x = -1300
         // this.owner.y = -700
@@ -242,30 +235,57 @@ export default class Wall extends BaseScript {
         
     }
 
+    addSnake(snake){
+        this.owner.addChild(snake)
+        this.snakes.push(snake)
+    }
+
+    addPlayerSnake(snake){
+        this.owner.addChild(snake)
+        this.snakes.unshift(snake)
+    }
+
+    /**
+     * 复活玩家
+     */
+    createPlayer(){
+        let playerSnake = Laya.Pool.getItemByCreateFun('playerSnake',this.snakeRes.create,this.snakeRes);
+        let snakeScript = playerSnake.getComponent(Laya.Script)
+        snakeScript.index = 0;
+        snakeScript.playerName = '张三' + snakeScript.index;
+        snakeScript.currentPlayer = true;
+        this.addPlayerSnake(playerSnake)
+        this.playerComplete(playerSnake)
+        this.snakeMap[0] = playerSnake;
+        
+    }
+
+    /**
+     * 复活玩家
+     */
+    createAI(index){
+        console.log(this.snakes,index);
+        let AISnake = Laya.Pool.getItemByCreateFun('AISnake',this.snakeRes.create,this.snakeRes);
+        let snakeScript = AISnake.getComponent(Laya.Script)
+        snakeScript.playerSnake = this.gameScene.playerSnake;
+        snakeScript.index = index;
+        snakeScript.AI = true;
+        snakeScript.playerName = '张三' + snakeScript.index;
+        snakeScript.currentAI = true;
+        this.addSnake(AISnake)
+        this.snakeMap[index] = AISnake;
+        
+    }
+
     loadSnake(){
         //食物加载完毕
         if(this.foodNum>=this.maxFood){
-            //加载蛇
-            for(let i = this.cursnakeNum;i<this.snakeNum;i++){
-                let snake = this.snakeRes.create();
-                let snakeScript = snake.getComponent(Laya.Script)
-                if(this.cursnakeNum==0){
-                    this.playerSnake = snake;
-                    snakeScript.currentPlayer = true;
-                } else{
-                    snakeScript.AI = true;
-                }
-                snakeScript.index = i;
-                snakeScript.playerName = '张三' + this.cursnakeNum;
-
-                console.log(snakeScript);
-    
-    
-                this.owner.addChild(snake)
-                this.snakes.push(snake)
-                this.snakeMap[snake.getChildIndex()] = snake;
+            this.createPlayer()
+            this.cursnakeNum++;
+            //加载AI蛇
+            for(let i = 1;i<this.AISnakeNum;i++){
+                this.createAI(i);
                 this.cursnakeNum++;
-
             }
             this.owner.event('init')
         }

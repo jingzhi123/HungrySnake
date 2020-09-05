@@ -57,18 +57,35 @@ export default class Bullet extends BaseScript {
     }
 
     onTriggerEnter(other,self){
-        if(other.name == 'body_collider'){
-            let bodyScript = other.owner.script;
-            let bodySnakeScript = other.owner.script.snake.script;
-            let body = other.owner
-            if(bodySnakeScript.index!=this.snakeScript.index){
-                self.owner.removeSelf()
-                bodyScript.ifDestory(self.owner)
+        let otherOnwer = other.owner
+        let otherScript = otherOnwer.script;
+        let otherSnake = otherScript.snake;
+        let otherSnakeScript = otherSnake.script;
+
+        //没打自己
+        if(otherSnakeScript.index!=this.snakeScript.index){
+            self.owner.removeSelf();
+            this.snakeScript.plusScore(this.damage*5)
+            //伤害了身体
+            if(other.name == 'body_collider'){
+                otherScript.ifDestory(self.owner)
                 // this.owner.destroy()
             }
-            if(this.snakeScript.currentPlayer){
-                this.gameScene.plusScore(this.damage*10)
+            //伤害了头
+            if(other.name == 'snake_collider'){
+                if(!otherSnakeScript.dead){//没死扣血
+                    otherSnakeScript.hp -= this.damage;
+                    console.log(otherSnakeScript.hp);
+                    //血量小于等于0,则自己死亡
+                    if(otherSnakeScript.hp<=0){
+                        otherSnakeScript.hp = 0;//hp归零
+                        otherOnwer.event("dead",otherSnakeScript.index + '号:没血死了')
+                    }
+                }
+
             }
+
+
         }
     }
 
@@ -76,11 +93,6 @@ export default class Bullet extends BaseScript {
         super.onAwake()
         this.collider = this.owner.getComponent(Laya.CircleCollider)
         this.rigid = this.owner.getComponent(Laya.RigidBody)
-        
-        this.initSkin();
-        this.initDamage();
-
-        this.rotation = this.snake.rotation;
     }
 
     onUpdate(){
@@ -96,6 +108,12 @@ export default class Bullet extends BaseScript {
     }
     
     onEnable() {
+        this.initSkin();
+        this.initDamage();
+        
+        this.owner.x = this.snake.x;
+        this.owner.y = this.snake.y;
+        this.rotation = this.snake.rotation;
     }
 
     onDisable() {
