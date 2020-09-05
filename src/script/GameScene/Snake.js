@@ -571,9 +571,7 @@ export default class Snake extends BaseScript {
      * @param {食物节点} food 
      */
     foodEat(food){
-        //加分
-        this.plusScore()
-        this.plusFoodNum()
+
         this._tmpFoods.push(food)
         this.wallScript.foodNum--;
         if(this._tmpFoods.length>=this.foodNumPerBody){

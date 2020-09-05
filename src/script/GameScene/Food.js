@@ -47,7 +47,12 @@ export default class Food extends BaseScript {
 
     async onEaten(snake){ 
 
-        this.eating = true; 
+        this.eating = true;
+        
+        let snakeScript = snake.getComponent(Laya.Script)
+        //加分
+        snakeScript.plusScore()
+        snakeScript.plusFoodNum()
         
 
         this.animTime = 0;
@@ -57,20 +62,24 @@ export default class Food extends BaseScript {
     foodAnime(snake){
 
         let snakeScript = snake.getComponent(Laya.Script)
+        
+
         let self = this.owner;
         this.animTime++;
         self.x += (snakeScript.currentVelocity + 0.1) * Math.cos(Math.atan2(snake.y - self.y, snake.x - self.x))
         self.y += (snakeScript.currentVelocity + 0.1) * Math.sin(Math.atan2(snake.y - self.y, snake.x - self.x))
 
+
+        
         if(this.animTime>=60){
+            snakeScript.foodEat(this.owner)
+            snakeScript.foods.push(this.owner)
             Laya.timer.clear(this,this.foodAnime)
             // clearInterval(timer)    
             this.eating = false;
             this.animTime = 0;
 
             if(snakeScript && !snakeScript.dead){
-                snakeScript.foodEat(this.owner)
-                snakeScript.foods.push(this.owner)
                 Laya.Pool.recover('food',self.removeSelf())
             }
         }

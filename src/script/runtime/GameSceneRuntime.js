@@ -1,4 +1,6 @@
 import GameUtils from "../../common/GameUtils";
+import HttpUtils from "../../common/HttpUtils";
+import Global from "../../common/Global";
 
 export default class GameSceneRuntime extends Laya.Scene {
 
@@ -8,7 +10,7 @@ export default class GameSceneRuntime extends Laya.Scene {
 
         
 
-        this.gameTime = new Date('2000/1/1 00:01:05').getTime()
+        this.gameTime = new Date('2000/1/1 00:02:05').getTime()
 
         this.gameStart = false;
         /**
@@ -110,10 +112,23 @@ export default class GameSceneRuntime extends Laya.Scene {
         this.scoreView.visible = true;
         this.refreshScore();
         this.controlPad.destroy()
+        this.saveScore()
     }
 
     refreshScore(){
         this.scoreLabel.text = this.playerScript.score;
+    }
+
+    /**
+     * 保存分数
+     */
+    saveScore(){
+
+        let param = {name:(Global.userInfo&&Global.userInfo.nickName)||this.playerScript.playerName,score:this.playerScript.score};
+
+        new HttpUtils().post(`${Global.ctx}/common/snake_score/insert`,GameUtils.param(param),(data)=>{
+            console.log(data);
+        },['token',Global.token,'code','snake'])
     }
 
     timeMinus(){

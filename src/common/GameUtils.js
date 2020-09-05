@@ -13,6 +13,34 @@ export default class GameUtils {
         return simbol;
     }
 
+    static cleanArray(actual) {
+        const newArray = []
+        for (let i = 0; i < actual.length; i++) {
+            if (actual[i]) {
+            newArray.push(actual[i])
+            }
+        }
+        return newArray
+    }
+    /**
+     * 将json对象转换为querystring
+     * @param {json对象} json 
+     */
+    static param(json) {
+        if (!json) return ''
+        return GameUtils.cleanArray(Object.keys(json).map(key => {
+            if (json[key] === undefined)
+            return ''
+            return encodeURIComponent(key) +
+            '=' + encodeURIComponent(json[key])
+        })).join('&')
+    }
+
+    /**
+     * 
+     * @param {格式化字符串(yyyy-MM-dd hh:mm:ss)} fmt 
+     * @param {Date 日期对象} date 
+     */
     static dateFormat(fmt,date) { 
         var o = { 
            "M+" : date.getMonth()+1,                 //月份 

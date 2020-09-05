@@ -16,6 +16,34 @@
            return simbol;
        }
 
+       static cleanArray(actual) {
+           const newArray = [];
+           for (let i = 0; i < actual.length; i++) {
+               if (actual[i]) {
+               newArray.push(actual[i]);
+               }
+           }
+           return newArray
+       }
+       /**
+        * 将json对象转换为querystring
+        * @param {json对象} json 
+        */
+       static param(json) {
+           if (!json) return ''
+           return GameUtils.cleanArray(Object.keys(json).map(key => {
+               if (json[key] === undefined)
+               return ''
+               return encodeURIComponent(key) +
+               '=' + encodeURIComponent(json[key])
+           })).join('&')
+       }
+
+       /**
+        * 
+        * @param {格式化字符串(yyyy-MM-dd hh:mm:ss)} fmt 
+        * @param {Date 日期对象} date 
+        */
        static dateFormat(fmt,date) { 
            var o = { 
               "M+" : date.getMonth()+1,                 //月份 
@@ -38,6 +66,140 @@
       } 
    }
 
+   class HttpUtils extends Laya.HttpRequest{
+       
+       constructor(caller) {
+           super();
+           this.callback = (data)=>{
+               console.log(data);
+           };
+           this.progressCallback = (e)=>{
+               console.log('加载中...');
+               console.log(e);
+           };
+           this.errorCallback = (e)=>{
+               console.log(e);
+           };;
+       }
+       /**
+        * 发送 HTTP 请求。
+        * @param url 请求的地址。大多数浏览器实施了一个同源安全策略，并且要求这个 URL 与包含脚本的文本具有相同的主机名和端口。
+        * @param callback 请求成功调用的回调函数
+        * @param headers (default = null) HTTP 请求的头部信息。参数形如key-value数组：key是头部的名称，不应该包括空白、冒号或换行；value是头部的值，不应该包括换行。比如["Content-Type", "application/json"]。
+        */
+       get(url,callback,headers){
+           this.callback = callback;
+           this.on(Laya.Event.PROGRESS, this,this.progressCallback);
+           this.on(Laya.Event.ERROR, this,this.errorCallback);
+           this.on(Laya.Event.COMPLETE, this,this.callback);
+           this.send(url,null,'get','text',headers);
+
+           return this
+       }
+       /**
+        * 发送 HTTP 请求。
+        * @param url 请求的地址。大多数浏览器实施了一个同源安全策略，并且要求这个 URL 与包含脚本的文本具有相同的主机名和端口。
+        * @param callback 请求成功调用的回调函数
+        * @param headers (default = null) HTTP 请求的头部信息。参数形如key-value数组：key是头部的名称，不应该包括空白、冒号或换行；value是头部的值，不应该包括换行。比如["Content-Type", "application/json"]。
+        */
+       getJson(url,callback,headers){
+           this.callback = callback;
+           this.on(Laya.Event.PROGRESS, this,this.progressCallback);
+           this.on(Laya.Event.ERROR, this,this.errorCallback);
+           this.on(Laya.Event.COMPLETE, this,this.callback);
+           this.send(url,null,'get','json',headers);
+
+           return this
+       }
+
+       /**
+        * 发送 HTTP 请求。
+        * @param url 请求的地址。大多数浏览器实施了一个同源安全策略，并且要求这个 URL 与包含脚本的文本具有相同的主机名和端口。
+        * @param callback 请求成功调用的回调函数
+        * @param headers (default = null) HTTP 请求的头部信息。参数形如key-value数组：key是头部的名称，不应该包括空白、冒号或换行；value是头部的值，不应该包括换行。比如["Content-Type", "application/json"]。
+        */
+       post(url,data,callback,headers){
+           headers = headers.concat(['Content-Type','application/x-www-form-urlencoded;charset=utf-8']);
+           this.callback = callback;
+           this.on(Laya.Event.PROGRESS, this,this.progressCallback);
+           this.on(Laya.Event.ERROR, this,this.errorCallback);
+           this.on(Laya.Event.COMPLETE, this,this.callback);
+           this.send(url,data,'post','json',headers);
+
+           return this
+       }
+   }
+
+   const BGM_PATH='sound/bgm.mp3',SNAKE_PREFAB_PATH='res/sprite_snake1.prefab',SNAKEBODY_PREFAB_PATH='res/sprite_snakebody1.prefab',FOOD_PREFAB_PATH='res/sprite_food1.prefab';
+   const MAP_PATH='images/s1-bg.png';
+   // const ctx = 'http://localhost:8888'
+   const ctx = 'http://132.232.4.180:8888';
+   let resourceMap = {};
+   let userInfo = {};
+   class Global{
+       static get ctx(){
+           return ctx;
+       }
+       /**
+        * 背景音乐资源路径
+        */
+       static get BGM_PATH(){
+           return BGM_PATH
+       }
+       /**
+        * 蛇预制体资源路径
+        */
+       static get SNAKE_PREFAB_PATH() {
+           return SNAKE_PREFAB_PATH
+       }
+       /**
+        * 蛇身预制体资源路径
+        */
+       static get SNAKEBODY_PREFAB_PATH() {
+           return SNAKEBODY_PREFAB_PATH
+       }
+       /**
+        * 食物身预制体资源路径
+        */
+       static get FOOD_PREFAB_PATH() {
+           return FOOD_PREFAB_PATH
+       }
+       static get LOAD_RESOURCES() {
+           //{url:BGM_PATH,type:Laya.Loader.SOUND},
+           return [{url:SNAKE_PREFAB_PATH,type:Laya.Loader.PREFAB},{url:SNAKEBODY_PREFAB_PATH,type:Laya.Loader.PREFAB},{url:FOOD_PREFAB_PATH,type:Laya.Loader.PREFAB}]
+       }
+       /**
+        * 资源映射关系
+        */
+       static get resourceMap(){
+           return resourceMap
+       }
+
+       /**
+        * 资源加载完成回调
+        * @param {是否完成} data 
+        */
+       static onResourcesLoaded(data){
+           console.log(data);
+           if(data){
+               Global.LOAD_RESOURCES.map(r=>{
+                   let d = Laya.loader.getRes(r.url);
+                   resourceMap[r.url] = d;
+               });
+           }
+           
+       }
+
+       static log(msg){
+           if(Laya.Browser.onMiniGame){
+               wx.showToast({title:msg+""});
+           } else {
+               console.log(msg);
+           }
+       }
+
+   }
+
    class GameSceneRuntime extends Laya.Scene {
 
        constructor() { 
@@ -46,7 +208,7 @@
 
            
 
-           this.gameTime = new Date('2000/1/1 00:01:05').getTime();
+           this.gameTime = new Date('2000/1/1 00:02:05').getTime();
 
            this.gameStart = false;
            /**
@@ -148,10 +310,23 @@
            this.scoreView.visible = true;
            this.refreshScore();
            this.controlPad.destroy();
+           this.saveScore();
        }
 
        refreshScore(){
            this.scoreLabel.text = this.playerScript.score;
+       }
+
+       /**
+        * 保存分数
+        */
+       saveScore(){
+
+           let param = {name:(Global.userInfo&&Global.userInfo.nickName)||this.playerScript.playerName,score:this.playerScript.score};
+
+           new HttpUtils().post(`${Global.ctx}/common/snake_score/insert`,GameUtils.param(param),(data)=>{
+               console.log(data);
+           },['token',Global.token,'code','snake']);
        }
 
        timeMinus(){
@@ -278,76 +453,6 @@
        onDestroy() {
            console.log(this.owner.name + "被销毁");
        }
-   }
-
-   const BGM_PATH='sound/bgm.mp3',SNAKE_PREFAB_PATH='res/sprite_snake1.prefab',SNAKEBODY_PREFAB_PATH='res/sprite_snakebody1.prefab',FOOD_PREFAB_PATH='res/sprite_food1.prefab';
-   const MAP_PATH='images/s1-bg.png';
-   // const ctx = 'http://localhost:8888'
-   const ctx = 'http://132.232.4.180:8888';
-   let resourceMap = {};
-   let userInfo = {};
-   class Global{
-       static get ctx(){
-           return ctx;
-       }
-       /**
-        * 背景音乐资源路径
-        */
-       static get BGM_PATH(){
-           return BGM_PATH
-       }
-       /**
-        * 蛇预制体资源路径
-        */
-       static get SNAKE_PREFAB_PATH() {
-           return SNAKE_PREFAB_PATH
-       }
-       /**
-        * 蛇身预制体资源路径
-        */
-       static get SNAKEBODY_PREFAB_PATH() {
-           return SNAKEBODY_PREFAB_PATH
-       }
-       /**
-        * 食物身预制体资源路径
-        */
-       static get FOOD_PREFAB_PATH() {
-           return FOOD_PREFAB_PATH
-       }
-       static get LOAD_RESOURCES() {
-           //{url:BGM_PATH,type:Laya.Loader.SOUND},
-           return [{url:SNAKE_PREFAB_PATH,type:Laya.Loader.PREFAB},{url:SNAKEBODY_PREFAB_PATH,type:Laya.Loader.PREFAB},{url:FOOD_PREFAB_PATH,type:Laya.Loader.PREFAB}]
-       }
-       /**
-        * 资源映射关系
-        */
-       static get resourceMap(){
-           return resourceMap
-       }
-
-       /**
-        * 资源加载完成回调
-        * @param {是否完成} data 
-        */
-       static onResourcesLoaded(data){
-           console.log(data);
-           if(data){
-               Global.LOAD_RESOURCES.map(r=>{
-                   let d = Laya.loader.getRes(r.url);
-                   resourceMap[r.url] = d;
-               });
-           }
-           
-       }
-
-       static log(msg){
-           if(Laya.Browser.onMiniGame){
-               wx.showToast({title:msg+""});
-           } else {
-               console.log(msg);
-           }
-       }
-
    }
 
    class Wall extends BaseScript {
@@ -677,70 +782,6 @@
        }
 
        onDisable() {
-       }
-   }
-
-   class HttpUtils extends Laya.HttpRequest{
-       
-       constructor(caller) {
-           super();
-           this.callback = (data)=>{
-               console.log(data);
-           };
-           this.progressCallback = (e)=>{
-               console.log('加载中...');
-               console.log(e);
-           };
-           this.errorCallback = (e)=>{
-               console.log(e);
-           };;
-       }
-       /**
-        * 发送 HTTP 请求。
-        * @param url 请求的地址。大多数浏览器实施了一个同源安全策略，并且要求这个 URL 与包含脚本的文本具有相同的主机名和端口。
-        * @param callback 请求成功调用的回调函数
-        * @param headers (default = null) HTTP 请求的头部信息。参数形如key-value数组：key是头部的名称，不应该包括空白、冒号或换行；value是头部的值，不应该包括换行。比如["Content-Type", "application/json"]。
-        */
-       get(url,callback,headers){
-           this.callback = callback;
-           this.on(Laya.Event.PROGRESS, this,this.progressCallback);
-           this.on(Laya.Event.ERROR, this,this.errorCallback);
-           this.on(Laya.Event.COMPLETE, this,this.callback);
-           this.send(url,null,'get','text',headers);
-
-           return this
-       }
-       /**
-        * 发送 HTTP 请求。
-        * @param url 请求的地址。大多数浏览器实施了一个同源安全策略，并且要求这个 URL 与包含脚本的文本具有相同的主机名和端口。
-        * @param callback 请求成功调用的回调函数
-        * @param headers (default = null) HTTP 请求的头部信息。参数形如key-value数组：key是头部的名称，不应该包括空白、冒号或换行；value是头部的值，不应该包括换行。比如["Content-Type", "application/json"]。
-        */
-       getJson(url,callback,headers){
-           this.callback = callback;
-           this.on(Laya.Event.PROGRESS, this,this.progressCallback);
-           this.on(Laya.Event.ERROR, this,this.errorCallback);
-           this.on(Laya.Event.COMPLETE, this,this.callback);
-           this.send(url,null,'get','json',headers);
-
-           return this
-       }
-
-       /**
-        * 发送 HTTP 请求。
-        * @param url 请求的地址。大多数浏览器实施了一个同源安全策略，并且要求这个 URL 与包含脚本的文本具有相同的主机名和端口。
-        * @param callback 请求成功调用的回调函数
-        * @param headers (default = null) HTTP 请求的头部信息。参数形如key-value数组：key是头部的名称，不应该包括空白、冒号或换行；value是头部的值，不应该包括换行。比如["Content-Type", "application/json"]。
-        */
-       post(url,data,callback,headers){
-           headers = headers.concat(['Content-Type','application/x-www-form-urlencoded;charset=utf-8']);
-           this.callback = callback;
-           this.on(Laya.Event.PROGRESS, this,this.progressCallback);
-           this.on(Laya.Event.ERROR, this,this.errorCallback);
-           this.on(Laya.Event.COMPLETE, this,this.callback);
-           this.send(url,data,'post','json',headers);
-
-           return this
        }
    }
 
@@ -1304,7 +1345,12 @@
 
        async onEaten(snake){ 
 
-           this.eating = true; 
+           this.eating = true;
+           
+           let snakeScript = snake.getComponent(Laya.Script);
+           //加分
+           snakeScript.plusScore();
+           snakeScript.plusFoodNum();
            
 
            this.animTime = 0;
@@ -1314,20 +1360,24 @@
        foodAnime(snake){
 
            let snakeScript = snake.getComponent(Laya.Script);
+           
+
            let self = this.owner;
            this.animTime++;
            self.x += (snakeScript.currentVelocity + 0.1) * Math.cos(Math.atan2(snake.y - self.y, snake.x - self.x));
            self.y += (snakeScript.currentVelocity + 0.1) * Math.sin(Math.atan2(snake.y - self.y, snake.x - self.x));
 
+
+           
            if(this.animTime>=60){
+               snakeScript.foodEat(this.owner);
+               snakeScript.foods.push(this.owner);
                Laya.timer.clear(this,this.foodAnime);
                // clearInterval(timer)    
                this.eating = false;
                this.animTime = 0;
 
                if(snakeScript && !snakeScript.dead){
-                   snakeScript.foodEat(this.owner);
-                   snakeScript.foods.push(this.owner);
                    Laya.Pool.recover('food',self.removeSelf());
                }
            }
@@ -1907,9 +1957,7 @@
         * @param {食物节点} food 
         */
        foodEat(food){
-           //加分
-           this.plusScore();
-           this.plusFoodNum();
+
            this._tmpFoods.push(food);
            this.wallScript.foodNum--;
            if(this._tmpFoods.length>=this.foodNumPerBody){
