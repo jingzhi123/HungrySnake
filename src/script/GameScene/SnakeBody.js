@@ -135,9 +135,9 @@ export default class SnakeBody extends BaseScript {
             food.y = this.owner.y + offset*GameUtils.randomSimbol();
             this.gameScene.wall.addChild(food)
 
-            //减少食物数量
-            this.snakeScript.minusFoodNum()
         }
+        //减少食物数量
+        this.snakeScript.minusFoodNum(this.foods.length)
         //体型减小
         if(this.snakeScript.curBodySize>=this.snakeScript.maxBodySize){
             this.snakeScript.curBodySize -= this.snakeScript.bodyStep;

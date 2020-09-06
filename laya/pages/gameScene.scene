@@ -1,8 +1,8 @@
 {
     "x":0,
     "type":"Scene",
-    "selectedBox":2,
-    "selecteID":25,
+    "selectedBox":51,
+    "selecteID":13,
     "searchKey":"Scene,game_scene,gameScene",
     "props":{"width":960,"var":"gameScene","texture":"images/s1-option-background.png","sceneColor":"#ffffff","sceneBg":"laya/views/scene/gameMain.png","runtime":"script/runtime/GameSceneRuntime.js","name":"game_scene","height":540,"autoDestroyAtClosed":true},
     "nodeParent":-1,

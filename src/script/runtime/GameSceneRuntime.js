@@ -74,7 +74,11 @@ export default class GameSceneRuntime extends Laya.Scene {
             this.btn_ctrl_rocker_move.visible = true
             if (GameUtils.distance(this.gameScene.mouseX, this.gameScene.mouseY, this.btn_ctrl.x, this.btn_ctrl.y) <= (this.gameScene.height)) {
                 this.btn_ctrl_rocker_move.pos(this.gameScene.mouseX, this.gameScene.mouseY)
-                this.playerSnake.event('rotationChange',Math.atan2(this.gameScene.mouseY - this.btn_ctrl.y, this.gameScene.mouseX - this.btn_ctrl.x) * 180 / Math.PI)
+
+
+                let rotation = Math.atan2(this.gameScene.mouseY - this.btn_ctrl.y, this.gameScene.mouseX - this.btn_ctrl.x) * 180 / Math.PI;
+
+                this.playerSnake.event('rotationChange',rotation)
                 // this.playerSnake.rotation = Math.atan2(this.gameScene.mouseY - this.btn_ctrl.y, this.gameScene.mouseX - this.btn_ctrl.x) * 180 / Math.PI
             } else {
                 this.btn_ctrl_rocker_move.pos(

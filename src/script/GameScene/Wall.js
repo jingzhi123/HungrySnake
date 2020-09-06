@@ -24,6 +24,7 @@ export default class Wall extends BaseScript {
         /** @prop {name:controlPad, tips:"操作面板", type:Node, default:null}*/
         let controlPad;
 
+        this.snakeInited = false;
 
         this.foodNum = 0;//当前食物数量
 
@@ -97,6 +98,7 @@ export default class Wall extends BaseScript {
     init(){
         Laya.timer.clear(this,this.initFood)
         this.playerComplete(this.gameScene.playerSnake)
+        this.snakeInited = true;
         Laya.timer.frameLoop(1,this,this.mainLoop)
     }
     /**
@@ -125,7 +127,7 @@ export default class Wall extends BaseScript {
      * 主循环
      */
     mainLoop(){
-        if(this.gameScene.gameStart){
+        if(this.gameScene.gameStart && this.snakeInited){
             this.loadFood()
             this.stateCheck();
 
@@ -217,17 +219,19 @@ export default class Wall extends BaseScript {
                     let y = Math.random()*(this.owner.height-10).toFixed(0)+10;
                     let food = Laya.Pool.getItem('food')
 
-                    food.x = x;
-                    food.y = y;
-                    food.foodOrder = this.foodOrder;
+                    if(food){
+                        food.x = x;
+                        food.y = y;
+                        food.foodOrder = this.foodOrder;
 
-                    this.foods[this.foodOrder] = food;
-                    // Laya.stage.addChild(food)
-                    this.owner.addChild(food)
-                    
-                    // this.foods[this.foodOrder] = food;
-                    this.foodOrder++;
-                    this.foodNum++;
+                        this.foods[this.foodOrder] = food;
+                        // Laya.stage.addChild(food)
+                        this.owner.addChild(food)
+                        
+                        // this.foods[this.foodOrder] = food;
+                        this.foodOrder++;
+                        this.foodNum++;
+                    }
                 }
             }
 

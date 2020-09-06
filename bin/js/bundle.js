@@ -272,7 +272,11 @@
                this.btn_ctrl_rocker_move.visible = true;
                if (GameUtils.distance(this.gameScene.mouseX, this.gameScene.mouseY, this.btn_ctrl.x, this.btn_ctrl.y) <= (this.gameScene.height)) {
                    this.btn_ctrl_rocker_move.pos(this.gameScene.mouseX, this.gameScene.mouseY);
-                   this.playerSnake.event('rotationChange',Math.atan2(this.gameScene.mouseY - this.btn_ctrl.y, this.gameScene.mouseX - this.btn_ctrl.x) * 180 / Math.PI);
+
+
+                   let rotation = Math.atan2(this.gameScene.mouseY - this.btn_ctrl.y, this.gameScene.mouseX - this.btn_ctrl.x) * 180 / Math.PI;
+
+                   this.playerSnake.event('rotationChange',rotation);
                    // this.playerSnake.rotation = Math.atan2(this.gameScene.mouseY - this.btn_ctrl.y, this.gameScene.mouseX - this.btn_ctrl.x) * 180 / Math.PI
                } else {
                    this.btn_ctrl_rocker_move.pos(
@@ -476,6 +480,7 @@
            /** @prop {name:controlPad, tips:"操作面板", type:Node, default:null}*/
            let controlPad;
 
+           this.snakeInited = false;
 
            this.foodNum = 0;//当前食物数量
 
@@ -549,6 +554,7 @@
        init(){
            Laya.timer.clear(this,this.initFood);
            this.playerComplete(this.gameScene.playerSnake);
+           this.snakeInited = true;
            Laya.timer.frameLoop(1,this,this.mainLoop);
        }
        /**
@@ -577,7 +583,7 @@
         * 主循环
         */
        mainLoop(){
-           if(this.gameScene.gameStart){
+           if(this.gameScene.gameStart && this.snakeInited){
                this.loadFood();
                this.stateCheck();
 
@@ -669,17 +675,19 @@
                        let y = Math.random()*(this.owner.height-10).toFixed(0)+10;
                        let food = Laya.Pool.getItem('food');
 
-                       food.x = x;
-                       food.y = y;
-                       food.foodOrder = this.foodOrder;
+                       if(food){
+                           food.x = x;
+                           food.y = y;
+                           food.foodOrder = this.foodOrder;
 
-                       this.foods[this.foodOrder] = food;
-                       // Laya.stage.addChild(food)
-                       this.owner.addChild(food);
-                       
-                       // this.foods[this.foodOrder] = food;
-                       this.foodOrder++;
-                       this.foodNum++;
+                           this.foods[this.foodOrder] = food;
+                           // Laya.stage.addChild(food)
+                           this.owner.addChild(food);
+                           
+                           // this.foods[this.foodOrder] = food;
+                           this.foodOrder++;
+                           this.foodNum++;
+                       }
                    }
                }
 
@@ -1255,7 +1263,6 @@
                        console.log(otherSnakeScript.hp);
                        //血量小于等于0,则自己死亡
                        if(otherSnakeScript.hp<=0){
-                           otherSnakeScript.hp = 0;//hp归零
                            otherOnwer.event("dead",otherSnakeScript.index + '号:没血死了');
                        }
                    }
@@ -1456,26 +1463,34 @@
 
            //初始身体大小
            this.initBodySize = 0.7;
-           //当前身体大小
+           /**
+            * 当前身体缩放大小
+            */
            this.curBodySize = 0.7;
-           //初始身体个数
+           /**
+            * 初始身体个数
+            */
            this.initBodyNum = 10;
-           //当前身体个数
+           /**
+            * 当前身体个数
+            */
            this.curBodyNum = 10;
-           //最大身体大小
+           /**
+            * 最大身体比例大小
+            */
            this.maxBodySize = 2;
 
            /**
             * 最大身体个数
             */
-           this.maxBodyNum;
+           this.maxBodyNum = 20;
 
            /**
             * 体型变化程度
             */
            this.bodyStep = 0.02;
 
-           this.foodNumPerBody = 5;//几分一个身体
+           this.foodNumPerBody = 10;//几分一个身体
 
            this.score = 0;//玩家分数
 
@@ -1483,6 +1498,9 @@
 
            //是否为当前玩家
            this.currentPlayer = false;//当前玩家
+
+
+           this.rotations = [];
 
 
            /**
@@ -1524,6 +1542,18 @@
            this.colorNum = Math.floor(Math.random() * (5 - 1 + 1) + 1);
 
            this.currentConcatIndex = -1;
+
+           /**
+            * 摇杆角度
+            */
+           this.targetR = 0;
+
+           /**
+            * 蛇蛇的角度
+            */
+           this.rotationTemp = 0;
+
+           this.speedObj = [];
 
        }
 
@@ -1571,7 +1601,7 @@
            this.scaleChange();
            this.onDead();
            this.pathArr = [];
-           Laya.timer.frameLoop(1,this,this.snakeLoop);
+           Laya.timer.frameLoop(.5,this,this.snakeLoop);
 
            this.snake.on('concat',this,(index)=>{
                console.log('concatafter:' + index);
@@ -1607,7 +1637,7 @@
 
        rotationChange(rotation){
            if(!this.dead){
-               this.snake.rotation = rotation;
+               this.targetR = rotation;
            }
        }
 
@@ -1633,7 +1663,9 @@
            bulletScript.level = this.curBodySize;
 
 
-           this.owner.parent.addChild(bullet);
+           if(this.owner.parent){
+               this.owner.parent.addChild(bullet);
+           }
        }
 
        initBody(){
@@ -1642,11 +1674,8 @@
 
                let bodyScript = snakeBody.getComponent(Laya.Script);
                bodyScript.snake = this.owner;
-               bodyScript.foods = this.wallScript.getFoods(5);
+               bodyScript.foods = this.wallScript.getFoods(this.foodNumPerBody);
 
-               bodyScript.foods.forEach(food=>{
-                   this.plusFoodNum();
-               });
 
                bodyScript.index = this.snakeBodyArr.length;
                
@@ -1656,6 +1685,7 @@
                this.snakeBodyArr.push(snakeBody);
                this.scaleChange();
            }
+           this.changeFoodNum(this.foodNumPerBody*this.initBodyNum);
        }
 
        //速度改变
@@ -1676,6 +1706,7 @@
            this.owner.on('dead',this,(msg)=>{
                console.log(msg);
 
+               this.hp = 0;//hp归零
                this.dead = true;
 
                //死亡的身体
@@ -1714,6 +1745,9 @@
            if(this.dead){
                return;
            }
+
+           this.owner.rotation = this.rotationTemp;
+
            if(this.speedMode){
                if(this.currentVelocity != this.velocity+this.acceleratedVelocity){
                    this.speedChange(this.velocity+this.acceleratedVelocity);
@@ -1733,12 +1767,12 @@
            if(this.owner.x + x + this.owner.width*this.curBodySize/2 < this.wall.width && this.owner.x + x >= this.owner.width*this.curBodySize/2){
                this.owner.x += x;
            } else {
-               //this.touchWall()
+               this.touchWall();
            }
            if(this.owner.y + y + this.owner.height*this.curBodySize/2 < this.wall.height && this.owner.y + y >= this.owner.height*this.curBodySize/2){
                this.owner.y += y;
            } else {
-               //this.touchWall()
+               this.touchWall();
            }
 
            
@@ -1769,7 +1803,7 @@
                if(GameUtils.distance(playerScript.owner.x,playerScript.owner.y,this.owner.x,this.owner.y) >= this.cameraWidth-100){
                    // console.log('接近',this.cameraWidth);
                    // this.owner.rotation = Math.atan2(this.owner.y - playerScript.owner.y, this.owner.x - playerScript.owner.x) * 180 / Math.PI
-                   this.owner.rotation = Math.atan2(playerScript.owner.y - this.owner.y, playerScript.owner.x - this.owner.x) * 180 / Math.PI;
+                   this.targetR = Math.atan2(playerScript.owner.y - this.owner.y, playerScript.owner.x - this.owner.x) * 180 / Math.PI;
 
                    
                    
@@ -1779,7 +1813,7 @@
                } else {
                    if(GameUtils.distance(playerScript.owner.x,playerScript.owner.y,this.owner.x,this.owner.y) < this.cameraWidth/2){
                        // this.owner.rotation = Math.atan2(playerScript.owner.y - this.owner.y, playerScript.owner.x - this.owner.x) * 180 / Math.PI
-                       this.owner.rotation = Math.atan2(this.owner.y - playerScript.owner.y, this.owner.x - playerScript.owner.x) * 180 / Math.PI;
+                       this.targetR = Math.atan2(this.owner.y - playerScript.owner.y, this.owner.x - playerScript.owner.x) * 180 / Math.PI;
                        
                        this.speedMode = false;
                    } else {
@@ -1793,9 +1827,8 @@
 
        stateCheck(){
            this.curBodyNum = this.snakeBodyArr.length;
-           this.attackScale = this.owner.width * this.curBodySize + 10;
-           this.bodySpace = this.owner.width * this.curBodySize ;
-           
+           this.attackScale = this.owner.width * this.curBodySize;
+           this.bodySpace = this.owner.width * this.curBodySize;
        }
 
        /**
@@ -1808,7 +1841,19 @@
                this.headMove();
                this.bodyMove();
                this.AIMove();
+               this.rotationCheck();
            }
+       }
+
+       rotationCheck(){
+           let perRotation = Math.abs(this.targetR - this.rotationTemp) < this.speedObj['rotation'] ? Math.abs(this.targetR - this.rotationTemp) : this.speedObj['rotation'];
+           if (this.targetR < -0 && this.rotationTemp > 0 && Math.abs(this.targetR) + this.rotationTemp > 180) {
+               perRotation = (180 - this.rotationTemp) + (180 + this.targetR) < this.speedObj['rotation'] ? (180 - this.rotationTemp) + (180 + this.targetR) : this.speedObj['rotation'];
+               this.rotationTemp += perRotation;
+           } else {
+               this.rotationTemp += this.targetR > this.rotationTemp && Math.abs(this.targetR - this.rotationTemp) <= 180 ? perRotation : -perRotation;
+           }
+           this.rotationTemp = Math.abs(this.rotationTemp) > 180 ? (this.rotationTemp > 0 ? this.rotationTemp - 360 : this.rotationTemp + 360) : this.rotationTemp;
        }
 
        /**
@@ -1825,6 +1870,7 @@
                    // body.scale(this.curBodySize,this.curBodySize)
                }
            }
+           this.speedObj["rotation"] = 5 / this.curBodySize;
        }
 
        //大小检查
@@ -1923,10 +1969,6 @@
            this.wall.addChild(snakeBody);
            Laya.Tween.from(snakeBody,{scaleX:0,scaleY:0},100,Laya.Ease.strongIn);
 
-           
-
-           
-           
        }
 
        /**
@@ -1941,9 +1983,10 @@
                food.y = this.owner.y + offset*GameUtils.randomSimbol();
                this.gameScene.wall.addChild(food);
 
-               //减少食物数量
-               this.minusFoodNum();
            }
+           //减少食物数量
+           this.minusFoodNum(dropFoods.length);
+
            this._tmpFoods = [];
            //体型减小
            if(this.curBodySize>=this.maxBodySize){
@@ -1953,7 +1996,7 @@
        }
 
        /**
-        * 吃食物,加分,加体型
+        * 吃食物,加体型
         * @param {食物节点} food 
         */
        foodEat(food){
@@ -2004,6 +2047,17 @@
         */
        minusScore(score){
            score?this.score-=score:this.score--;
+           if(this.currentPlayer){
+               this.gameScene.updateNums(this);
+           }
+       }
+
+       /**
+        * 增加食物数量
+        * @param {食物数} foodNum 
+        */
+       changeFoodNum(foodNum){
+           foodNum?(this.foodNum=foodNum):null;
            if(this.currentPlayer){
                this.gameScene.updateNums(this);
            }
@@ -2172,9 +2226,9 @@
                food.y = this.owner.y + offset*GameUtils.randomSimbol();
                this.gameScene.wall.addChild(food);
 
-               //减少食物数量
-               this.snakeScript.minusFoodNum();
            }
+           //减少食物数量
+           this.snakeScript.minusFoodNum(this.foods.length);
            //体型减小
            if(this.snakeScript.curBodySize>=this.snakeScript.maxBodySize){
                this.snakeScript.curBodySize -= this.snakeScript.bodyStep;

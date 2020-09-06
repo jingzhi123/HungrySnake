@@ -78,7 +78,6 @@ export default class Bullet extends BaseScript {
                     console.log(otherSnakeScript.hp);
                     //血量小于等于0,则自己死亡
                     if(otherSnakeScript.hp<=0){
-                        otherSnakeScript.hp = 0;//hp归零
                         otherOnwer.event("dead",otherSnakeScript.index + '号:没血死了')
                     }
                 }
