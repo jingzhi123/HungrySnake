@@ -65,6 +65,7 @@ P 68B0B190 head2.png
 P C1231F9C head3.png
 P 94E68FC4 head4.png
 P 73A8D07E head5.png
+R 12AF1C1F magnet.png
 P 9F526653 map-tile.jpg
 R 10F4AE84 mask.png
 R BB18F14E s1-background.jpg
@@ -75,8 +76,10 @@ P 33CA63E2 s1-input.png
 P CBA1994D s1-option-background.png
 P 66D3FD49 s1-radio.png
 D res
-R 01CFEDD5 bullet.prefab
+R 08D0CEAC bullet.prefab
 R BFF8857E sprite_food1.prefab
-R 15D0802A sprite_snake1.prefab
-R 5E132CEC sprite_snakebody1.prefab
+R 8A2DDF35 sprite_snake1.prefab
+R CB1A435E sprite_snakebody1.prefab
 D sound
+D res/items
+R 572EAE7A magnet.prefab

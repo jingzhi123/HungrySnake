@@ -12,7 +12,6 @@ export default class SceneScale extends Laya.Scene {
     onEnable() {
         // this.width = Laya.stage.width;
         // this.pos(0,0);
-        console.log(this.shootBtn);
         console.log("当前为:["+this.name + "]场景");
         if(this.name =='init_scene'){
             this.loadImage('images/s1-background.jpg',Laya.Handler.create(this,()=>{

@@ -24,6 +24,11 @@ export default class Wall extends BaseScript {
         /** @prop {name:controlPad, tips:"操作面板", type:Node, default:null}*/
         let controlPad;
 
+        //道具start
+        /** @prop {name:magnetRes, tips:"道具预制体资源", type:Prefab, default:null}*/
+        let magnetRes;
+        //道具end
+
         this.snakeInited = false;
 
         this.foodNum = 0;//当前食物数量
@@ -100,6 +105,20 @@ export default class Wall extends BaseScript {
         this.playerComplete(this.gameScene.playerSnake)
         this.snakeInited = true;
         Laya.timer.frameLoop(1,this,this.mainLoop)
+
+        this.itemControl()
+    }
+
+    /**
+     * 道具控制
+     */
+    itemControl(){
+        Laya.timer.once(1000,this,()=>{
+            let magnet = Laya.Pool.getItemByCreateFun('magnet',this.magnetRes.create,this.magnetRes)
+            magnet.getComponent(Laya.Script).wallScript = this.owner.script;
+            magnet.pos(this.gameScene.playerSnake.x + 50,this.gameScene.playerSnake.y)
+            this.owner.addChild(magnet)
+        })
     }
     /**
      * 状态检查
@@ -146,20 +165,23 @@ export default class Wall extends BaseScript {
     mapMove(snakeScript){
         //return;
 
-        let mapScale = 0.5 / snakeScript.curBodySize < 0.7 ? 0.7 : 0.5 / snakeScript.curBodySize
+        let mapScale =0.5 / this.gameScene.playerScript.curBodySize < 0.7 ? 0.7 : 0.5 / this.gameScene.playerScript.curBodySize
 
 
         // this.owner.x = -1 * (this.gameScene.playerSnake.x + this.gameScene.playerSnake.width / 2 - this.owner.width / 2) * mapScale + this.owner.width / 2
         // this.owner.y = -1 * (this.gameScene.playerSnake.y + this.gameScene.playerSnake.height / 2 - this.owner.height / 2) * mapScale + this.owner.height / 2
 
         //固定视角
-        this.owner.x = -(this.gameScene.playerSnake.x-this.owner.width / 2) 
-        this.owner.y = -(this.gameScene.playerSnake.y-this.owner.height / 2) 
+        this.owner.x = -(this.gameScene.playerSnake.x-this.owner.width / 2)// * mapScale
+        this.owner.y = -(this.gameScene.playerSnake.y-this.owner.height / 2)// * mapScale
 
         // this.owner.x = -1300
         // this.owner.y = -700
         // console.log(this.owner);
         // this.owner.scale(2, 2)
+        // this.owner.scale(mapScale,mapScale)
+
+        // Laya.Tween.to(this.owner,{scaleX:mapScale,scaleY:mapScale},200)
 
     }
 
@@ -301,6 +323,6 @@ export default class Wall extends BaseScript {
 
 
     onDisable() {
-
+        Laya.timer.clear(this,this.mainLoop)
     }
 }

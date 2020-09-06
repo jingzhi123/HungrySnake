@@ -39,7 +39,7 @@ export default class Bullet extends BaseScript {
     initDamage(){
         switch (this.type) {
             case 'normal':
-                this.damage = 1;
+                this.damage = 2;
                 break;
             default:
                 break;
@@ -57,49 +57,71 @@ export default class Bullet extends BaseScript {
     }
 
     onTriggerEnter(other,self){
-        let otherOnwer = other.owner
-        let otherScript = otherOnwer.script;
-        let otherSnake = otherScript.snake;
-        let otherSnakeScript = otherSnake.script;
-
-        //没打自己
-        if(otherSnakeScript.index!=this.snakeScript.index){
-            self.owner.removeSelf();
-            this.snakeScript.plusScore(this.damage*5)
-            //伤害了身体
-            if(other.name == 'body_collider'){
+        
+        //伤害了身体
+        if(other.name == 'body_collider'){
+            let otherOnwer = other.owner
+            let otherScript = otherOnwer.script;
+            let otherSnake = otherScript.snake;
+            let otherSnakeScript = otherSnake.script;
+            //没打自己
+            if(otherSnakeScript.index!=this.snakeScript.index){
+                self.owner.removeSelf();
+                this.snakeScript.plusScore(this.damage*5)
                 otherScript.ifDestory(self.owner)
-                // this.owner.destroy()
             }
-            //伤害了头
-            if(other.name == 'snake_collider'){
+        }
+        //伤害了头
+        if(other.name == 'snake_collider'){
+            let otherOnwer = other.owner
+            let otherScript = otherOnwer.script;
+            let otherSnake = otherScript.snake;
+            let otherSnakeScript = otherSnake.script;
+            //没打自己
+            if(otherSnakeScript.index!=this.snakeScript.index){
+                self.owner.removeSelf();
+                console.log('伤害了头');
                 if(!otherSnakeScript.dead){//没死扣血
                     otherSnakeScript.hp -= this.damage;
                     console.log(otherSnakeScript.hp);
                     //血量小于等于0,则自己死亡
                     if(otherSnakeScript.hp<=0){
-                        otherOnwer.event("dead",otherSnakeScript.index + '号:没血死了')
+                        otherOnwer.event("dead",this.snakeScript)
                     }
                 }
-
             }
-
 
         }
     }
 
     onAwake(){
         super.onAwake()
+
+        this.owner.visible = false;
+        this.wall = this.owner.parent;
         this.collider = this.owner.getComponent(Laya.CircleCollider)
         this.rigid = this.owner.getComponent(Laya.RigidBody)
     }
 
     onUpdate(){
+
         this.scaleCheck()
         let x = this.velocity*Math.cos(this.rotation * Math.PI / 180)
         let y = this.velocity*Math.sin(this.rotation * Math.PI / 180)
         this.owner.x +=x;
         this.owner.y +=y;
+
+        if(this.owner.x + x + this.owner.width*this.snakeScript.curBodySize/2 < this.wall.width && this.owner.x + x >= this.owner.width*this.snakeScript.curBodySize/2){
+
+        } else {
+            this.owner.removeSelf()
+        }
+
+        if(this.owner.y + y + this.owner.height*this.snakeScript.curBodySize/2 < this.wall.height && this.owner.y + y >= this.owner.height*this.snakeScript.curBodySize/2){
+
+        } else {
+            this.owner.removeSelf()
+        }
     }
 
     scaleCheck(){
@@ -113,6 +135,8 @@ export default class Bullet extends BaseScript {
         this.owner.x = this.snake.x;
         this.owner.y = this.snake.y;
         this.rotation = this.snake.rotation;
+        this.scaleCheck();
+        this.owner.visible = true;
     }
 
     onDisable() {

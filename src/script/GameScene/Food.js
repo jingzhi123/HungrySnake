@@ -34,7 +34,7 @@ export default class Food extends BaseScript {
                     let self = this.owner.getComponent(Laya.CircleCollider)
                     let snakeScript = snake.getComponent(Laya.Script)
                     if(snakeScript && !snakeScript.dead){
-                        if(!this.eating && Math.abs(snake.x-this.owner.x)<snakeScript.attackScale && Math.abs(snake.y-this.owner.y)<snakeScript.attackScale){
+                        if(!this.eating && Math.abs(snake.x-this.owner.x)<snakeScript.eatScale && Math.abs(snake.y-this.owner.y)<snakeScript.eatScale){
                             this.onEaten(snake)
                         }
 

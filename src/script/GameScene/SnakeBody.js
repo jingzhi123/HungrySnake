@@ -10,6 +10,10 @@ export default class SnakeBody extends BaseScript {
          */
         this.snake;
         /**
+         * 蛇脚本
+         */
+        this.snakeScript;
+        /**
          * 每个身体存储的食物
          */
         this.foods = [];
@@ -61,6 +65,7 @@ export default class SnakeBody extends BaseScript {
     onAwake(){
         super.onAwake()
         
+        this.owner.visible = false;
         
         this.snakeScript = this.snake.getComponent(Laya.Script)
         this.collider = this.owner.getComponent(Laya.CircleCollider)
@@ -69,7 +74,6 @@ export default class SnakeBody extends BaseScript {
     onEnable() {
         this.initHP();
         this.initSkin();
-        this.owner.visible = true;
     }
 
 
@@ -129,7 +133,7 @@ export default class SnakeBody extends BaseScript {
         console.log('掉落了:'+this.foods.length);
         
         for(let i = 0;i<this.foods.length;i++){
-            let offset = Math.random()*6;
+            let offset = Math.random()*this.owner.width*this.snakeScript.curBodySize;
             let food = this.foods[i];
             food.x = this.owner.x + offset*GameUtils.randomSimbol();
             food.y = this.owner.y + offset*GameUtils.randomSimbol();

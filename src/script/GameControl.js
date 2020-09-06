@@ -1,6 +1,7 @@
 import BaseScript from './BaseScript'
 import Global from '../common/Global';
 import HttpUtils from '../common/HttpUtils';
+import Player from '../common/Player';
 
 export default class GameControl extends BaseScript {
 
@@ -148,7 +149,7 @@ export default class GameControl extends BaseScript {
 
 
         } else {
-            this.nicknameLabel.text = '游客1'
+            this.nicknameLabel.text = Player.playerName;
         }
     }
 

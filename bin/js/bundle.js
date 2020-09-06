@@ -200,6 +200,11 @@
 
    }
 
+   var Player = {
+       playerName:'游客',
+       
+   };
+
    class GameSceneRuntime extends Laya.Scene {
 
        constructor() { 
@@ -326,7 +331,7 @@
         */
        saveScore(){
 
-           let param = {name:(Global.userInfo&&Global.userInfo.nickName)||this.playerScript.playerName,score:this.playerScript.score};
+           let param = {name:(Global.userInfo&&Global.userInfo.nickName)||Player.playerName,score:this.playerScript.score};
 
            new HttpUtils().post(`${Global.ctx}/common/snake_score/insert`,GameUtils.param(param),(data)=>{
                console.log(data);
@@ -388,6 +393,7 @@
        initNums(){
            this.scoreText.text = 0;
            this.foodNumText.text = 0;
+           this.killNumText.text = 0;
        }
 
        /**
@@ -397,6 +403,7 @@
        updateNums(snakeScript){
            this.scoreText.text = snakeScript.score;
            this.foodNumText.text = snakeScript.foodNum;
+           this.killNumText.text = snakeScript.killNum;
        }
    }
 
@@ -480,6 +487,11 @@
            /** @prop {name:controlPad, tips:"操作面板", type:Node, default:null}*/
            let controlPad;
 
+           //道具start
+           /** @prop {name:magnetRes, tips:"道具预制体资源", type:Prefab, default:null}*/
+           let magnetRes;
+           //道具end
+
            this.snakeInited = false;
 
            this.foodNum = 0;//当前食物数量
@@ -556,6 +568,20 @@
            this.playerComplete(this.gameScene.playerSnake);
            this.snakeInited = true;
            Laya.timer.frameLoop(1,this,this.mainLoop);
+
+           this.itemControl();
+       }
+
+       /**
+        * 道具控制
+        */
+       itemControl(){
+           Laya.timer.once(1000,this,()=>{
+               let magnet = Laya.Pool.getItemByCreateFun('magnet',this.magnetRes.create,this.magnetRes);
+               magnet.getComponent(Laya.Script).wallScript = this.owner.script;
+               magnet.pos(this.gameScene.playerSnake.x + 50,this.gameScene.playerSnake.y);
+               this.owner.addChild(magnet);
+           });
        }
        /**
         * 状态检查
@@ -602,20 +628,23 @@
        mapMove(snakeScript){
            //return;
 
-           let mapScale = 0.5 / snakeScript.curBodySize < 0.7 ? 0.7 : 0.5 / snakeScript.curBodySize;
+           let mapScale =0.5 / this.gameScene.playerScript.curBodySize < 0.7 ? 0.7 : 0.5 / this.gameScene.playerScript.curBodySize;
 
 
            // this.owner.x = -1 * (this.gameScene.playerSnake.x + this.gameScene.playerSnake.width / 2 - this.owner.width / 2) * mapScale + this.owner.width / 2
            // this.owner.y = -1 * (this.gameScene.playerSnake.y + this.gameScene.playerSnake.height / 2 - this.owner.height / 2) * mapScale + this.owner.height / 2
 
            //固定视角
-           this.owner.x = -(this.gameScene.playerSnake.x-this.owner.width / 2); 
-           this.owner.y = -(this.gameScene.playerSnake.y-this.owner.height / 2); 
+           this.owner.x = -(this.gameScene.playerSnake.x-this.owner.width / 2);// * mapScale
+           this.owner.y = -(this.gameScene.playerSnake.y-this.owner.height / 2);// * mapScale
 
            // this.owner.x = -1300
            // this.owner.y = -700
            // console.log(this.owner);
            // this.owner.scale(2, 2)
+           // this.owner.scale(mapScale,mapScale)
+
+           // Laya.Tween.to(this.owner,{scaleX:mapScale,scaleY:mapScale},200)
 
        }
 
@@ -757,7 +786,7 @@
 
 
        onDisable() {
-
+           Laya.timer.clear(this,this.mainLoop);
        }
    }
 
@@ -939,7 +968,7 @@
 
 
            } else {
-               this.nicknameLabel.text = '游客1';
+               this.nicknameLabel.text = Player.playerName;
            }
        }
 
@@ -1166,7 +1195,6 @@
        onEnable() {
            // this.width = Laya.stage.width;
            // this.pos(0,0);
-           console.log(this.shootBtn);
            console.log("当前为:["+this.name + "]场景");
            if(this.name =='init_scene'){
                this.loadImage('images/s1-background.jpg',Laya.Handler.create(this,()=>{
@@ -1224,7 +1252,7 @@
        initDamage(){
            switch (this.type) {
                case 'normal':
-                   this.damage = 1;
+                   this.damage = 2;
                    break;
                default:
                    break;
@@ -1242,49 +1270,71 @@
        }
 
        onTriggerEnter(other,self){
-           let otherOnwer = other.owner;
-           let otherScript = otherOnwer.script;
-           let otherSnake = otherScript.snake;
-           let otherSnakeScript = otherSnake.script;
-
-           //没打自己
-           if(otherSnakeScript.index!=this.snakeScript.index){
-               self.owner.removeSelf();
-               this.snakeScript.plusScore(this.damage*5);
-               //伤害了身体
-               if(other.name == 'body_collider'){
+           
+           //伤害了身体
+           if(other.name == 'body_collider'){
+               let otherOnwer = other.owner;
+               let otherScript = otherOnwer.script;
+               let otherSnake = otherScript.snake;
+               let otherSnakeScript = otherSnake.script;
+               //没打自己
+               if(otherSnakeScript.index!=this.snakeScript.index){
+                   self.owner.removeSelf();
+                   this.snakeScript.plusScore(this.damage*5);
                    otherScript.ifDestory(self.owner);
-                   // this.owner.destroy()
                }
-               //伤害了头
-               if(other.name == 'snake_collider'){
+           }
+           //伤害了头
+           if(other.name == 'snake_collider'){
+               let otherOnwer = other.owner;
+               let otherScript = otherOnwer.script;
+               let otherSnake = otherScript.snake;
+               let otherSnakeScript = otherSnake.script;
+               //没打自己
+               if(otherSnakeScript.index!=this.snakeScript.index){
+                   self.owner.removeSelf();
+                   console.log('伤害了头');
                    if(!otherSnakeScript.dead){//没死扣血
                        otherSnakeScript.hp -= this.damage;
                        console.log(otherSnakeScript.hp);
                        //血量小于等于0,则自己死亡
                        if(otherSnakeScript.hp<=0){
-                           otherOnwer.event("dead",otherSnakeScript.index + '号:没血死了');
+                           otherOnwer.event("dead",this.snakeScript);
                        }
                    }
-
                }
-
 
            }
        }
 
        onAwake(){
            super.onAwake();
+
+           this.owner.visible = false;
+           this.wall = this.owner.parent;
            this.collider = this.owner.getComponent(Laya.CircleCollider);
            this.rigid = this.owner.getComponent(Laya.RigidBody);
        }
 
        onUpdate(){
+
            this.scaleCheck();
            let x = this.velocity*Math.cos(this.rotation * Math.PI / 180);
            let y = this.velocity*Math.sin(this.rotation * Math.PI / 180);
            this.owner.x +=x;
            this.owner.y +=y;
+
+           if(this.owner.x + x + this.owner.width*this.snakeScript.curBodySize/2 < this.wall.width && this.owner.x + x >= this.owner.width*this.snakeScript.curBodySize/2){
+
+           } else {
+               this.owner.removeSelf();
+           }
+
+           if(this.owner.y + y + this.owner.height*this.snakeScript.curBodySize/2 < this.wall.height && this.owner.y + y >= this.owner.height*this.snakeScript.curBodySize/2){
+
+           } else {
+               this.owner.removeSelf();
+           }
        }
 
        scaleCheck(){
@@ -1298,10 +1348,94 @@
            this.owner.x = this.snake.x;
            this.owner.y = this.snake.y;
            this.rotation = this.snake.rotation;
+           this.scaleCheck();
+           this.owner.visible = true;
        }
 
        onDisable() {
            Laya.Pool.recover('bullet',this.owner);
+       }
+   }
+
+   class Item extends BaseScript {
+
+       constructor() { 
+           super(); 
+           this.eating = false;
+           this.duration = 10000;
+       }
+       
+       onAwake() {
+           super.onAwake();
+           console.log('道具生成' + this.owner.name);
+           
+       }
+
+       onEaten(snake){
+           this.eating = true;
+           this.effect(snake);
+           this.owner.removeSelf();
+       }
+
+
+       onUpdate(){
+           let snakes = this.wallScript.snakes;
+           if(snakes){
+               snakes.forEach(snake=>{
+                   if(snake){
+                       let snakeScript = snake.getComponent(Laya.Script);
+                       if(snakeScript && !snakeScript.dead){
+                           if(!this.eating && Math.abs(snake.x-this.owner.x)-this.owner.width/2<snakeScript.eatScale && Math.abs(snake.y-this.owner.y)-this.owner.height/2<snakeScript.eatScale){
+                               this.onEaten(snake);
+                           }
+
+                       }
+                   }
+               });
+
+           }
+       }
+
+       onDisable() {
+           
+       }
+   }
+
+   class Magnet extends Item {
+
+       constructor() { 
+           super(); 
+           this.name = '吸铁石';
+
+           this.wallScript;
+
+           /**
+            * 状态
+            */
+           this.status;
+           
+           this.statusImg = 'images/magnet.png';
+       }
+
+       effect(snake){
+           
+           snake.script.eatScale = 100;
+           snake.script.stopScale = true;
+           Laya.timer.once(this.duration,this,()=>{
+               snake.script.stopScale = false;
+               this.status.destroy();
+           });
+       }
+       
+       onEnable() {
+       }
+
+       onDisable() {
+           Laya.Pool.recover('magnet',this.owner);
+           this.status = new Laya.Image('images/magnet.png');
+           this.status.width = 20;
+           this.status.height = 20;
+           this.gameScene.statusPanel.addChild(this.status);
        }
    }
 
@@ -1339,7 +1473,7 @@
                        let self = this.owner.getComponent(Laya.CircleCollider);
                        let snakeScript = snake.getComponent(Laya.Script);
                        if(snakeScript && !snakeScript.dead){
-                           if(!this.eating && Math.abs(snake.x-this.owner.x)<snakeScript.attackScale && Math.abs(snake.y-this.owner.y)<snakeScript.attackScale){
+                           if(!this.eating && Math.abs(snake.x-this.owner.x)<snakeScript.eatScale && Math.abs(snake.y-this.owner.y)<snakeScript.eatScale){
                                this.onEaten(snake);
                            }
 
@@ -1457,16 +1591,16 @@
            this.pathArr=[];
 
            /**
-            * 攻击范围
+            * 吃食物范围
             */
-           this.attackScale = 50;
+           this.eatScale = 50;
 
            //初始身体大小
-           this.initBodySize = 0.7;
+           this.initBodySize = .7;
            /**
             * 当前身体缩放大小
             */
-           this.curBodySize = 0.7;
+           this.curBodySize = this.initBodySize;
            /**
             * 初始身体个数
             */
@@ -1474,7 +1608,7 @@
            /**
             * 当前身体个数
             */
-           this.curBodyNum = 10;
+           this.curBodyNum = this.initBodyNum;
            /**
             * 最大身体比例大小
             */
@@ -1488,11 +1622,13 @@
            /**
             * 体型变化程度
             */
-           this.bodyStep = 0.02;
+           this.bodyStep = 0.01;
 
            this.foodNumPerBody = 10;//几分一个身体
 
            this.score = 0;//玩家分数
+
+           this.killNum = 0;
 
            this.bodySpace = 10;//身体间距
 
@@ -1555,6 +1691,8 @@
 
            this.speedObj = [];
 
+           this.stopScale = false;
+
        }
 
        reverseRotation() {
@@ -1567,7 +1705,7 @@
        initHp(){
            switch (this.type) {
                case 'normal':
-                   this.hp = 1;
+                   this.hp = 10;
                    break;
                default:
                    break;
@@ -1583,10 +1721,10 @@
        onAwake(){
            super.onAwake();
 
-           this.initHp();
            this.initSkin();
 
 
+           this.collider = this.owner.getComponent(Laya.CircleCollider);
            this.cameraWidth = this.gameScene.width/2;
            this.wall = this.owner.parent;
            this.wallScript = this.wall.script;
@@ -1597,11 +1735,12 @@
 
        onEnable(){
            this.dead = false;
+           this.initHp();
            this.curBodySize = this.initBodySize;
            this.scaleChange();
            this.onDead();
            this.pathArr = [];
-           Laya.timer.frameLoop(.5,this,this.snakeLoop);
+           Laya.timer.loop(1,this,this.snakeLoop);
 
            this.snake.on('concat',this,(index)=>{
                console.log('concatafter:' + index);
@@ -1654,7 +1793,6 @@
         */
        shoot(){
            let bullet = Laya.Pool.getItemByCreateFun('bullet',this.bulletRes.create,this.bulletRes);
-           bullet.snake = this.owner;
 
 
            let bulletScript = bullet.getComponent(Laya.Script);
@@ -1703,11 +1841,16 @@
 
        onDead(){
            //监听死亡
-           this.owner.on('dead',this,(msg)=>{
+           this.owner.on('dead',this,(otherSnakeScript,msg)=>{
+
                console.log(msg);
 
                this.hp = 0;//hp归零
                this.dead = true;
+
+               if(otherSnakeScript!=null){
+                   otherSnakeScript.plusKillNum();
+               }
 
                //死亡的身体
                let deadBodys = [].concat(this.snakeBodyArr);
@@ -1734,18 +1877,13 @@
 
        touchWall(){
            //碰到墙了
-           this.owner.event('dead','创强了!');
+           this.owner.event('dead',[null,'创强了!']);
        }
 
        /**
         * 蛇头移动
         */
        headMove(){
-           
-           if(this.dead){
-               return;
-           }
-
            this.owner.rotation = this.rotationTemp;
 
            if(this.speedMode){
@@ -1766,28 +1904,30 @@
            // console.log(this.owner.x,this.owner.y,this.wall.width);
            if(this.owner.x + x + this.owner.width*this.curBodySize/2 < this.wall.width && this.owner.x + x >= this.owner.width*this.curBodySize/2){
                this.owner.x += x;
+               pos.x = this.owner.x;
            } else {
                this.touchWall();
            }
            if(this.owner.y + y + this.owner.height*this.curBodySize/2 < this.wall.height && this.owner.y + y >= this.owner.height*this.curBodySize/2){
                this.owner.y += y;
+               pos.y = this.owner.y;
            } else {
                this.touchWall();
            }
 
            
            for (let index = 1; index <= this.currentVelocity; index++) {
-               this.times++;
-               // console.log(this.times-this.lastTimes);
-               this.lastTimes = this.times;
-               if(this.snakeBodyArr.length){
-                   this.pathArr.unshift({x:this.snake.x,y:this.snake.y,rotation:this.snake.rotation});
-               }
 
-               // this.pathArr.unshift({
-               //     x: index * Math.cos(Math.atan2(pos.y - posBefore.y, pos.x - posBefore.x)) + posBefore.x
-               //     , y: index * Math.sin(Math.atan2(pos.y - posBefore.y, pos.x - posBefore.x)) + posBefore.y
-               // })
+               // if(this.snakeBodyArr.length){
+               //     this.pathArr.unshift({x:this.snake.x,y:this.snake.y,rotation:this.snake.rotation})
+               // }
+
+               if(this.snakeBodyArr.length){
+                   this.pathArr.unshift({
+                       x: index * Math.cos(Math.atan2(pos.y - posBefore.y, pos.x - posBefore.x)) + posBefore.x
+                       , y: index * Math.sin(Math.atan2(pos.y - posBefore.y, pos.x - posBefore.x)) + posBefore.y
+                   });
+               }
            }
 
        }
@@ -1827,7 +1967,9 @@
 
        stateCheck(){
            this.curBodyNum = this.snakeBodyArr.length;
-           this.attackScale = this.owner.width * this.curBodySize;
+           if(!this.stopScale){
+               this.eatScale = this.owner.width/2 * this.curBodySize + 3;
+           }
            this.bodySpace = this.owner.width * this.curBodySize;
        }
 
@@ -1870,12 +2012,13 @@
                    // body.scale(this.curBodySize,this.curBodySize)
                }
            }
-           this.speedObj["rotation"] = 5 / this.curBodySize;
+           this.speedObj["rotation"] = this.owner.width*this.curBodySize*.7;
        }
 
        //大小检查
        scaleCheck(){
            this.owner.scale(this.curBodySize,this.curBodySize);
+           
            for(let i = 0;i<this.snakeBodyArr.length;i++){
                let body = this.snakeBodyArr[i];
                if(body.parent){
@@ -1928,6 +2071,7 @@
                            
                            body.x = p.x;
                            body.y = p.y;
+                           body.visible = true;
 
                        } else {
                            Laya.Tween.to(body,{x:p.x,y:p.y},100,null,Laya.Handler.create(this,()=>{
@@ -1977,7 +2121,7 @@
        dropFood(){
            let dropFoods = [].concat(this._tmpFoods);
            for(let i = 0;i<dropFoods.length;i++){
-               let offset = Math.random()*6;
+               let offset = Math.random()*this.owner.width*this.curBodySize;
                let food = dropFoods[i];
                food.x = this.owner.x + offset*GameUtils.randomSimbol();
                food.y = this.owner.y + offset*GameUtils.randomSimbol();
@@ -2017,6 +2161,7 @@
        }
        
        onDisable() {
+           Laya.timer.clear(this, this.snakeLoop);
            this.dropFood();
            Laya.timer.once(1000,this,()=>{
                if(this.currentPlayer){
@@ -2053,7 +2198,7 @@
        }
 
        /**
-        * 增加食物数量
+        * 改变食物数量
         * @param {食物数} foodNum 
         */
        changeFoodNum(foodNum){
@@ -2089,6 +2234,32 @@
                this.gameScene.updateNums(this);
            }
        }
+       /**
+        * 增加击杀数量
+        * @param {击杀数} foodNum 
+        */
+       plusKillNum(killNum){
+           killNum?this.killNum+=killNum:this.killNum++;
+           if(this.currentPlayer){
+               this.gameScene.updateNums(this);
+           }
+       }
+
+       /**
+        * 减少击杀数量数值
+        * @param {击杀数量} killNum 
+        */
+       minusKillNum(killNum){
+
+           if(this.killNum>0){
+               killNum?this.killNum-=killNum:this.killNum--;
+           } else {
+               this.killNum = 0;
+           }
+           if(this.currentPlayer){
+               this.gameScene.updateNums(this);
+           }
+       }
        
    }
 
@@ -2100,6 +2271,10 @@
             * 对应的蛇
             */
            this.snake;
+           /**
+            * 蛇脚本
+            */
+           this.snakeScript;
            /**
             * 每个身体存储的食物
             */
@@ -2152,6 +2327,7 @@
        onAwake(){
            super.onAwake();
            
+           this.owner.visible = false;
            
            this.snakeScript = this.snake.getComponent(Laya.Script);
            this.collider = this.owner.getComponent(Laya.CircleCollider);
@@ -2160,7 +2336,6 @@
        onEnable() {
            this.initHP();
            this.initSkin();
-           this.owner.visible = true;
        }
 
 
@@ -2220,7 +2395,7 @@
            console.log('掉落了:'+this.foods.length);
            
            for(let i = 0;i<this.foods.length;i++){
-               let offset = Math.random()*6;
+               let offset = Math.random()*this.owner.width*this.snakeScript.curBodySize;
                let food = this.foods[i];
                food.x = this.owner.x + offset*GameUtils.randomSimbol();
                food.y = this.owner.y + offset*GameUtils.randomSimbol();
@@ -2251,6 +2426,7 @@
    		reg("script/Common/SceneScale.js",SceneScale);
    		reg("script/GameControl.js",GameControl);
    		reg("script/GameScene/Bullet.js",Bullet);
+   		reg("script/Items/Magnet.js",Magnet);
    		reg("script/GameScene/Food.js",Food);
    		reg("script/GameScene/Snake.js",Snake);
    		reg("script/GameScene/SnakeBody.js",SnakeBody);
@@ -2266,7 +2442,7 @@
    GameConfig.sceneRoot = "";
    GameConfig.debug = false;
    GameConfig.stat = false;
-   GameConfig.physicsDebug = false;
+   GameConfig.physicsDebug = true;
    GameConfig.exportSceneToJson = true;
 
    GameConfig.init();

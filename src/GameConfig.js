@@ -7,6 +7,7 @@ import GameScene from "./script/GameScene/GameScene"
 import SceneScale from "./script/Common/SceneScale"
 import GameControl from "./script/GameControl"
 import Bullet from "./script/GameScene/Bullet"
+import Magnet from "./script/Items/Magnet"
 import Food from "./script/GameScene/Food"
 import Snake from "./script/GameScene/Snake"
 import SnakeBody from "./script/GameScene/SnakeBody"
@@ -23,6 +24,7 @@ export default class GameConfig {
 		reg("script/Common/SceneScale.js",SceneScale);
 		reg("script/GameControl.js",GameControl);
 		reg("script/GameScene/Bullet.js",Bullet);
+		reg("script/Items/Magnet.js",Magnet);
 		reg("script/GameScene/Food.js",Food);
 		reg("script/GameScene/Snake.js",Snake);
 		reg("script/GameScene/SnakeBody.js",SnakeBody);
@@ -38,7 +40,7 @@ GameConfig.startScene = "gameScene.scene";
 GameConfig.sceneRoot = "";
 GameConfig.debug = false;
 GameConfig.stat = false;
-GameConfig.physicsDebug = false;
+GameConfig.physicsDebug = true;
 GameConfig.exportSceneToJson = true;
 
 GameConfig.init();

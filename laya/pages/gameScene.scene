@@ -1,12 +1,12 @@
 {
     "x":0,
     "type":"Scene",
-    "selectedBox":51,
-    "selecteID":13,
+    "selectedBox":2,
+    "selecteID":276,
     "searchKey":"Scene,game_scene,gameScene",
     "props":{"width":960,"var":"gameScene","texture":"images/s1-option-background.png","sceneColor":"#ffffff","sceneBg":"laya/views/scene/gameMain.png","runtime":"script/runtime/GameSceneRuntime.js","name":"game_scene","height":540,"autoDestroyAtClosed":true},
     "nodeParent":-1,
-    "maxID":267,
+    "maxID":278,
     "label":"game_scene",
     "isOpen":true,
     "isDirectory":true,
@@ -39,14 +39,13 @@
             "props":{"y":270,"x":479,"width":1,"runtime":"script/Common/CenterPos.js","name":"center","height":1},
             "nodeParent":2,
             "label":"center",
-            "isOpen":true,
+            "isOpen":false,
             "isDirectory":true,
             "isAniNode":true,
             "hasChild":true,
             "compId":51,
             "child":[
                 {
-                    "x":30,
                     "type":"Sprite",
                     "searchKey":"Sprite,sprite_scorelist",
                     "props":{"y":-154,"x":-103,"width":206,"visible":false,"name":"sprite_scorelist","height":151},
@@ -59,7 +58,6 @@
                     "compId":103,
                     "child":[
                         {
-                            "x":45,
                             "type":"Panel",
                             "searchKey":"Panel,panel_score",
                             "props":{"y":-7,"x":-12,"width":230,"name":"panel_score","height":168},
@@ -75,7 +73,6 @@
                         }]
                 },
                 {
-                    "x":30,
                     "type":"Image",
                     "searchKey":"Image,sprite_wall,wall",
                     "props":{"width":3000,"var":"wall","skin":"images/s1-background.jpg","pivotY":750,"pivotX":1500,"name":"sprite_wall","height":1500},
@@ -88,45 +85,12 @@
                     "compId":13,
                     "child":[
                         {
-                            "x":45,
-                            "type":"RigidBody",
-                            "switchAble":true,
-                            "searchKey":"RigidBody,rigid_wall",
-                            "removeAble":true,
-                            "props":{"type":"static","name":"rigid_wall"},
-                            "nodeParent":13,
-                            "label":"rigid_wall",
-                            "isDirectory":false,
-                            "isAniNode":true,
-                            "hasChild":false,
-                            "compId":186,
-                            "child":[
-                                ]
-                        },
-                        {
-                            "x":45,
-                            "type":"ChainCollider",
-                            "switchAble":true,
-                            "searchKey":"ChainCollider,collider_wall",
-                            "removeAble":true,
-                            "props":{"points":"0,0,0,1500,3000,1500,3000,0,0,0","name":"collider_wall"},
-                            "nodeParent":13,
-                            "label":"collider_wall",
-                            "isDirectory":false,
-                            "isAniNode":true,
-                            "hasChild":false,
-                            "compId":190,
-                            "child":[
-                                ]
-                        },
-                        {
-                            "x":45,
                             "type":"Script",
                             "switchAble":true,
                             "source":"src/script/GameScene/Wall.js",
                             "searchKey":"Script,Wall",
                             "removeAble":true,
-                            "props":{"snakeRes":"@Prefab:res/sprite_snake1.prefab","scoreText":"@node:39","foodRes":"@Prefab:res/sprite_food1.prefab","controlPad":"@node:258","bulletRes":"@Prefab:res/bullet.prefab","btn_speedup":"@node:133","btn_ctrl_rocker_move":"@node:135","btn_ctrl_rocker":"@node:131","btn_ctrl":"@node:130"},
+                            "props":{"snakeRes":"@Prefab:res/sprite_snake1.prefab","scoreText":"@node:39","magnetRes":"@Prefab:res/items/magnet.prefab","foodRes":"@Prefab:res/sprite_food1.prefab","controlPad":"@node:258","bulletRes":"@Prefab:res/bullet.prefab","btn_speedup":"@node:133","btn_ctrl_rocker_move":"@node:135","btn_ctrl_rocker":"@node:131","btn_ctrl":"@node:130"},
                             "nodeParent":13,
                             "label":"Wall",
                             "isDirectory":false,
@@ -136,23 +100,21 @@
                             "child":[
                                 ]
                         }],
-                    "$HIDDEN":true
+                    "$HIDDEN":false
                 },
                 {
-                    "x":30,
                     "type":"Dialog",
                     "searchKey":"Dialog,view_score,scoreView",
                     "props":{"y":-270,"x":-480,"width":960,"visible":false,"var":"scoreView","texture":"images/s1-option-background.png","styleSkin":"comp/img_blank.png","sceneColor":"#894f4e","name":"view_score","height":540,"autoDestroyAtClosed":true},
                     "nodeParent":51,
                     "label":"view_score",
-                    "isOpen":true,
+                    "isOpen":false,
                     "isDirectory":true,
                     "isAniNode":true,
                     "hasChild":true,
                     "compId":94,
                     "child":[
                         {
-                            "x":45,
                             "type":"Text",
                             "searchKey":"Text,text_title",
                             "props":{"y":208,"x":372,"width":216,"valign":"top","text":"分数","name":"text_title","height":123,"fontSize":50,"color":"#9e5f5e","align":"center"},
@@ -166,7 +128,6 @@
                                 ]
                         },
                         {
-                            "x":45,
                             "type":"Label",
                             "searchKey":"Label,label_score",
                             "props":{"y":270,"x":444,"width":73,"text":"0","name":"label_score","height":27,"fontSize":20,"color":"#000000","align":"center"},
@@ -180,7 +141,6 @@
                                 ]
                         },
                         {
-                            "x":45,
                             "type":"Button",
                             "searchKey":"Button,btn_retry",
                             "props":{"y":307.5,"x":416,"skin":"comp/button.png","name":"btn_retry","labelSize":16,"label":"再试一次"},
@@ -194,7 +154,6 @@
                                 ]
                         },
                         {
-                            "x":45,
                             "type":"Button",
                             "searchKey":"Button,btn_return",
                             "props":{"y":373,"x":416,"skin":"comp/button.png","name":"btn_return","labelSize":16,"label":"返回"},
@@ -208,7 +167,6 @@
                                 ]
                         },
                         {
-                            "x":45,
                             "type":"Script",
                             "switchAble":true,
                             "source":"src/script/GameScene/GameOver.js",
@@ -227,7 +185,6 @@
                     "$HIDDEN":true
                 },
                 {
-                    "x":30,
                     "type":"Widget",
                     "switchAble":true,
                     "searchKey":"Widget",
@@ -258,9 +215,9 @@
             "compId":226,
             "child":[
                 {
-                    "type":"Text",
-                    "searchKey":"Text,text_score_tip",
-                    "props":{"zOrder":2,"y":0,"x":-276,"width":81,"text":"SCORE：","name":"text_score_tip","height":18,"color":"#000000"},
+                    "type":"Label",
+                    "searchKey":"Label,text_score_tip",
+                    "props":{"zOrder":2,"y":1,"width":42,"text":"得分:","name":"text_score_tip","left":-300,"height":17,"color":"#000000"},
                     "nodeParent":226,
                     "label":"text_score_tip",
                     "isOpen":false,
@@ -270,9 +227,9 @@
                     "compId":36,
                     "child":[
                         {
-                            "type":"Text",
-                            "searchKey":"Text,text_score,scoreText",
-                            "props":{"zOrder":2,"y":0,"x":53,"width":53,"var":"scoreText","name":"text_score","height":18,"color":"#000000"},
+                            "type":"Label",
+                            "searchKey":"Label,text_score,scoreText",
+                            "props":{"zOrder":2,"width":18,"var":"scoreText","valign":"middle","top":0,"text":"0","name":"text_score","left":30,"height":15,"font":"Microsoft YaHei","color":"#000000"},
                             "nodeParent":36,
                             "label":"text_score",
                             "isOpen":false,
@@ -280,6 +237,33 @@
                             "isAniNode":true,
                             "hasChild":false,
                             "compId":39,
+                            "child":[
+                                ]
+                        }]
+                },
+                {
+                    "type":"Label",
+                    "searchKey":"Label,text_kill_tip",
+                    "props":{"y":18,"text":"击杀:","name":"text_kill_tip","left":-300},
+                    "nodeParent":226,
+                    "label":"text_kill_tip",
+                    "isOpen":false,
+                    "isDirectory":true,
+                    "isAniNode":true,
+                    "hasChild":true,
+                    "compId":267,
+                    "child":[
+                        {
+                            "type":"Label",
+                            "searchKey":"Label,text_kill_num,killNumText",
+                            "props":{"width":22,"var":"killNumText","valign":"middle","top":0,"text":"0","name":"text_kill_num","left":30,"height":13,"font":"Microsoft YaHei"},
+                            "nodeParent":267,
+                            "label":"text_kill_num",
+                            "isOpen":false,
+                            "isDirectory":false,
+                            "isAniNode":true,
+                            "hasChild":false,
+                            "compId":268,
                             "child":[
                                 ]
                         }]
@@ -300,21 +284,21 @@
                         ]
                 },
                 {
-                    "type":"Text",
-                    "searchKey":"Text,food_tip",
-                    "props":{"y":2,"x":154,"text":"FOOD:","name":"food_tip"},
+                    "type":"Label",
+                    "searchKey":"Label,food_tip",
+                    "props":{"y":2,"x":154,"text":"食物:","name":"food_tip"},
                     "nodeParent":226,
                     "label":"food_tip",
-                    "isOpen":false,
+                    "isOpen":true,
                     "isDirectory":true,
                     "isAniNode":true,
                     "hasChild":true,
                     "compId":262,
                     "child":[
                         {
-                            "type":"Text",
-                            "searchKey":"Text,food_num,foodNumText",
-                            "props":{"y":0,"x":39,"width":86,"var":"foodNumText","text":"123","name":"food_num","height":12},
+                            "type":"Label",
+                            "searchKey":"Label,food_num,foodNumText",
+                            "props":{"width":86,"var":"foodNumText","valign":"middle","top":0,"text":"123","name":"food_num","left":30,"height":12,"font":"Microsoft YaHei"},
                             "nodeParent":262,
                             "label":"food_num",
                             "isDirectory":false,
@@ -459,6 +443,21 @@
             "isAniNode":true,
             "hasChild":false,
             "compId":223,
+            "child":[
+                ]
+        },
+        {
+            "x":15,
+            "type":"Panel",
+            "searchKey":"Panel,panel_status,statusPanel",
+            "props":{"y":50,"width":300,"var":"statusPanel","pivotY":50,"pivotX":194,"name":"panel_status","centerX":0,"bottom":0},
+            "nodeParent":2,
+            "label":"panel_status",
+            "isOpen":true,
+            "isDirectory":false,
+            "isAniNode":true,
+            "hasChild":false,
+            "compId":276,
             "child":[
                 ]
         }],

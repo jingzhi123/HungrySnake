@@ -64,16 +64,16 @@ export default class Snake extends BaseScript {
         this.pathArr=[]
 
         /**
-         * 攻击范围
+         * 吃食物范围
          */
-        this.attackScale = 50;
+        this.eatScale = 50;
 
         //初始身体大小
-        this.initBodySize = 0.7;
+        this.initBodySize = .7;
         /**
          * 当前身体缩放大小
          */
-        this.curBodySize = 0.7;
+        this.curBodySize = this.initBodySize;
         /**
          * 初始身体个数
          */
@@ -81,7 +81,7 @@ export default class Snake extends BaseScript {
         /**
          * 当前身体个数
          */
-        this.curBodyNum = 10;
+        this.curBodyNum = this.initBodyNum;
         /**
          * 最大身体比例大小
          */
@@ -95,11 +95,13 @@ export default class Snake extends BaseScript {
         /**
          * 体型变化程度
          */
-        this.bodyStep = 0.02;
+        this.bodyStep = 0.01;
 
         this.foodNumPerBody = 10;//几分一个身体
 
         this.score = 0;//玩家分数
+
+        this.killNum = 0;
 
         this.bodySpace = 10;//身体间距
 
@@ -162,6 +164,8 @@ export default class Snake extends BaseScript {
 
         this.speedObj = []
 
+        this.stopScale = false;
+
     }
 
     reverseRotation() {
@@ -174,7 +178,7 @@ export default class Snake extends BaseScript {
     initHp(){
         switch (this.type) {
             case 'normal':
-                this.hp = 1;
+                this.hp = 10;
                 break;
             default:
                 break;
@@ -190,10 +194,10 @@ export default class Snake extends BaseScript {
     onAwake(){
         super.onAwake()
 
-        this.initHp()
         this.initSkin()
 
 
+        this.collider = this.owner.getComponent(Laya.CircleCollider)
         this.cameraWidth = this.gameScene.width/2;
         this.wall = this.owner.parent;
         this.wallScript = this.wall.script;
@@ -204,11 +208,12 @@ export default class Snake extends BaseScript {
 
     onEnable(){
         this.dead = false;
+        this.initHp();
         this.curBodySize = this.initBodySize;
         this.scaleChange()
         this.onDead();
         this.pathArr = []
-        Laya.timer.frameLoop(.5,this,this.snakeLoop)
+        Laya.timer.loop(1,this,this.snakeLoop)
 
         this.snake.on('concat',this,(index)=>{
             console.log('concatafter:' + index);
@@ -261,7 +266,6 @@ export default class Snake extends BaseScript {
      */
     shoot(){
         let bullet = Laya.Pool.getItemByCreateFun('bullet',this.bulletRes.create,this.bulletRes)
-        bullet.snake = this.owner;
 
 
         let bulletScript = bullet.getComponent(Laya.Script)
@@ -310,11 +314,16 @@ export default class Snake extends BaseScript {
 
     onDead(){
         //监听死亡
-        this.owner.on('dead',this,(msg)=>{
-            console.log(msg)
+        this.owner.on('dead',this,(otherSnakeScript,msg)=>{
+
+            console.log(msg);
 
             this.hp = 0;//hp归零
             this.dead = true;
+
+            if(otherSnakeScript!=null){
+                otherSnakeScript.plusKillNum()
+            }
 
             //死亡的身体
             let deadBodys = [].concat(this.snakeBodyArr)
@@ -341,18 +350,13 @@ export default class Snake extends BaseScript {
 
     touchWall(){
         //碰到墙了
-        this.owner.event('dead','创强了!')
+        this.owner.event('dead',[null,'创强了!'])
     }
 
     /**
      * 蛇头移动
      */
     headMove(){
-        
-        if(this.dead){
-            return;
-        }
-
         this.owner.rotation = this.rotationTemp;
 
         if(this.speedMode){
@@ -373,28 +377,30 @@ export default class Snake extends BaseScript {
         // console.log(this.owner.x,this.owner.y,this.wall.width);
         if(this.owner.x + x + this.owner.width*this.curBodySize/2 < this.wall.width && this.owner.x + x >= this.owner.width*this.curBodySize/2){
             this.owner.x += x
+            pos.x = this.owner.x
         } else {
             this.touchWall()
         }
         if(this.owner.y + y + this.owner.height*this.curBodySize/2 < this.wall.height && this.owner.y + y >= this.owner.height*this.curBodySize/2){
             this.owner.y += y
+            pos.y = this.owner.y
         } else {
             this.touchWall()
         }
 
         
         for (let index = 1; index <= this.currentVelocity; index++) {
-            this.times++;
-            // console.log(this.times-this.lastTimes);
-            this.lastTimes = this.times;
-            if(this.snakeBodyArr.length){
-                this.pathArr.unshift({x:this.snake.x,y:this.snake.y,rotation:this.snake.rotation})
-            }
 
-            // this.pathArr.unshift({
-            //     x: index * Math.cos(Math.atan2(pos.y - posBefore.y, pos.x - posBefore.x)) + posBefore.x
-            //     , y: index * Math.sin(Math.atan2(pos.y - posBefore.y, pos.x - posBefore.x)) + posBefore.y
-            // })
+            // if(this.snakeBodyArr.length){
+            //     this.pathArr.unshift({x:this.snake.x,y:this.snake.y,rotation:this.snake.rotation})
+            // }
+
+            if(this.snakeBodyArr.length){
+                this.pathArr.unshift({
+                    x: index * Math.cos(Math.atan2(pos.y - posBefore.y, pos.x - posBefore.x)) + posBefore.x
+                    , y: index * Math.sin(Math.atan2(pos.y - posBefore.y, pos.x - posBefore.x)) + posBefore.y
+                })
+            }
         }
 
     }
@@ -434,7 +440,9 @@ export default class Snake extends BaseScript {
 
     stateCheck(){
         this.curBodyNum = this.snakeBodyArr.length;
-        this.attackScale = this.owner.width * this.curBodySize;
+        if(!this.stopScale){
+            this.eatScale = this.owner.width/2 * this.curBodySize + 3;
+        }
         this.bodySpace = this.owner.width * this.curBodySize;
     }
 
@@ -477,12 +485,13 @@ export default class Snake extends BaseScript {
                 // body.scale(this.curBodySize,this.curBodySize)
             }
         }
-        this.speedObj["rotation"] = 5 / this.curBodySize
+        this.speedObj["rotation"] = this.owner.width*this.curBodySize*.7
     }
 
     //大小检查
     scaleCheck(){
         this.owner.scale(this.curBodySize,this.curBodySize)
+        
         for(let i = 0;i<this.snakeBodyArr.length;i++){
             let body = this.snakeBodyArr[i];
             if(body.parent){
@@ -535,6 +544,7 @@ export default class Snake extends BaseScript {
                         
                         body.x = p.x;
                         body.y = p.y;
+                        body.visible = true;
 
                     } else {
                         Laya.Tween.to(body,{x:p.x,y:p.y},100,null,Laya.Handler.create(this,()=>{
@@ -584,7 +594,7 @@ export default class Snake extends BaseScript {
     dropFood(){
         let dropFoods = [].concat(this._tmpFoods)
         for(let i = 0;i<dropFoods.length;i++){
-            let offset = Math.random()*6;
+            let offset = Math.random()*this.owner.width*this.curBodySize;
             let food = dropFoods[i];
             food.x = this.owner.x + offset*GameUtils.randomSimbol();
             food.y = this.owner.y + offset*GameUtils.randomSimbol();
@@ -624,6 +634,7 @@ export default class Snake extends BaseScript {
     }
     
     onDisable() {
+        Laya.timer.clear(this, this.snakeLoop);
         this.dropFood()
         Laya.timer.once(1000,this,()=>{
             if(this.currentPlayer){
@@ -660,7 +671,7 @@ export default class Snake extends BaseScript {
     }
 
     /**
-     * 增加食物数量
+     * 改变食物数量
      * @param {食物数} foodNum 
      */
     changeFoodNum(foodNum){
@@ -691,6 +702,32 @@ export default class Snake extends BaseScript {
             foodNum?this.foodNum-=foodNum:this.foodNum--;
         } else {
             this.foodNum = 0;
+        }
+        if(this.currentPlayer){
+            this.gameScene.updateNums(this)
+        }
+    }
+    /**
+     * 增加击杀数量
+     * @param {击杀数} foodNum 
+     */
+    plusKillNum(killNum){
+        killNum?this.killNum+=killNum:this.killNum++;
+        if(this.currentPlayer){
+            this.gameScene.updateNums(this)
+        }
+    }
+
+    /**
+     * 减少击杀数量数值
+     * @param {击杀数量} killNum 
+     */
+    minusKillNum(killNum){
+
+        if(this.killNum>0){
+            killNum?this.killNum-=killNum:this.killNum--;
+        } else {
+            this.killNum = 0;
         }
         if(this.currentPlayer){
             this.gameScene.updateNums(this)

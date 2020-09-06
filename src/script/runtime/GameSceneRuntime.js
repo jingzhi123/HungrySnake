@@ -1,6 +1,7 @@
 import GameUtils from "../../common/GameUtils";
 import HttpUtils from "../../common/HttpUtils";
 import Global from "../../common/Global";
+import Player from "../../common/Player";
 
 export default class GameSceneRuntime extends Laya.Scene {
 
@@ -128,7 +129,7 @@ export default class GameSceneRuntime extends Laya.Scene {
      */
     saveScore(){
 
-        let param = {name:(Global.userInfo&&Global.userInfo.nickName)||this.playerScript.playerName,score:this.playerScript.score};
+        let param = {name:(Global.userInfo&&Global.userInfo.nickName)||Player.playerName,score:this.playerScript.score};
 
         new HttpUtils().post(`${Global.ctx}/common/snake_score/insert`,GameUtils.param(param),(data)=>{
             console.log(data);
@@ -190,6 +191,7 @@ export default class GameSceneRuntime extends Laya.Scene {
     initNums(){
         this.scoreText.text = 0;
         this.foodNumText.text = 0;
+        this.killNumText.text = 0;
     }
 
     /**
@@ -199,5 +201,6 @@ export default class GameSceneRuntime extends Laya.Scene {
     updateNums(snakeScript){
         this.scoreText.text = snakeScript.score;
         this.foodNumText.text = snakeScript.foodNum;
+        this.killNumText.text = snakeScript.killNum;
     }
 }
