@@ -1,6 +1,7 @@
 ﻿import GameConfig from "./GameConfig";
 import Global from "./common/Global";
 import HttpUtils from "./common/HttpUtils";
+import Player from "./common/Player";
 class Main {
 	constructor() {
 		//根据IDE设置初始化引擎		
@@ -51,6 +52,7 @@ function getToken(){
 		console.log(data);
 		Global.token = data;
 		new Main()
+		new Player(`${Global.ctx}/public/wxmini/guest`)
 	})
 }
 // new Main()

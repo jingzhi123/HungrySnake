@@ -4,7 +4,14 @@ export default class Item extends BaseScript {
 
     constructor() { 
         super(); 
+        /**
+         * 吃到道具的蛇
+         */
+        this.snake;
         this.eating = false;
+        /**
+         * 道具持续时间
+         */
         this.duration = 10000;
     }
     
@@ -15,9 +22,18 @@ export default class Item extends BaseScript {
     }
 
     onEaten(snake){
+        this.snake = snake;
         this.eating = true;
         this.effect(snake)
         this.owner.removeSelf()
+    }
+
+    /**
+     * 产生的效果
+     * @param {当前蛇} snake 
+     */
+    effect(snake){
+
     }
 
 

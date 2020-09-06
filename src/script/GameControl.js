@@ -51,6 +51,7 @@ export default class GameControl extends BaseScript {
             if (res.userInfo) {
                 Global.userInfo = res.userInfo;
                 Global.userInfo.openid = openid;
+                Player.instance.userInfo = Global.userInfo;
                 console.log(Global.userInfo)
                 let param = JSON.parse(JSON.stringify(Global.userInfo))
                 param.rawdata = JSON.stringify(Global.userInfo);
@@ -149,7 +150,7 @@ export default class GameControl extends BaseScript {
 
 
         } else {
-            this.nicknameLabel.text = Player.playerName;
+            this.nicknameLabel.text = Player.instance.playerName;
         }
     }
 

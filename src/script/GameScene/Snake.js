@@ -2,6 +2,7 @@ import BaseScript from "../BaseScript";
 import Global from "../../common/Global";
 import GameSceneRuntime from "../runtime/GameSceneRuntime";
 import GameUtils from "../../common/GameUtils";
+import Player from "../../common/Player";
 
 export default class Snake extends BaseScript {
 
@@ -585,7 +586,6 @@ export default class Snake extends BaseScript {
         this.snakeBodyArr.push(snakeBody)
         this.wall.addChild(snakeBody)
         Laya.Tween.from(snakeBody,{scaleX:0,scaleY:0},100,Laya.Ease.strongIn)
-
     }
 
     /**

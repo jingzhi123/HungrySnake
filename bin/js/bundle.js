@@ -132,8 +132,8 @@
 
    const BGM_PATH='sound/bgm.mp3',SNAKE_PREFAB_PATH='res/sprite_snake1.prefab',SNAKEBODY_PREFAB_PATH='res/sprite_snakebody1.prefab',FOOD_PREFAB_PATH='res/sprite_food1.prefab';
    const MAP_PATH='images/s1-bg.png';
-   // const ctx = 'http://localhost:8888'
-   const ctx = 'http://132.232.4.180:8888';
+   const ctx = 'http://localhost:8888';
+   // const ctx = 'http://132.232.4.180:8888'
    let resourceMap = {};
    let userInfo = {};
    class Global{
@@ -200,10 +200,68 @@
 
    }
 
-   var Player = {
-       playerName:'游客',
+   class Player{
+
        
-   };
+       constructor(initUrl){
+           /**
+            * 初始化地址
+            */
+           this.initUrl = initUrl;
+           /**
+            * 用户信息
+            */
+           this.userInfo;
+           /**
+            * 玩家游戏昵称
+            */
+           this.playerName = '';
+
+           /**
+            * 玩家等级
+            */
+           this.level;
+
+           /**
+            * 头像地址
+            */
+           this.avatarUrl;
+
+           /**
+            * 玩家拥有道具
+            */
+           this.items = [];
+
+           /**
+            * 初始金币
+            */
+           this.goldNum = 0;
+
+           /**
+            * 游戏记录
+            */
+           this.recordList = [];
+
+           /**
+            * 好友列表
+            */
+           this.friendList = [];
+
+           this.http = new HttpUtils();
+           Player.instance = this;
+
+           this.init();
+       }
+
+       init(){
+           let _this = this;
+           this.http.get(this.initUrl,(data)=>{
+               console.log(data);
+               data = JSON.parse(data);
+               _this.playerName = data.nickName;
+           });
+       }
+   }
 
    class GameSceneRuntime extends Laya.Scene {
 
@@ -870,6 +928,7 @@
                if (res.userInfo) {
                    Global.userInfo = res.userInfo;
                    Global.userInfo.openid = openid;
+                   Player.instance.userInfo = Global.userInfo;
                    console.log(Global.userInfo);
                    let param = JSON.parse(JSON.stringify(Global.userInfo));
                    param.rawdata = JSON.stringify(Global.userInfo);
@@ -968,7 +1027,7 @@
 
 
            } else {
-               this.nicknameLabel.text = Player.playerName;
+               this.nicknameLabel.text = Player.instance.playerName;
            }
        }
 
@@ -1361,7 +1420,14 @@
 
        constructor() { 
            super(); 
+           /**
+            * 吃到道具的蛇
+            */
+           this.snake;
            this.eating = false;
+           /**
+            * 道具持续时间
+            */
            this.duration = 10000;
        }
        
@@ -1372,9 +1438,18 @@
        }
 
        onEaten(snake){
+           this.snake = snake;
            this.eating = true;
            this.effect(snake);
            this.owner.removeSelf();
+       }
+
+       /**
+        * 产生的效果
+        * @param {当前蛇} snake 
+        */
+       effect(snake){
+
        }
 
 
@@ -1407,35 +1482,60 @@
            super(); 
            this.name = '吸铁石';
 
+
            this.wallScript;
 
            /**
             * 状态
             */
            this.status;
+
+           /**
+            * 倒计时数字
+            */
+           this.durationLabel;
            
            this.statusImg = 'images/magnet.png';
        }
 
+       
        effect(snake){
-           
            snake.script.eatScale = 100;
            snake.script.stopScale = true;
-           Laya.timer.once(this.duration,this,()=>{
-               snake.script.stopScale = false;
-               this.status.destroy();
-           });
+           Laya.timer.loop(1000,this,this.minusTime);
        }
        
        onEnable() {
        }
 
-       onDisable() {
-           Laya.Pool.recover('magnet',this.owner);
+       minusTime(){
+           this.duration-=1000;
+           this.durationLabel.text = Number(this.duration/1000);
+           if(this.duration<=0){
+               Laya.timer.clear(this,this.minusTime);
+               this.snake.script.stopScale = false;
+               this.status.destroy();
+           }
+       }
+
+       /**
+        * 显示倒计时
+        */
+       countDownIcon(){
            this.status = new Laya.Image('images/magnet.png');
+           this.durationLabel = new Laya.Label();
+           this.durationLabel.centerX = 0;
+           this.durationLabel.centerY = 0;
+           this.durationLabel.text = Number(this.duration/1000);
            this.status.width = 20;
            this.status.height = 20;
+           this.status.addChild(this.durationLabel);
            this.gameScene.statusPanel.addChild(this.status);
+       }
+
+       onDisable() {
+           Laya.Pool.recover('magnet',this.owner);
+           this.countDownIcon();
        }
    }
 
@@ -2112,7 +2212,6 @@
            this.snakeBodyArr.push(snakeBody);
            this.wall.addChild(snakeBody);
            Laya.Tween.from(snakeBody,{scaleX:0,scaleY:0},100,Laya.Ease.strongIn);
-
        }
 
        /**
@@ -2438,7 +2537,7 @@
    GameConfig.screenMode = "horizontal";
    GameConfig.alignV = "middle";
    GameConfig.alignH = "center";
-   GameConfig.startScene = "gameScene.scene";
+   GameConfig.startScene = "init.scene";
    GameConfig.sceneRoot = "";
    GameConfig.debug = false;
    GameConfig.stat = false;
@@ -2497,6 +2596,7 @@
    		console.log(data);
    		Global.token = data;
    		new Main();
+   		new Player(`${Global.ctx}/public/wxmini/guest`);
    	});
    }
    // new Main()
