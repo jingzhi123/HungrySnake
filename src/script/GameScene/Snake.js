@@ -594,7 +594,7 @@ export default class Snake extends BaseScript {
     dropFood(){
         let dropFoods = [].concat(this._tmpFoods)
         for(let i = 0;i<dropFoods.length;i++){
-            let offset = Math.random()*this.owner.width*this.curBodySize;
+            let offset = Math.random()*this.owner.width/2*this.curBodySize;
             let food = dropFoods[i];
             food.x = this.owner.x + offset*GameUtils.randomSimbol();
             food.y = this.owner.y + offset*GameUtils.randomSimbol();

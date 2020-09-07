@@ -133,7 +133,7 @@ export default class SnakeBody extends BaseScript {
         console.log('掉落了:'+this.foods.length);
         
         for(let i = 0;i<this.foods.length;i++){
-            let offset = Math.random()*this.owner.width*this.snakeScript.curBodySize;
+            let offset = Math.random()*this.owner.width/2*this.snakeScript.curBodySize;
             let food = this.foods[i];
             food.x = this.owner.x + offset*GameUtils.randomSimbol();
             food.y = this.owner.y + offset*GameUtils.randomSimbol();

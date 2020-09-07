@@ -47,6 +47,11 @@ export default class Player{
          */
         this.friendList = []
 
+        /**
+         * 玩家游戏角色
+         */
+        this.character;
+
         this.http = new HttpUtils()
         Player.instance = this;
 

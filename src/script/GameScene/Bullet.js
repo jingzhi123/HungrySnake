@@ -1,6 +1,7 @@
 import BaseScript from "../BaseScript";
+import Player from "../../common/Player";
 
-export default class Bullet extends BaseScript {
+export default class Bullet extends BaseScript{
 
     constructor() { 
         super(); 
@@ -54,6 +55,10 @@ export default class Bullet extends BaseScript {
         this.owner.loadImage("images/body" + this.snakeScript.colorNum + ".png", 0, 0, 0, 0, Laya.Handler.create(this,()=>{
             console.log('loaded');
         }))
+    }
+
+    onTrigger(snake){
+        console.log(snake.script.index + '碰到');
     }
 
     onTriggerEnter(other,self){
@@ -137,6 +142,12 @@ export default class Bullet extends BaseScript {
         this.rotation = this.snake.rotation;
         this.scaleCheck();
         this.owner.visible = true;
+
+        let x = this.velocity*Math.cos(this.rotation * Math.PI / 180)
+        let y = this.velocity*Math.sin(this.rotation * Math.PI / 180)
+        // this.owner.x +=x;
+        // this.owner.y +=y;
+        // this.rigid.setVelocity({x:x,y:y})
     }
 
     onDisable() {

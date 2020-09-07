@@ -1,7 +1,7 @@
 const BGM_PATH='sound/bgm.mp3',SNAKE_PREFAB_PATH='res/sprite_snake1.prefab',SNAKEBODY_PREFAB_PATH='res/sprite_snakebody1.prefab',FOOD_PREFAB_PATH='res/sprite_food1.prefab'
 const MAP_PATH='images/s1-bg.png'
-const ctx = 'http://localhost:8888'
-// const ctx = 'http://132.232.4.180:8888'
+// const ctx = 'http://localhost:8888'
+const ctx = 'http://132.232.4.180:8888'
 let resourceMap = {}
 let userInfo = {}
 export default class Global{

@@ -2,6 +2,7 @@ import BaseScript from "../BaseScript";
 import GameUtils from "../../common/GameUtils";
 import Global from "../../common/Global";
 import GameConfig from "../../GameConfig";
+import Player from "../../common/Player";
 
 export default class Wall extends BaseScript {
 
@@ -172,8 +173,11 @@ export default class Wall extends BaseScript {
         // this.owner.y = -1 * (this.gameScene.playerSnake.y + this.gameScene.playerSnake.height / 2 - this.owner.height / 2) * mapScale + this.owner.height / 2
 
         //固定视角
-        this.owner.x = -(this.gameScene.playerSnake.x-this.owner.width / 2)// * mapScale
-        this.owner.y = -(this.gameScene.playerSnake.y-this.owner.height / 2)// * mapScale
+        let x = -(this.gameScene.playerSnake.x-this.owner.width / 2)// * mapScale;
+        let y = -(this.gameScene.playerSnake.y-this.owner.height / 2)// * mapScale
+
+        this.owner.x = x
+        this.owner.y = y
 
         // this.owner.x = -1300
         // this.owner.y = -700
@@ -283,6 +287,7 @@ export default class Wall extends BaseScript {
         this.addPlayerSnake(playerSnake)
         this.playerComplete(playerSnake)
         this.snakeMap[0] = playerSnake;
+        Player.instance.character = playerSnake;
         
     }
 
